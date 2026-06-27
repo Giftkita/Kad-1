@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Kad Hari Jadi 🎂 Pilih Tema — GiftKita</title>
+<meta name="description" content="Pilih tema kad hari jadi digital ko — Scrapbook, Flora, Galaxy & lebih. Setiap tema ada design tersendiri.">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#e91e63;--deep:#c2185b;--soft:#fff5f9;--line:#ffe0ec;--ink:#3a2330}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;color:var(--ink);background:radial-gradient(ellipse 90% 60% at 50% 0%,#ffe3ee,#fff5f9 60%);min-height:100vh}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:920px;margin:0 auto;padding:0 18px}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-family:'Dancing Script',cursive;font-weight:700;font-size:1.6rem;background:linear-gradient(135deg,var(--pink),var(--deep));-webkit-background-clip:text;background-clip:text;color:transparent}
+.back{font-size:.82rem;color:var(--deep);font-weight:600;display:flex;align-items:center;gap:5px}
+
+/* HEAD */
+.head{text-align:center;padding:40px 0 26px}
+.crumb{font-size:.74rem;letter-spacing:.04em;color:#b07d92;margin-bottom:14px}
+.crumb b{color:var(--deep)}
+.head h1{font-size:clamp(1.7rem,6vw,2.6rem);font-weight:700;letter-spacing:-.02em;margin-bottom:8px}
+.head h1 .em{font-family:'Dancing Script',cursive;color:var(--pink);font-weight:700}
+.head p{color:#7a5666;font-size:.92rem;max-width:440px;margin:0 auto}
+
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px;padding-bottom:60px}
+.tema{position:relative;border-radius:20px;overflow:hidden;background:#fff;border:1.5px solid var(--line);
+  transition:.25s;cursor:pointer;display:block}
+.tema:hover{transform:translateY(-4px);box-shadow:0 18px 40px rgba(233,30,99,.18);border-color:var(--pink)}
+.tema .prev{height:130px;position:relative;display:flex;align-items:center;justify-content:center;font-size:2.6rem;overflow:hidden}
+.tema .meta{padding:12px 14px 14px}
+.tema h3{font-size:.95rem;font-weight:600;margin-bottom:2px}
+.tema span{font-size:.74rem;color:#a07}
+.badge{position:absolute;top:10px;right:10px;font-size:.58rem;font-weight:700;letter-spacing:.04em;padding:4px 9px;border-radius:50px;z-index:2}
+.badge.live{background:#e8f7ee;color:#1a9e54}
+.badge.soon{background:#fff3e0;color:#c77d00}
+.tema.soon{opacity:.7;cursor:default;pointer-events:none}
+
+/* theme preview backgrounds */
+.p-pink{background:linear-gradient(160deg,#3d0d2e,#7a1453,#b71c6a)}
+.p-galaxy{background:linear-gradient(160deg,#1a0a2e,#3d1166,#6a1b9a)}
+.p-maroon{background:linear-gradient(160deg,#3a0810,#7b1e2b,#b71c1c)}
+.p-ocean{background:linear-gradient(160deg,#012a4a,#01579b,#0288d1)}
+.p-gold{background:linear-gradient(160deg,#2b2008,#6b5318,#aa771c)}
+.p-scrap{background:#e3a9bd;background-image:repeating-linear-gradient(45deg,rgba(176,58,91,.25),rgba(176,58,91,.25) 8px,transparent 8px,transparent 16px)}
+.p-flora{background:linear-gradient(160deg,#dff3e3,#a8d5b5,#6fae84)}
+.p-kawaii{background:linear-gradient(160deg,#fff0f5,#ffd6e8,#ffb3d1)}
+.p-dark{background:linear-gradient(160deg,#0a0a12,#1a1a2e,#2d2d44)}
+.glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.25),transparent 60%);pointer-events:none}
+
+footer{text-align:center;padding:24px;color:#b07d92;font-size:.74rem;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in">
+  <a href="index.html" class="logo">GiftKita</a>
+  <a href="index.html" class="back">‹ Kembali</a>
+</div></nav>
+
+<div class="wrap">
+  <div class="head">
+    <div class="crumb">GiftKita › <b>Kad Hari Jadi</b></div>
+    <h1>Pilih <span class="em">tema</span> kad 🎂</h1>
+    <p>Setiap tema ada design tersendiri. Pilih satu, lepas tu isi maklumat & jana link.</p>
+  </div>
+
+  <div class="grid" id="grid"></div>
+</div>
+
+<footer>Setiap tema → masuk form → jana link kad cantik 💝</footer>
+
+<script>
+/* Senarai tema. live:true = boleh diklik (masuk form dgn tema terkunci).
+   soon = "Akan Datang" (design belum siap). */
+const TEMA = [
+  {id:'scrapbook', name:'Scrapbook',      sub:'Aesthetic',   prev:'p-scrap',  emoji:'📖', live:true},
+  {id:'pink',      name:'Pink Romantik',  sub:'Romantic',    prev:'p-pink',   emoji:'💖', live:true},
+  {id:'galaxy',    name:'Ungu Galaxy',    sub:'Dreamy',      prev:'p-galaxy', emoji:'🌌', live:true},
+  {id:'ocean',     name:'Biru Ocean',     sub:'Calm',        prev:'p-ocean',  emoji:'🌊', live:true},
+  {id:'maroon',    name:'Merah Maroon',   sub:'Bold',        prev:'p-maroon', emoji:'🌹', live:true},
+  {id:'gold',      name:'Emas Mewah',     sub:'Luxury',      prev:'p-gold',   emoji:'✨', live:true},
+  {id:'flora',     name:'Flora',          sub:'Floral',      prev:'p-flora',  emoji:'🌷', live:false},
+  {id:'kawaii',    name:'Kawaii Cat',     sub:'Cute',        prev:'p-kawaii', emoji:'🐱', live:false},
+  {id:'dark',      name:'Dark Hero',      sub:'Action',      prev:'p-dark',   emoji:'🦸', live:false},
+];
+
+/* bawa ?ref= (kod affiliate) supaya ikut ke form */
+const ref = new URLSearchParams(location.search).get('ref');
+const refQ = ref ? ('&ref=' + encodeURIComponent(ref)) : '';
+
+const grid = document.getElementById('grid');
+TEMA.forEach(t=>{
+  const el = document.createElement(t.live ? 'a' : 'div');
+  el.className = 'tema' + (t.live ? '' : ' soon');
+  if(t.live) el.href = `buat-kad.html?tema=${t.id}${refQ}`;
+  el.innerHTML = `
+    <span class="badge ${t.live?'live':'soon'}">${t.live?'TERSEDIA':'AKAN DATANG'}</span>
+    <div class="prev ${t.prev}">${t.emoji}<div class="glow"></div></div>
+    <div class="meta"><h3>${t.name}</h3><span>${t.sub}</span></div>`;
+  grid.appendChild(el);
+});
+</script>
+</body>
+</html>
