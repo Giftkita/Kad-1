@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>GiftKita 💝 Kad Ucapan Digital Interaktif</title>
+<meta name="description" content="Buat kad ucapan digital interaktif yang cantik — penuh animasi, muzik & kenangan. Hantar link kepada orang tersayang. Sesuai untuk hari jadi, anniversary, Raya & lebih.">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Dancing+Script:wght@600;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --pink:#e91e63; --pink2:#f06292; --deep:#c2185b;
+  --ink:#3a2330; --soft:#fff5f9; --line:#ffe0ec;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Poppins',sans-serif;color:var(--ink);background:#fff;line-height:1.6;overflow-x:hidden}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+.btn{display:inline-flex;align-items:center;gap:.5rem;border:none;cursor:pointer;font-family:inherit;
+  font-weight:600;font-size:.92rem;padding:14px 28px;border-radius:50px;transition:.25s}
+.btn-main{background:linear-gradient(135deg,var(--pink),var(--deep));color:#fff;box-shadow:0 8px 24px rgba(233,30,99,.32)}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(233,30,99,.42)}
+.btn-ghost{background:#fff;color:var(--deep);border:1.5px solid var(--line)}
+.btn-ghost:hover{background:var(--soft)}
+.btn-wa{background:#25d366;color:#fff;box-shadow:0 8px 24px rgba(37,211,102,.3)}
+.btn-wa:hover{transform:translateY(-2px)}
+
+/* NAV */
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:62px}
+.logo{font-family:'Dancing Script',cursive;font-weight:700;font-size:1.7rem;
+  background:linear-gradient(135deg,var(--pink),var(--deep));-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav-cta{font-size:.82rem;padding:10px 20px}
+
+/* HERO */
+.hero{position:relative;text-align:center;padding:64px 0 56px;overflow:hidden;
+  background:radial-gradient(ellipse 90% 70% at 50% 0%,#ffe3ee,#fff 70%)}
+.hero-float{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hf{position:absolute;font-size:1.5rem;opacity:.5;animation:floaty linear infinite}
+@keyframes floaty{0%{transform:translateY(110vh) rotate(0);opacity:0}10%{opacity:.5}100%{transform:translateY(-20vh) rotate(360deg);opacity:0}}
+.pill{display:inline-block;font-size:.72rem;font-weight:600;letter-spacing:.04em;color:var(--deep);
+  background:#fff;border:1px solid var(--line);padding:7px 16px;border-radius:50px;margin-bottom:22px;box-shadow:0 4px 14px rgba(233,30,99,.08)}
+.hero h1{font-size:clamp(2rem,7vw,3.4rem);line-height:1.12;font-weight:700;letter-spacing:-.02em;margin-bottom:16px}
+.hero h1 em{font-family:'Playfair Display',serif;color:var(--pink)}
+.hero p{max-width:520px;margin:0 auto 30px;color:#7a5666;font-size:clamp(.92rem,2.6vw,1.08rem)}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.hero-note{margin-top:18px;font-size:.78rem;color:#b08;opacity:.7}
+
+/* SECTION */
+section{padding:56px 0}
+.sec-head{text-align:center;max-width:560px;margin:0 auto 38px}
+.sec-head .kicker{font-size:.74rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--pink)}
+.sec-head h2{font-size:clamp(1.5rem,5vw,2.2rem);font-weight:700;margin:8px 0 10px;letter-spacing:-.01em}
+.sec-head p{color:#7a5666;font-size:.95rem}
+
+/* CARD GRID (gifft.me style) */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:16px}
+.card{position:relative;background:#fff;border:1.5px solid var(--line);border-radius:20px;
+  padding:26px 16px 20px;text-align:center;transition:.25s;cursor:pointer;overflow:hidden}
+.card:hover{transform:translateY(-4px);border-color:var(--pink2);box-shadow:0 16px 36px rgba(233,30,99,.16)}
+.card .ico{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:2rem;background:linear-gradient(135deg,#fff0f5,#ffe0ec)}
+.card h3{font-size:.95rem;font-weight:600;margin-bottom:3px}
+.card span{font-size:.74rem;color:#a07}
+.badge{position:absolute;top:10px;right:10px;font-size:.6rem;font-weight:700;letter-spacing:.04em;
+  padding:4px 9px;border-radius:50px}
+.badge.live{background:#e8f7ee;color:#1a9e54}
+.badge.soon{background:#fff3e0;color:#c77d00}
+.card.soon{opacity:.72;cursor:default}
+.card.soon:hover{transform:none;box-shadow:none;border-color:var(--line)}
+
+/* STEPS */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px}
+.step{text-align:center;padding:24px 18px;background:var(--soft);border-radius:20px}
+.step .n{width:42px;height:42px;margin:0 auto 14px;border-radius:50%;font-weight:700;color:#fff;
+  background:linear-gradient(135deg,var(--pink),var(--deep));display:flex;align-items:center;justify-content:center}
+.step h3{font-size:1rem;margin-bottom:6px}
+.step p{font-size:.85rem;color:#7a5666}
+
+/* PRICE */
+.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;max-width:680px;margin:0 auto}
+.plan{border:1.5px solid var(--line);border-radius:22px;padding:28px 24px;text-align:center;background:#fff;transition:.25s}
+.plan.feat{border-color:var(--pink);box-shadow:0 16px 40px rgba(233,30,99,.16);position:relative}
+.plan.feat::before{content:'PALING POPULAR';position:absolute;top:-11px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--pink),var(--deep));color:#fff;font-size:.6rem;font-weight:700;letter-spacing:.08em;padding:5px 14px;border-radius:50px}
+.plan h3{font-size:1.1rem;margin-bottom:6px}
+.plan .amt{font-size:2.2rem;font-weight:700;color:var(--deep);margin:6px 0}
+.plan .amt small{font-size:.8rem;color:#a07;font-weight:500}
+.plan ul{list-style:none;margin:16px 0 22px;text-align:left;font-size:.85rem;color:#6a4a58}
+.plan li{padding:6px 0;display:flex;gap:8px}
+.plan li::before{content:'💖';font-size:.8rem}
+
+/* ABOUT */
+.about{background:linear-gradient(135deg,#fff0f5,#ffe6ef);border-radius:28px;padding:44px 28px;text-align:center}
+.about h2{font-family:'Dancing Script',cursive;font-size:clamp(1.8rem,6vw,2.6rem);color:var(--deep);margin-bottom:14px}
+.about p{max-width:560px;margin:0 auto 10px;color:#6a4a58;font-size:.95rem}
+
+/* FAQ */
+.faq{max-width:680px;margin:0 auto}
+details{border:1.5px solid var(--line);border-radius:16px;padding:4px 18px;margin-bottom:12px;background:#fff;transition:.2s}
+details[open]{border-color:var(--pink2);background:var(--soft)}
+summary{font-weight:600;font-size:.92rem;padding:14px 0;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'+';font-size:1.3rem;color:var(--pink);transition:.2s}
+details[open] summary::after{transform:rotate(45deg)}
+details p{padding:0 0 16px;font-size:.86rem;color:#7a5666}
+
+/* FOOTER */
+footer{background:#2a1620;color:#f3d7e2;padding:46px 0 28px;text-align:center}
+footer .logo{font-size:2rem;margin-bottom:10px}
+footer p{font-size:.82rem;opacity:.7;margin-bottom:18px}
+.socials{display:flex;gap:14px;justify-content:center;margin-bottom:24px;flex-wrap:wrap}
+.socials a{width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:1.1rem;transition:.2s}
+.socials a:hover{background:var(--pink);transform:translateY(-3px)}
+.copy{font-size:.72rem;opacity:.5;border-top:1px solid rgba(255,255,255,.1);padding-top:18px}
+
+/* sticky mobile CTA */
+.mob-cta{position:fixed;bottom:0;left:0;right:0;z-index:60;background:rgba(255,255,255,.95);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);padding:12px 16px;display:none;gap:10px}
+.mob-cta .btn{flex:1;justify-content:center;padding:13px}
+@media(max-width:560px){.mob-cta{display:flex}footer{padding-bottom:90px}}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in">
+  <div class="logo">GiftKita</div>
+  <a href="buat-kad.html" class="btn btn-main nav-cta">Buat Kad ✨</a>
+</div></nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-float" id="float"></div>
+  <div class="wrap">
+    <span class="pill">💝 Kad ucapan digital interaktif</span>
+    <h1>Buat dia rasa <em>istimewa</em><br>dengan satu link 💌</h1>
+    <p>Kad digital penuh animasi, muzik & kenangan — sampul surat terbuka, slide gambar, countdown, kotak hadiah & confetti. Hantar terus melalui WhatsApp.</p>
+    <div class="hero-btns">
+      <a href="buat-kad.html" class="btn btn-main">💖 Buat Kad Sekarang</a>
+      <a id="demo-btn" href="#" class="btn btn-ghost" target="_blank">👀 Tengok Contoh</a>
+    </div>
+    <p class="hero-note">Tiada app perlu dimuat turun · Terus buka dalam browser</p>
+  </div>
+</header>
+
+<!-- CARD TYPES -->
+<section id="kad">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Pilih Kad</div>
+      <h2>Satu kad untuk setiap momen</h2>
+      <p>Pilih jenis kad, customize ikut suka, dan jana link dalam beberapa klik.</p>
+    </div>
+    <div class="grid" id="card-grid"></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section style="background:var(--soft)">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Mudah je</div>
+      <h2>3 langkah, siap</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Pilih & Isi</h3><p>Pilih tema, taip ucapan, upload gambar & pilih lagu kegemaran.</p></div>
+      <div class="step"><div class="n">2</div><h3>Jana Link</h3><p>Tekan satu butang — kad cantik ko siap dengan link sendiri.</p></div>
+      <div class="step"><div class="n">3</div><h3>Hantar</h3><p>Share link melalui WhatsApp. Dia buka & terus terkejut 🥹</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICE -->
+<section id="harga">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="kicker">Harga</div>
+      <h2>Berpatutan, berbaloi</h2>
+      <p>Bayar sekali, kad kekal hidup. Tukar harga ikut pakej ko sendiri.</p>
+    </div>
+    <div class="price-grid">
+      <div class="plan">
+        <h3>Basic</h3>
+        <div class="amt">RM8<small>/kad</small></div>
+        <ul>
+          <li>Semua tema warna</li>
+          <li>Muzik YouTube</li>
+          <li>Slide ucapan & gambar</li>
+          <li>Link kekal</li>
+        </ul>
+        <a id="order-basic" class="btn btn-wa" href="#" target="_blank">💬 Order via WhatsApp</a>
+      </div>
+      <div class="plan feat">
+        <h3>Premium</h3>
+        <div class="amt">RM15<small>/kad</small></div>
+        <ul>
+          <li>Semua dalam Basic</li>
+          <li>Upload lagu MP3 sendiri</li>
+          <li>Tema Scrapbook Aesthetic</li>
+          <li>Countdown + kotak hadiah</li>
+          <li>Keutamaan siap cepat</li>
+        </ul>
+        <a id="order-premium" class="btn btn-main" href="#" target="_blank">💖 Order Premium</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section>
+  <div class="wrap">
+    <div class="about">
+      <h2>Hadiah yang menyentuh hati ❤️</h2>
+      <p>GiftKita lahir untuk bantu orang Malaysia luahkan rasa sayang dengan cara yang lebih bermakna. Bukan sekadar mesej — tapi kenangan yang dibungkus cantik, penuh perasaan.</p>
+      <p>Setiap kad dibuat dengan sepenuh hati, sesuai untuk orang yang paling istimewa dalam hidup ko. 🌸</p>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section style="background:var(--soft)">
+  <div class="wrap">
+    <div class="sec-head"><div class="kicker">Soalan Lazim</div><h2>Nak tahu lagi?</h2></div>
+    <div class="faq">
+      <details open><summary>Apa itu kad digital GiftKita?</summary><p>Ia kad ucapan interaktif dalam bentuk link. Bila dibuka, ada animasi sampul surat, slide gambar, muzik, kotak hadiah & confetti — semua dalam browser, tanpa perlu app.</p></details>
+      <details><summary>Macam mana saya hantar kepada penerima?</summary><p>Ko cuma copy link kad & hantar melalui WhatsApp, Telegram, IG — mana-mana. Penerima tekan link, terus terbuka di phone mereka.</p></details>
+      <details><summary>Boleh tukar lagu & gambar?</summary><p>Boleh! Ko boleh letak lagu YouTube atau upload MP3 sendiri (pakej Premium), dan masukkan gambar kenangan ko sendiri.</p></details>
+      <details><summary>Link kad kekal selamanya?</summary><p>Ya, link kekal hidup selagi tidak dipadam. Penerima boleh buka & tengok semula bila-bila masa.</p></details>
+      <details><summary>Macam mana nak order?</summary><p>Tekan butang "Order via WhatsApp", bagitahu butiran kad ko, buat pembayaran, dan kami siapkan link kad untuk ko. Mudah & cepat! 💕</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="logo">GiftKita</div>
+    <p>Kad ucapan digital yang buat orang tersayang tersenyum 💝</p>
+    <div class="socials">
+      <a id="f-tiktok" href="#" target="_blank" title="TikTok">🎵</a>
+      <a id="f-ig" href="#" target="_blank" title="Instagram">📸</a>
+      <a id="f-wa" href="#" target="_blank" title="WhatsApp">💬</a>
+    </div>
+    <div class="copy">© 2026 GiftKita · Dibuat dengan ❤️ di Malaysia</div>
+  </div>
+</footer>
+
+<!-- sticky mobile CTA -->
+<div class="mob-cta">
+  <a id="m-order" href="#" class="btn btn-wa" target="_blank">💬 Order</a>
+  <a href="buat-kad.html" class="btn btn-main">✨ Buat Kad</a>
+</div>
+
+<script>
+/* ════════ SETTING — TUKAR IKUT KO ════════ */
+const CONFIG = {
+  whatsapp: '60123456789',                                  // ⚠️ tukar no WhatsApp ko (format: 60xxxxxxxxx)
+  demo:     'card-befday-1.html?id=7db5c858-f6bd-463f-8f8b-dc79fb20f82b', // contoh kad live ko
+  tiktok:   'https://www.tiktok.com/@giftkita',             // tukar handle
+  instagram:'https://www.instagram.com/giftkita'            // tukar handle
+};
+
+/* jenis kad — yang 'live' boleh diklik ke builder, 'soon' = akan datang */
+const CARDS = [
+  {emoji:'🎂', name:'Hari Jadi',     sub:'Birthday',     live:true,  url:'kad-harijadi.html'},
+  {emoji:'💑', name:'Anniversary',   sub:'Ulang tahun',  live:false},
+  {emoji:'💌', name:'Cinta',         sub:'Love letter',  live:false},
+  {emoji:'🌙', name:'Raya',          sub:'Eid Mubarak',  live:false},
+  {emoji:'💍', name:'Pernikahan',    sub:'Wedding',      live:false},
+  {emoji:'🎓', name:'Graduasi',      sub:'Convo',        live:false},
+  {emoji:'🥺', name:'Maaf',          sub:'Sorry',        live:false},
+  {emoji:'🌸', name:'Terima Kasih',  sub:'Thank you',    live:false},
+];
+
+/* build links */
+const wa = (msg) => `https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
+document.getElementById('demo-btn').href     = CONFIG.demo;
+document.getElementById('order-basic').href  = wa('Hai GiftKita 💕 saya nak order kad *Basic (RM8)*. Boleh bantu?');
+document.getElementById('order-premium').href= wa('Hai GiftKita 💖 saya nak order kad *Premium (RM15)*. Boleh bantu?');
+document.getElementById('m-order').href      = wa('Hai GiftKita 💕 saya nak order kad. Boleh bantu?');
+document.getElementById('f-wa').href         = wa('Hai GiftKita 👋');
+document.getElementById('f-tiktok').href     = CONFIG.tiktok;
+document.getElementById('f-ig').href         = CONFIG.instagram;
+
+/* render card grid */
+const grid = document.getElementById('card-grid');
+CARDS.forEach(c=>{
+  const el = document.createElement(c.live ? 'a' : 'div');
+  el.className = 'card' + (c.live ? '' : ' soon');
+  if(c.live) el.href = c.url;
+  el.innerHTML = `
+    <span class="badge ${c.live?'live':'soon'}">${c.live?'TERSEDIA':'AKAN DATANG'}</span>
+    <div class="ico">${c.emoji}</div>
+    <h3>${c.name}</h3>
+    <span>${c.sub}</span>`;
+  grid.appendChild(el);
+});
+
+/* floating hearts in hero */
+const fl = document.getElementById('float');
+const hearts = ['💝','💕','🌸','✨','💗','🎀'];
+for(let i=0;i<12;i++){
+  const h=document.createElement('div');h.className='hf';
+  h.textContent=hearts[i%hearts.length];
+  h.style.cssText=`left:${Math.random()*100}%;font-size:${1+Math.random()*1.4}rem;animation-duration:${9+Math.random()*8}s;animation-delay:-${Math.random()*12}s`;
+  fl.appendChild(h);
+}
+</script>
+</body>
+</html>
