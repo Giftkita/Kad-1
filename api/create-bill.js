@@ -9,6 +9,12 @@ const PRICES    = { basic: 800,  premium: 1500 };
 const PLAN_NAME = { basic: 'GiftKita Basic', premium: 'GiftKita Premium' };
 
 module.exports = async (req, res) => {
+  // CORS: benarkan panggilan dari GitHub Pages / domain lain
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') { res.status(200).end(); return; }
+
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST sahaja' }); return; }
 
   try {
