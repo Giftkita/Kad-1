@@ -18,7 +18,7 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST sahaja' }); return; }
 
   try {
-    const { cardId, plan } = req.body || {};
+    const { cardId, plan, buyerName, buyerEmail, buyerPhone } = req.body || {};
     if (!cardId || !PRICES[plan]) { res.status(400).json({ error: 'Data tak lengkap' }); return; }
 
     const amountCents = PRICES[plan];
@@ -32,14 +32,14 @@ module.exports = async (req, res) => {
       billName:        PLAN_NAME[plan],                 // max 30 aksara
       billDescription: 'Kad ucapan digital GiftKita',
       billPriceSetting:'1',                             // 1 = harga tetap
-      billPayorInfo:   '1',
+      billPayorInfo:   '1',                             // prefill maklumat pembeli sebenar
       billAmount:      String(amountCents),             // dalam SEN
       billReturnUrl:   `${SITE}/bayar.html?id=${cardId}`,
       billCallbackUrl: `${SITE}/api/callback`,
       billExternalReferenceNo: cardId,
-      billTo:          'Pelanggan',
-      billEmail:       'noemail@giftkita.my',
-      billPhone:       '0000000000',
+      billTo:          (buyerName  || 'Pelanggan').slice(0, 30),
+      billEmail:       buyerEmail || 'noemail@giftkita.my',
+      billPhone:       buyerPhone || '0000000000',
       billPaymentChannel: '0'
     });
 
