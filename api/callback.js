@@ -37,11 +37,10 @@ module.exports = async (req, res) => {
     // 6) kira komisen kalau ada kod affiliate yang sah
     if (card.ref_code) {
       const aff = await sbGet(
-        `affiliates?code=eq.${encodeURIComponent(card.ref_code)}&active=eq.true&select=code,commission_rate`
+        `affiliates?code=eq.${encodeURIComponent(card.ref_code)}&active=eq.true&select=code,commission_flat`
       );
       if (aff.length) {
-        const rate = Number(aff[0].commission_rate) || 0;
-        const commission = Math.round(Number(card.amount) * rate * 100) / 100;
+        const commission = Number(aff[0].commission_flat) || 2;   // RM2 flat setiap jualan
         await sbInsert('commissions', {
           affiliate_code: card.ref_code, sale_id: saleId,
           amount: commission, paid_out: false
