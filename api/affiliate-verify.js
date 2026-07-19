@@ -38,6 +38,14 @@ module.exports = async (req, res) => {
       if (!c.paid_out) unpaid += a;
     });
 
+    // sejarah tuntutan
+    const wds = await sbGet(`withdrawals?affiliate_code=eq.${encodeURIComponent(code)}&select=amount,status,created_at,paid_at&order=created_at.desc&limit=10`);
+    let pending = 0, paidOut = 0;
+    wds.forEach(w => {
+      const a = Number(w.amount) || 0;
+      if (w.status === 'paid') paidOut += a; else pending += a;
+    });
+
     res.status(200).json({
       active: true,
       name: aff.name || '',
@@ -46,8 +54,11 @@ module.exports = async (req, res) => {
         clicks: clicks.length,
         sales: comms.length,
         total: Math.round(total * 100) / 100,
-        unpaid: Math.round(unpaid * 100) / 100
-      }
+        unpaid: Math.round(unpaid * 100) / 100,
+        pending: Math.round(pending * 100) / 100,
+        paid: Math.round(paidOut * 100) / 100
+      },
+      withdrawals: wds
     });
 
   } catch (e) {
