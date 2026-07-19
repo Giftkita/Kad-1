@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Admin — GiftKita</title>
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#e91e63;--deep:#c2185b;--soft:#fff5f9;--line:#ffe0ec;--ink:#3a2330}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;color:var(--ink);background:#faf7f9;min-height:100vh;line-height:1.5;padding:20px}
+.wrap{max-width:680px;margin:0 auto}
+h1{font-family:'Dancing Script',cursive;color:var(--deep);font-size:1.9rem;text-align:center;margin-bottom:16px}
+.card{background:#fff;border:1.5px solid var(--line);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 6px 24px rgba(233,30,99,.06)}
+input[type=password],input[type=text]{width:100%;padding:12px;border:1.5px solid #eee;border-radius:10px;font-family:inherit;font-size:.88rem;outline:none}
+input:focus{border-color:var(--pink)}
+.btn{width:100%;padding:13px;border:none;border-radius:10px;font-family:inherit;font-weight:700;font-size:.9rem;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--pink),var(--deep));margin-top:12px}
+.btn:disabled{background:#ccc}
+.statgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.stat{background:var(--soft);border:1.5px solid var(--line);border-radius:14px;padding:14px;text-align:center}
+.stat .v{font-size:1.4rem;font-weight:700;color:var(--deep)}
+.stat .l{font-size:.62rem;color:#a07;text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.wd{border:1.5px solid var(--line);border-radius:14px;padding:14px;margin-bottom:10px;font-size:.82rem}
+.wd.pending{border-color:#ffd28a;background:#fffaf2}
+.wd .amt{font-size:1.15rem;font-weight:700;color:var(--deep)}
+.wd .meta{color:#7a5666;font-size:.76rem;margin:4px 0}
+.wd .bank{background:#fff;border:1px dashed var(--pink);border-radius:8px;padding:8px 10px;margin:8px 0;font-weight:600;color:var(--deep);font-size:.8rem;word-break:break-all}
+.wd-btns{display:flex;gap:8px;margin-top:8px}
+.sb{flex:1;padding:10px;border:none;border-radius:50px;font-family:inherit;font-weight:600;font-size:.76rem;cursor:pointer;color:#fff;text-align:center;text-decoration:none}
+.sb-paid{background:#1a9e54}.sb-wa{background:#25d366}
+.badge-paid{color:#1a9e54;font-weight:700;font-size:.76rem}
+.err{margin-top:10px;padding:10px;background:#ffebee;border-radius:10px;font-size:.8rem;color:#c62828;display:none}
+.hide{display:none}
+.refresh{background:#fff;color:var(--deep);border:2px solid #f48fb1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>🛠 Admin GiftKita</h1>
+
+  <!-- LOGIN -->
+  <div class="card" id="login">
+    <label style="font-weight:600;font-size:.82rem">Admin Token</label>
+    <input type="password" id="token" placeholder="Masukkan ADMIN_TOKEN">
+    <button class="btn" onclick="load()">🔓 Masuk</button>
+    <div class="err" id="l-err"></div>
+  </div>
+
+  <!-- PANEL -->
+  <div id="panel" class="hide">
+    <div class="statgrid">
+      <div class="stat"><div class="v" id="sum-sales">0</div><div class="l">Jualan</div></div>
+      <div class="stat"><div class="v" id="sum-rev">RM0</div><div class="l">Hasil</div></div>
+      <div class="stat"><div class="v" id="sum-aff">0</div><div class="l">Affiliate Aktif</div></div>
+    </div>
+    <div class="card">
+      <p style="font-weight:700;color:var(--deep);margin-bottom:10px">💸 Tuntutan Withdrawal</p>
+      <div id="wd-list"><p style="font-size:.8rem;color:#aaa">Tiada tuntutan.</p></div>
+      <button class="btn refresh" onclick="load()">🔄 Refresh</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API_BASE='https://kad-1.vercel.app';
+let TOKEN='';
+
+function showErr(msg){const e=document.getElementById('l-err');e.textContent='❌ '+msg;e.style.display='block'}
+
+async function load(){
+  document.getElementById('l-err').style.display='none';
+  TOKEN=document.getElementById('token').value.trim()||TOKEN;
+  if(!TOKEN){showErr('Masukkan token.');return}
+  try{
+    const r=await fetch(API_BASE+'/api/admin',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token:TOKEN,action:'list'})
+    });
+    const out=await r.json();
+    if(out.error)throw new Error(out.error);
+
+    document.getElementById('login').classList.add('hide');
+    document.getElementById('panel').classList.remove('hide');
+    document.getElementById('sum-sales').textContent=out.summary.total_sales;
+    document.getElementById('sum-rev').textContent='RM'+out.summary.revenue;
+    document.getElementById('sum-aff').textContent=out.summary.active_affiliates;
+
+    const list=document.getElementById('wd-list');
+    if(!out.withdrawals.length){list.innerHTML='<p style="font-size:.8rem;color:#aaa">Tiada tuntutan.</p>';return}
+    list.innerHTML=out.withdrawals.map(w=>{
+      const d=new Date(w.created_at).toLocaleString('ms-MY');
+      const wa=w.whatsapp?('https://wa.me/6'+w.whatsapp.replace(/\D/g,'').replace(/^6?0/,'0').replace(/^0/,'0')):'';
+      const waLink=w.whatsapp?`<a class="sb sb-wa" href="https://wa.me/${w.whatsapp.replace(/\D/g,'').replace(/^0/,'60')}" target="_blank">💬 WA</a>`:'';
+      if(w.status==='paid'){
+        return `<div class="wd"><div class="amt">RM${w.amount} · ${w.affiliate_code}</div>
+          <div class="meta">${d}</div><span class="badge-paid">✅ Telah Dibayar</span></div>`;
+      }
+      return `<div class="wd pending">
+        <div class="amt">RM${w.amount} · ${w.affiliate_code}</div>
+        <div class="meta">${d} · ${w.whatsapp||''}</div>
+        <div class="bank">🏦 ${w.bank_name}<br>💳 ${w.bank_account}<br>👤 ${w.account_name}</div>
+        <div class="wd-btns">
+          <button class="sb sb-paid" onclick="markPaid('${w.id}')">✅ Sudah Transfer</button>
+          ${waLink}
+        </div></div>`;
+    }).join('');
+  }catch(e){
+    showErr(e.message);
+  }
+}
+
+async function markPaid(id){
+  if(!confirm('Sahkan: duit dah ditransfer ke bank affiliate ni?'))return;
+  try{
+    const r=await fetch(API_BASE+'/api/admin',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({token:TOKEN,action:'mark_paid',id})
+    });
+    const out=await r.json();
+    if(out.error)throw new Error(out.error);
+    load();
+  }catch(e){alert('❌ '+e.message)}
+}
+</script>
+</body>
+</html>
