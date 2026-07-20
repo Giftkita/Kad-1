@@ -15,14 +15,14 @@ module.exports = async (req, res) => {
   try {
     let { email, phone } = req.body || {};
     email = (email || '').trim().toLowerCase();
-    phone = (phone || '').trim().replace(/\D/g, '');
+    phone = normPhone(phone);
     if (!email || !phone) { res.status(400).json({ error: 'Sila isi email & no. telefon.' }); return; }
 
-    // cari kad ikut email (padankan telefon secara longgar: digit sahaja)
+    // cari kad ikut email (padankan telefon secara longgar: abaikan 0 depan / kod negara 60)
     const rows = await sbGet(
       `cards?buyer_email=ilike.${encodeURIComponent(email)}&select=id,paid,amount,ref_code,bill_code,buyer_phone,created_at&order=created_at.desc&limit=15`
     );
-    const mine = rows.filter(r => ((r.buyer_phone || '').replace(/\D/g, '')) === phone);
+    const mine = rows.filter(r => normPhone(r.buyer_phone) === phone);
 
     if (!mine.length) {
       res.status(200).json({ cards: [], error: 'Tiada kad dijumpai dengan email & telefon ini. Pastikan sama seperti semasa membeli.' });
@@ -72,6 +72,15 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
+
+// ── normalisasi no. telefon: buang simbol, kod negara 60, dan 0 depan ──
+// "0102575508" / "102575508" / "+60102575508" / "60102575508" → "102575508"
+function normPhone(p) {
+  let d = (p || '').trim().replace(/\D/g, '');
+  if (d.startsWith('60')) d = d.slice(2);
+  if (d.startsWith('0'))  d = d.slice(1);
+  return d;
+}
 
 // ── sahkan status bayaran via ToyyibPay ──
 async function verifyPaid(billCode) {
