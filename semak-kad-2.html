@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Semak Kad Saya 🔎 GiftKita</title>
+<meta name="description" content="Hilang link kad? Masukkan email & no. telefon yang anda guna semasa membeli untuk dapatkan semula link kad anda.">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--pink:#e91e63;--deep:#c2185b;--soft:#fff5f9;--line:#ffe0ec;--ink:#3a2330}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;color:var(--ink);background:radial-gradient(ellipse 90% 60% at 50% 0%,#ffe3ee,#fff5f9 60%);min-height:100vh;line-height:1.6}
+a{text-decoration:none;color:inherit}
+.wrap{max-width:520px;margin:0 auto;padding:0 18px}
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:58px}
+.logo{font-family:'Dancing Script',cursive;font-weight:700;font-size:1.6rem;background:linear-gradient(135deg,var(--pink),var(--deep));-webkit-background-clip:text;background-clip:text;color:transparent}
+.back{font-size:.82rem;color:var(--deep);font-weight:600}
+.hero{text-align:center;padding:36px 0 8px}
+.hero .big{font-size:2.6rem}
+.hero h1{font-family:'Dancing Script',cursive;color:var(--deep);font-size:1.9rem;margin:6px 0}
+.hero p{color:#7a5666;font-size:.88rem;max-width:400px;margin:0 auto}
+.card{background:#fff;border:1.5px solid var(--line);border-radius:20px;padding:22px 20px;margin:20px 0;box-shadow:0 8px 30px rgba(233,30,99,.08)}
+label{font-weight:600;font-size:.8rem;color:#444;display:block;margin-top:12px;margin-bottom:4px}
+input[type=text]{width:100%;padding:12px 13px;border:1.5px solid #eee;border-radius:10px;font-family:inherit;font-size:.86rem;outline:none;transition:.2s}
+input[type=text]:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(233,30,99,.08)}
+.hint{font-size:.7rem;color:#bbb;margin-top:3px;display:block}
+.btn{width:100%;padding:14px;border:none;border-radius:12px;font-family:inherit;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:16px;color:#fff;background:linear-gradient(135deg,var(--pink),var(--deep));transition:.2s}
+.btn:hover{transform:translateY(-2px)}
+.btn:disabled{background:#ccc;transform:none}
+.err{margin-top:14px;padding:12px;background:#fff3e0;border:1.5px solid #ffd28a;border-radius:10px;font-size:.8rem;color:#9a6a00;display:none}
+.kad{border:1.5px solid var(--line);border-radius:14px;padding:14px;margin-top:12px;background:var(--soft)}
+.kad .d{font-size:.72rem;color:#a07;margin-bottom:6px}
+.kad .lnk{background:#fff;border:1.5px dashed var(--pink);border-radius:10px;padding:10px;word-break:break-all;font-size:.76rem;color:var(--deep);font-weight:600}
+.kbtns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.sb{flex:1;padding:10px;border:none;border-radius:50px;font-family:inherit;font-weight:600;font-size:.76rem;cursor:pointer;color:#fff;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:.3rem}
+.s-copy{background:var(--pink)}.s-wa{background:#25d366}.s-open{background:#5c6bc0}
+footer{text-align:center;padding:24px;color:#b07d92;font-size:.72rem}
+</style>
+</head>
+<body>
+
+<nav><div class="wrap nav-in">
+  <a href="index.html" class="logo">GiftKita</a>
+  <a href="index.html" class="back">‹ Kembali</a>
+</div></nav>
+
+<div class="wrap">
+  <div class="hero">
+    <div class="big">🔎</div>
+    <h1>Semak Kad Saya</h1>
+    <p>Hilang link kad? Jangan risau — masukkan <b>email & no. telefon yang sama</b> semasa anda membeli, dan kami cari semula untuk anda.</p>
+  </div>
+
+  <div class="card">
+    <label>Email (semasa membeli)</label>
+    <input type="text" id="r-email" placeholder="cth: aina@gmail.com">
+    <label>No. Telefon (semasa membeli)</label>
+    <input type="text" id="r-phone" placeholder="cth: 0123456789">
+    <button class="btn" id="r-btn" onclick="cari()">🔎 Cari Kad Saya</button>
+    <div class="err" id="r-err"></div>
+    <div id="r-results"></div>
+  </div>
+</div>
+
+<footer>Masih ada masalah? Hubungi kami di WhatsApp 💬</footer>
+
+<script>
+const API_BASE='https://giftkita.com';
+
+async function cari(){
+  const err=document.getElementById('r-err');
+  const results=document.getElementById('r-results');
+  err.style.display='none';results.innerHTML='';
+  const email=document.getElementById('r-email').value.trim();
+  const phone=document.getElementById('r-phone').value.trim();
+  if(!email||!phone){err.textContent='⚠️ Sila isi email & no. telefon.';err.style.display='block';return}
+
+  const btn=document.getElementById('r-btn');
+  btn.disabled=true;btn.textContent='⏳ Mencari...';
+  try{
+    const r=await fetch(API_BASE+'/api/recover',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({email,phone})
+    });
+    const out=await r.json();
+    if(!out.cards||!out.cards.length){
+      err.textContent='⚠️ '+(out.error||'Tiada kad dijumpai.');
+      err.style.display='block';
+    }else{
+      results.innerHTML='<p style="margin-top:14px;font-size:.82rem;font-weight:700;color:#1a9e54">✅ '+out.cards.length+' kad dijumpai!</p>'+
+        out.cards.map(c=>{
+          const base=location.origin+location.pathname.replace(/[^/]*$/,'');
+          const link=base+'card-befday-1.html?id='+c.id;
+          const d=new Date(c.created_at).toLocaleDateString('ms-MY',{day:'numeric',month:'short',year:'numeric'});
+          const wa='https://wa.me/?text='+encodeURIComponent('Hai 💕 ada kad istimewa untuk kamu, cuba buka ye: '+link);
+          return `<div class="kad">
+            <div class="d">🗓 Dibuat pada ${d}</div>
+            <div class="lnk">${link}</div>
+            <div class="kbtns">
+              <button class="sb s-copy" onclick="salin('${link}')">📋 Salin</button>
+              <a class="sb s-wa" href="${wa}" target="_blank">💬 WA</a>
+              <a class="sb s-open" href="${link}" target="_blank">👀 Buka</a>
+            </div>
+          </div>`;
+        }).join('');
+    }
+  }catch(e){
+    err.textContent='⚠️ Ralat sambungan. Cuba lagi.';err.style.display='block';
+  }
+  btn.disabled=false;btn.textContent='🔎 Cari Kad Saya';
+}
+
+function salin(l){
+  navigator.clipboard.writeText(l).then(()=>alert('✅ Link disalin!')).catch(()=>{
+    const t=document.createElement('textarea');t.value=l;
+    document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
+    alert('✅ Link disalin!');
+  });
+}
+</script>
+<div id="gk-langtog" style="position:fixed;bottom:14px;left:14px;z-index:99999;display:inline-flex;border:1.5px solid #ffd6e6;border-radius:50px;overflow:hidden;font-family:Poppins,sans-serif;font-size:.72rem;font-weight:700;background:#fff;box-shadow:0 3px 12px rgba(233,30,99,.28)"><button data-l="en" onclick="gkApply('en')" style="border:none;background:#fff;color:#a07;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">EN</button><button data-l="ms" onclick="gkApply('ms')" style="border:none;background:#fff;color:#a07;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">BM</button></div>
+<script>
+var GK_DICT={
+"‹ Kembali":"‹ Back",
+"Semak Kad Saya":"Check My Cards",
+"Email (semasa membeli)":"Email (when buying)",
+"No. Telefon (semasa membeli)":"Phone No. (when buying)",
+"🔎 Cari Kad Saya":"🔎 Find My Cards",
+"Masih ada masalah? Hubungi kami di WhatsApp 💬":"Still having issues? Contact us on WhatsApp 💬",
+"📋 Salin":"📋 Copy","💬 WA":"💬 WA","👀 Buka":"👀 Open",
+"⚠️ Sila isi email & no. telefon.":"⚠️ Please enter email & phone number.",
+"⚠️ Ralat sambungan. Cuba lagi.":"⚠️ Connection error. Try again."
+};
+var GK_HTML={
+'Hilang link kad? Jangan risau — masukkan <b>email &amp; no. telefon yang sama</b> semasa anda membeli, dan kami cari semula untuk anda.':'Lost your card link? Do not worry — enter the <b>same email &amp; phone number</b> you used when buying, and we will find it again for you.'
+};
+var GK_PH={"r-email":{ms:"cth: aina@gmail.com",en:"e.g. aina@gmail.com"},"r-phone":{ms:"cth: 0123456789",en:"e.g. 0123456789"}};
+(function(){var IN={B:1,I:1,EM:1,STRONG:1,BR:1,SMALL:1,U:1,SPAN:1};var SEL="h1,h2,h3,h4,h5,p,span,label,button,a,small,option,summary,li,div,strong";var cur="ms",busy=false;function nm(s){return s.replace(/\s+/g," ").trim();}function inl(el){if(!el.children.length)return false;for(var i=0;i<el.children.length;i++){if(!IN[el.children[i].tagName])return false;}return true;}function tag(el){if(el.hasAttribute("data-gki"))return;if(!el.children.length){var k=nm(el.textContent);if(k&&GK_DICT[k]!=null){el.setAttribute("data-gki","t");el.setAttribute("data-ms",el.textContent);}}else if(inl(el)){var k2=nm(el.innerHTML);if(k2&&GK_HTML[k2]!=null){el.setAttribute("data-gki","h");el.setAttribute("data-mh",el.innerHTML);}}}function apply(l){busy=true;cur=l;document.documentElement.lang=l;var els=document.querySelectorAll(SEL);for(var i=0;i<els.length;i++)tag(els[i]);document.querySelectorAll('[data-gki="t"]').forEach(function(el){var ms=el.getAttribute("data-ms"),k=nm(ms);el.textContent=(l=="en"&&GK_DICT[k]!=null)?GK_DICT[k]:ms;});document.querySelectorAll('[data-gki="h"]').forEach(function(el){var ms=el.getAttribute("data-mh"),k=nm(ms);el.innerHTML=(l=="en"&&GK_HTML[k]!=null)?GK_HTML[k]:ms;});for(var id in GK_PH){var e=document.getElementById(id);if(e)e.placeholder=(l=="en")?GK_PH[id].en:GK_PH[id].ms;}var t=document.getElementById("gk-langtog");if(t){var be=t.querySelector('[data-l="en"]'),bm=t.querySelector('[data-l="ms"]');be.style.background=l=="en"?"linear-gradient(135deg,#e91e63,#c2185b)":"#fff";be.style.color=l=="en"?"#fff":"#a07";bm.style.background=l=="ms"?"linear-gradient(135deg,#e91e63,#c2185b)":"#fff";bm.style.color=l=="ms"?"#fff":"#a07";}try{localStorage.setItem("gk_lang",l);}catch(e){}busy=false;}window.gkApply=apply;var mo=new MutationObserver(function(){if(busy)return;if(cur=="en"){clearTimeout(window._gkT);window._gkT=setTimeout(function(){apply("en");},60);}});mo.observe(document.body,{childList:true,subtree:true});var sv=null;try{sv=localStorage.getItem("gk_lang");}catch(e){}var dv=(navigator.language||"ms").toLowerCase();apply(sv||((dv.indexOf("ms")==0||dv.indexOf("id")==0)?"ms":"en"));})();
+</script>
+</body>
+</html>
