@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Buat Kad Hari Jadi 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+/* fallback: kalau unpkg gagal load, cuba jsDelivr pula */
+if(!window.supabase){
+  document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');
+}
+</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fce4ec,#f8bbd0,#fce4ec);min-height:100vh;padding:20px;display:flex;justify-content:center}
+.container{background:#fff;padding:30px;border-radius:20px;box-shadow:0 8px 32px rgba(233,30,99,.15);width:100%;max-width:750px;height:fit-content}
+h2{color:#e91e63;text-align:center;font-size:1.7rem;margin-bottom:5px;font-family:'Dancing Script',cursive;font-weight:700}
+.subtitle-top{text-align:center;color:#aaa;font-size:.82rem;margin-bottom:20px}
+h3{color:#c2185b;margin:28px 0 10px;font-size:1rem;border-left:4px solid #e91e63;padding-left:10px;display:flex;align-items:center;gap:.4rem}
+label{font-weight:600;font-size:.82rem;color:#444;display:block;margin-top:12px;margin-bottom:4px}
+input[type=text],textarea{width:100%;padding:10px 12px;border:1.5px solid #eee;border-radius:10px;font-family:'Poppins',sans-serif;font-size:.85rem;outline:none;transition:.2s}
+input[type=text]:focus,textarea:focus{border-color:#e91e63;box-shadow:0 0 0 3px rgba(233,30,99,.08)}
+textarea{height:95px;resize:vertical}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>div{flex:1;min-width:180px}
+.hint{font-size:.72rem;color:#bbb;margin-bottom:4px;display:block}
+.themes{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+.theme-opt{flex:1;min-width:130px;border:2px solid #eee;border-radius:12px;padding:10px;cursor:pointer;transition:.2s;text-align:center}
+.theme-opt:hover{border-color:#f48fb1}
+.theme-opt.sel{border-color:#e91e63;box-shadow:0 0 0 3px rgba(233,30,99,.1)}
+.theme-swatch{height:34px;border-radius:8px;margin-bottom:6px}
+.theme-name{font-size:.75rem;font-weight:600;color:#555}
+.mtabs{display:flex;gap:8px;margin:6px 0}
+.mtab{flex:1;padding:8px;text-align:center;border:1.5px solid #eee;border-radius:10px;font-size:.78rem;font-weight:600;color:#888;cursor:pointer;transition:.2s}
+.mtab.sel{border-color:#e91e63;background:#fff0f5;color:#e91e63}
+.mpane{display:none}.mpane.on{display:block}
+.upl-wrap{position:relative;overflow:hidden;display:inline-block;width:100%;margin-top:4px}
+.upl-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;font-size:100px}
+.upl-btn{background:#fafafa;border:2px dashed #ddd;padding:10px;text-align:center;border-radius:10px;color:#888;font-size:.8rem;display:flex;align-items:center;justify-content:center;gap:6px;transition:.2s;cursor:pointer}
+.upl-wrap:hover .upl-btn{background:#fff0f5;border-color:#f48fb1;color:#e91e63}
+.prev{width:100%;height:110px;border-radius:8px;margin-top:8px;object-fit:cover;border:1.5px solid #eee;display:block}
+.mp3-name{font-size:.75rem;color:#4caf50;margin-top:6px;display:block;word-break:break-all}
+.gen-btn{width:100%;padding:16px;background:linear-gradient(135deg,#e91e63,#c2185b);color:#fff;border:none;border-radius:12px;font-size:1rem;font-weight:700;cursor:pointer;margin-top:28px;transition:.2s;display:flex;align-items:center;justify-content:center;gap:.5rem}
+.gen-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(233,30,99,.3)}
+.gen-btn:disabled{background:#ccc;transform:none;box-shadow:none;cursor:not-allowed}
+#result{margin-top:18px;padding:16px;background:#e8f5e9;border:1.5px solid #4caf50;border-radius:12px;display:none;text-align:center}
+#result p{font-size:.85rem;color:#2e7d32;margin-bottom:8px}
+#share-link{color:#e91e63;font-weight:600;word-break:break-all;font-size:.82rem;display:block;margin:8px 0}
+.res-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.copy-btn,.wa-btn,.prev-btn{color:#fff;border:none;padding:10px 18px;border-radius:8px;cursor:pointer;font-family:'Poppins',sans-serif;font-weight:600;font-size:.82rem;transition:.2s;text-decoration:none;display:inline-flex;align-items:center;gap:.3rem}
+.copy-btn{background:#e91e63}.copy-btn:hover{background:#c2185b}
+.wa-btn{background:#25d366}.wa-btn:hover{background:#1da851}
+.prev-btn{background:#5c6bc0}.prev-btn:hover{background:#3f51b5}
+#err-box{margin-top:18px;padding:14px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;display:none;font-size:.8rem;color:#c62828}
+#err-box code{background:#fff;padding:4px 8px;border-radius:6px;display:block;margin-top:8px;font-size:.72rem;line-height:1.8;color:#333;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>💖 Buat Kad Hari Jadi</h2>
+  <p class="subtitle-top">Isi maklumat di bawah & jana link kad cantik untuk orang istimewa kamu</p>
+
+  <style>
+  #gallery{display:none;position:fixed;inset:0;z-index:30;background:linear-gradient(135deg,#fce4ec,#f8bbd0,#fce4ec);overflow-y:auto;padding:26px 18px 44px}
+  .g-head{text-align:center;max-width:520px;margin:6px auto 22px}
+  .g-title{font-family:'Dancing Script',cursive;font-size:2rem;color:#c2185b;line-height:1.1}
+  .g-sub{font-size:.9rem;color:#8a5a6c;margin-top:6px}
+  .g-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;max-width:720px;margin:0 auto}
+  .g-card{border-radius:18px;overflow:hidden;background:#fff;border:1.5px solid #ffd6e6;cursor:pointer;transition:.2s}
+  .g-card:hover{transform:translateY(-3px);box-shadow:0 14px 32px rgba(233,30,99,.18);border-color:#e91e63}
+  .g-card:active{transform:scale(.97)}
+  .g-card .gp{height:112px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;position:relative}
+  .g-card .gm{padding:10px 12px 12px}
+  .g-card h3{font-size:.92rem;font-weight:600;color:#3a2330}
+  .g-card span{font-size:.72rem;color:#a07}
+  .g-badge{position:absolute;top:8px;right:8px;font-size:.55rem;font-weight:700;letter-spacing:.03em;padding:3px 8px;border-radius:50px;z-index:2}
+  .g-badge.l{background:#e8f7ee;color:#1a9e54}
+  .g-badge.s{background:#fff3e0;color:#c77d00}
+  .g-card.soon{opacity:.65;pointer-events:none}
+  .g-glow{position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,rgba(255,255,255,.25),transparent 60%)}
+  .gp-pink{background:linear-gradient(160deg,#3d0d2e,#7a1453,#b71c6a)}
+  .gp-galaxy{background:linear-gradient(160deg,#1a0a2e,#3d1166,#6a1b9a)}
+  .gp-maroon{background:linear-gradient(160deg,#3a0810,#7b1e2b,#b71c1c)}
+  .gp-ocean{background:linear-gradient(160deg,#012a4a,#01579b,#0288d1)}
+  .gp-gold{background:linear-gradient(160deg,#2b2008,#6b5318,#aa771c)}
+  .gp-scrap{background:#e3a9bd;background-image:repeating-linear-gradient(45deg,rgba(176,58,91,.25),rgba(176,58,91,.25) 8px,transparent 8px,transparent 16px)}
+  .gp-flora{background:linear-gradient(160deg,#dff3e3,#a8d5b5,#6fae84)}
+  .gp-kawaii{background:linear-gradient(160deg,#fff0f5,#ffd6e8,#ffb3d1)}
+  .gp-dark{background:linear-gradient(160deg,#0a0a12,#1a1a2e,#2d2d44)}
+  </style>
+  <div id="gallery">
+    <div class="g-head">
+      <h2 class="g-title">Pilih Tema Kad 🎂</h2>
+      <p class="g-sub">Setiap tema ada design tersendiri. Pilih satu untuk mula.</p>
+    </div>
+    <div class="g-grid" id="g-grid"></div>
+  </div>
+
+  <div id="tema-banner" style="display:none;background:linear-gradient(135deg,#fff0f5,#ffe0ec);border:1.5px solid #f8bbd0;border-radius:14px;padding:14px 16px;margin-top:6px;display:none;align-items:center;justify-content:space-between;gap:10px">
+    <span style="font-size:.9rem;font-weight:600;color:#c2185b">🎨 Tema: <span id="tema-name">—</span></span>
+    <a href="javascript:void(0)" onclick="openGallery()" style="font-size:.78rem;color:#e91e63;font-weight:600;white-space:nowrap">↺ Tukar tema</a>
+  </div>
+
+  <h3 id="theme-head">🎨 Tema Warna Kad</h3>
+  <div class="themes" id="themes">
+    <div class="theme-opt sel" data-theme="pink" onclick="pickTheme(this)">
+      <div class="theme-swatch" style="background:linear-gradient(135deg,#e91e63,#f8bbd0)"></div>
+      <div class="theme-name">Pink Romantik</div>
+    </div>
+    <div class="theme-opt" data-theme="galaxy" onclick="pickTheme(this)">
+      <div class="theme-swatch" style="background:linear-gradient(135deg,#6a1b9a,#3d1166,#1a0a2e)"></div>
+      <div class="theme-name">Ungu Galaxy</div>
+    </div>
+    <div class="theme-opt" data-theme="maroon" onclick="pickTheme(this)">
+      <div class="theme-swatch" style="background:linear-gradient(135deg,#7b1e2b,#b71c1c,#4e0d12)"></div>
+      <div class="theme-name">Merah Maroon</div>
+    </div>
+    <div class="theme-opt" data-theme="ocean" onclick="pickTheme(this)">
+      <div class="theme-swatch" style="background:linear-gradient(135deg,#0277bd,#26c6da,#01579b)"></div>
+      <div class="theme-name">Biru Ocean</div>
+    </div>
+    <div class="theme-opt" data-theme="gold" onclick="pickTheme(this)">
+      <div class="theme-swatch" style="background:linear-gradient(135deg,#bf953f,#fcf6ba,#aa771c)"></div>
+      <div class="theme-name">Emas Mewah</div>
+    </div>
+    <div class="theme-opt" data-theme="scrapbook" onclick="pickTheme(this)">
+      <div class="theme-swatch" style="background:repeating-linear-gradient(45deg,#e8a0b8,#e8a0b8 6px,#f3c4d2 6px,#f3c4d2 12px)"></div>
+      <div class="theme-name">📖 Scrapbook Aesthetic</div>
+    </div>
+  </div>
+  <input type="hidden" id="theme" value="pink">
+
+  <h3>🎂 Slide 1 — Muka Depan</h3>
+  <div class="row">
+    <div>
+      <label>Tajuk Utama</label>
+      <input type="text" id="title" value="Happy Birthday">
+    </div>
+    <div>
+      <label>Nama / Ucapan Kecil</label>
+      <input type="text" id="subtitle" value="Sayanggg 💕">
+    </div>
+  </div>
+
+  <h3>⏳ Slide Countdown (Hari Lahir)</h3>
+  <label>Tarikh &amp; masa hari jadi dia</label>
+  <span class="hint">Slide countdown akan kira detik ke tarikh ni. Kosongkan kalau tak nak slide ni.</span>
+  <input type="text" id="bday" placeholder="cth: 2026-08-15 00:00">
+
+  <h3>🎵 Muzik Latar</h3>
+  <div class="mtabs">
+    <div class="mtab sel" data-m="yt" onclick="pickMusic(this)">🔗 Link YouTube</div>
+    <div class="mtab" data-m="mp3" onclick="pickMusic(this)">🎧 Upload MP3</div>
+  </div>
+  <div class="mpane on" id="pane-yt">
+    <label>Link Lagu YouTube</label>
+    <span class="hint">https://www.youtube.com/watch?v=...</span>
+    <input type="text" id="yt" placeholder="Paste link YouTube lagu kegemaran kamu">
+  </div>
+  <div class="mpane" id="pane-mp3">
+    <label>Fail MP3</label>
+    <span class="hint">Saiz kecil sahaja (bawah 3MB) supaya kad tak terlalu berat.</span>
+    <div class="upl-wrap"><div class="upl-btn">🎧 Pilih Fail MP3</div><input type="file" accept="audio/*" onchange="uploadAudio(event)"></div>
+    <span class="mp3-name" id="mp3-name"></span>
+  </div>
+  <input type="hidden" id="mp3" value="">
+  <input type="hidden" id="mtitle" value="Lagu Kita">
+  <label>Nama Lagu (papar dalam kad)</label>
+  <input type="text" id="song_title" value="Lagu Kita" oninput="document.getElementById('mtitle').value=this.value">
+
+  <h3>🌟 Slide 2 — Doa & Harapan</h3>
+  <label>Senarai Doa (Enter = baris baru)</label>
+  <textarea id="wishes">Semoga sihat selalu, panjang umur dan semua yang awak mahu segera tercapai.
+Kamu hebat sekali bisa bertahan dan lalui semua masalah yang datang.
+Semoga di umur baru ini segalanya akan dipermudahkan.
+Terima kasih sebab sentiasa ada dengan saya.</textarea>
+  <label>Gambar (Kek / Bunga dll)</label>
+  <div class="upl-wrap"><div class="upl-btn">📷 Pilih Gambar</div><input type="file" accept="image/*" onchange="upload(event,'cake_img')"></div>
+  <input type="hidden" id="cake_img" value="https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?q=80&w=600&auto=format&fit=crop">
+  <img id="preview_cake_img" class="prev" src="https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?q=80&w=600&auto=format&fit=crop">
+
+  <h3>📸 Slide 3 — Polaroid Kenangan</h3>
+  <div class="row">
+    <div>
+      <label>Gambar Kiri</label>
+      <div class="upl-wrap"><div class="upl-btn">📷 Pilih</div><input type="file" accept="image/*" onchange="upload(event,'p1_img')"></div>
+      <input type="hidden" id="p1_img" value="https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=400&auto=format&fit=crop">
+      <img id="preview_p1_img" class="prev" src="https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=400&auto=format&fit=crop">
+      <input type="text" id="p1_txt" value="My favorite smile" style="margin-top:6px">
+    </div>
+    <div>
+      <label>Gambar Tengah</label>
+      <div class="upl-wrap"><div class="upl-btn">📷 Pilih</div><input type="file" accept="image/*" onchange="upload(event,'p2_img')"></div>
+      <input type="hidden" id="p2_img" value="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=400&auto=format&fit=crop">
+      <img id="preview_p2_img" class="prev" src="https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=400&auto=format&fit=crop">
+      <input type="text" id="p2_txt" value="My favorite person" style="margin-top:6px">
+    </div>
+    <div>
+      <label>Gambar Kanan</label>
+      <div class="upl-wrap"><div class="upl-btn">📷 Pilih</div><input type="file" accept="image/*" onchange="upload(event,'p3_img')"></div>
+      <input type="hidden" id="p3_img" value="https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=400&auto=format&fit=crop">
+      <img id="preview_p3_img" class="prev" src="https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=400&auto=format&fit=crop">
+      <input type="text" id="p3_txt" value="My everything" style="margin-top:6px">
+    </div>
+  </div>
+
+  <h3>💬 Slide 4 — Ayat Sweet</h3>
+  <label>Petikan Kata</label>
+  <textarea id="quote" style="height:65px">I Always Love You</textarea>
+  <label>Daripada</label>
+  <input type="text" id="author" value="Your Beloved">
+
+  <h3>📖 Slide 5 — Cerita Kita</h3>
+  <label>Cerita Pendek</label>
+  <textarea id="story">Terima kasih sayang, tiap hari dengan kamu tu tak pernah membosankan.
+Selalu ada hal kecil yang bikin aku bersyukur ada kamu.</textarea>
+  <label>Gambar Cerita</label>
+  <div class="upl-wrap"><div class="upl-btn">📷 Pilih Gambar</div><input type="file" accept="image/*" onchange="upload(event,'story_img')"></div>
+  <input type="hidden" id="story_img" value="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=640&auto=format&fit=crop">
+  <img id="preview_story_img" class="prev" src="https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=640&auto=format&fit=crop">
+
+  <h3>🎁 Slide 7 — Kejutan!</h3>
+  <label>Ucapan Kejutan</label>
+  <input type="text" id="surprise_msg" value="Happy Birthday Sayang! ❤️">
+  <label>Gambar Kejutan</label>
+  <div class="upl-wrap"><div class="upl-btn" style="background:#fff0f5;border-color:#f48fb1">🎁 Pilih Gambar Kejutan</div><input type="file" accept="image/*" onchange="upload(event,'surprise_img')"></div>
+  <input type="hidden" id="surprise_img" value="https://images.unsplash.com/photo-1513201099705-a9746e1e201f?q=80&w=600&auto=format&fit=crop">
+  <img id="preview_surprise_img" class="prev" src="https://images.unsplash.com/photo-1513201099705-a9746e1e201f?q=80&w=600&auto=format&fit=crop">
+
+  <button class="gen-btn" onclick="previewCard()" id="prev-btn" style="background:#fff;color:#c2185b;border:2px solid #f48fb1;box-shadow:none">👀 Pratonton Kad (Percuma)</button>
+
+  <h3>🧑 Maklumat Anda (Pembeli)</h3>
+  <span class="hint">Resit pembayaran akan dihantar ke email ini. Data anda selamat & tidak dikongsi.</span>
+  <div class="row">
+    <div>
+      <label>Nama</label>
+      <input type="text" id="buyer_name" placeholder="cth: Aina Sofea">
+    </div>
+    <div>
+      <label>No. Telefon (WhatsApp)</label>
+      <input type="text" id="buyer_phone" placeholder="cth: 0123456789">
+    </div>
+  </div>
+  <label>Email</label>
+  <input type="text" id="buyer_email" placeholder="cth: aina@gmail.com">
+
+  <h3>💳 Pilih Pakej & Bayar</h3>
+  <div class="themes" style="margin-top:6px">
+    <div class="theme-opt sel" id="plan-basic" onclick="pickPlan('basic')">
+      <div style="font-size:1.5rem;font-weight:700;color:#c2185b">RM8</div>
+      <div class="theme-name">Basic</div>
+      <div style="font-size:.68rem;color:#aaa;margin-top:2px">Tema + muzik YouTube</div>
+    </div>
+    <div class="theme-opt" id="plan-premium" onclick="pickPlan('premium')">
+      <div style="font-size:1.5rem;font-weight:700;color:#c2185b">RM15</div>
+      <div class="theme-name">Premium ⭐</div>
+      <div style="font-size:.68rem;color:#aaa;margin-top:2px">+ MP3 sendiri & semua ciri</div>
+    </div>
+  </div>
+  <input type="hidden" id="plan" value="basic">
+
+  <button class="gen-btn" onclick="generate()" id="gen-btn">💳 Bayar & Dapatkan Link Kad</button>
+  <p style="text-align:center;font-size:.7rem;color:#bbb;margin-top:8px">Pembayaran selamat melalui ToyyibPay (FPX / Online Banking) 🔒</p>
+
+  <div id="result">
+    <p>✅ Berjaya! Salin link di bawah dan hantar kepada dia:</p>
+    <a id="share-link" href="#" target="_blank"></a>
+    <div class="res-btns">
+      <button class="copy-btn" onclick="copyLink()">📋 Salin</button>
+      <a id="wa-share" class="wa-btn" href="#" target="_blank">💬 WhatsApp</a>
+      <a id="prev-link" class="prev-btn" href="#" target="_blank">👀 Preview</a>
+    </div>
+  </div>
+  <div id="err-box">
+    <strong>❌ Ralat:</strong> <span id="err-msg"></span>
+    <code id="sql-hint" style="display:none">create table if not exists public.cards (id uuid primary key default gen_random_uuid(), card_data jsonb not null, created_at timestamptz default now());
+alter table public.cards enable row level security;
+create policy "public_read_cards" on public.cards for select to anon, authenticated using (true);
+create policy "public_insert_cards" on public.cards for insert to anon, authenticated with check (true);</code>
+  </div>
+</div>
+<script>
+const SB_URL='https://lejpuajafuenlfvlovfg.supabase.co';
+const SB_KEY='sb_publishable_igFE4w_dz4ZF99wH1LeBKg_JL5kFoZ0';
+const API_BASE=(location.hostname.indexOf('github.io')>-1)?'https://www.giftkita.com':'';  /* relatif bila di domain sendiri - kebal redirect */
+
+/* --- Supabase client (guarded: kalau CDN tersekat, tak crash) --- */
+let db=null;
+try{
+  if(!window.supabase||!window.supabase.createClient){
+    throw new Error('Library Supabase tak load');
+  }
+  db=window.supabase.createClient(SB_URL,SB_KEY);
+}catch(_e){
+  db=null;
+}
+
+function pickTheme(el){
+  document.querySelectorAll('.theme-opt').forEach(t=>t.classList.remove('sel'));
+  el.classList.add('sel');
+  document.getElementById('theme').value=el.dataset.theme;
+}
+
+/* ── galeri tema dalam halaman + tema terkunci ── */
+const THEME_NAMES={
+  pink:'Pink Romantik', galaxy:'Ungu Galaxy', maroon:'Merah Maroon',
+  ocean:'Biru Ocean', gold:'Emas Mewah', scrapbook:'Scrapbook Aesthetic'
+};
+const TEMA_LIST=[
+  {id:'scrapbook',name:'Scrapbook',sub:'Aesthetic',prev:'gp-scrap',emoji:'📖',live:true},
+  {id:'pink',name:'Pink Romantik',sub:'Romantic',prev:'gp-pink',emoji:'💖',live:true},
+  {id:'galaxy',name:'Ungu Galaxy',sub:'Dreamy',prev:'gp-galaxy',emoji:'🌌',live:true},
+  {id:'ocean',name:'Biru Ocean',sub:'Calm',prev:'gp-ocean',emoji:'🌊',live:true},
+  {id:'maroon',name:'Merah Maroon',sub:'Bold',prev:'gp-maroon',emoji:'🌹',live:true},
+  {id:'gold',name:'Emas Mewah',sub:'Luxury',prev:'gp-gold',emoji:'✨',live:true},
+  {id:'flora',name:'Flora',sub:'Floral',prev:'gp-flora',emoji:'🌷',live:false},
+  {id:'kawaii',name:'Kawaii Cat',sub:'Cute',prev:'gp-kawaii',emoji:'🐱',live:false},
+  {id:'dark',name:'Dark Hero',sub:'Action',prev:'gp-dark',emoji:'🦸',live:false},
+];
+function buildGallery(){
+  const g=document.getElementById('g-grid');if(g.children.length)return;
+  TEMA_LIST.forEach(t=>{
+    const el=document.createElement('div');
+    el.className='g-card'+(t.live?'':' soon');
+    if(t.live)el.onclick=()=>chooseTema(t.id);
+    el.innerHTML=`<div class="gp ${t.prev}"><span class="g-badge ${t.live?'l':'s'}">${t.live?'TERSEDIA':'SOON'}</span>${t.emoji}<div class="g-glow"></div></div><div class="gm"><h3>${t.name}</h3><span>${t.sub}</span></div>`;
+    g.appendChild(el);
+  });
+}
+function chooseTema(id){
+  document.getElementById('theme').value=id;
+  document.getElementById('tema-name').textContent=THEME_NAMES[id]||id;
+  document.getElementById('tema-banner').style.display='flex';
+  document.getElementById('theme-head').style.display='none';
+  document.getElementById('themes').style.display='none';
+  document.getElementById('gallery').style.display='none';
+  window.scrollTo(0,0);
+}
+function openGallery(){
+  buildGallery();
+  document.getElementById('gallery').style.display='block';
+  window.scrollTo(0,0);
+}
+(function initTema(){
+  const tema=new URLSearchParams(location.search).get('tema');
+  if(tema && THEME_NAMES[tema]){ chooseTema(tema); }
+  else { openGallery(); }   // tunjuk galeri dulu
+})();
+function pickMusic(el){
+  document.querySelectorAll('.mtab').forEach(t=>t.classList.remove('sel'));
+  el.classList.add('sel');
+  document.querySelectorAll('.mpane').forEach(p=>p.classList.remove('on'));
+  document.getElementById('pane-'+el.dataset.m).classList.add('on');
+  if(el.dataset.m==='yt'){document.getElementById('mp3').value='';document.getElementById('mp3-name').textContent='';}
+  else{document.getElementById('yt').value='';}
+}
+
+function upload(e,id){
+  const f=e.target.files[0];if(!f)return;
+  const r=new FileReader();r.readAsDataURL(f);
+  r.onload=ev=>{
+    const i=new Image();i.src=ev.target.result;
+    i.onload=()=>{
+      const c=document.createElement('canvas');
+      const M=1000;let w=i.width,h=i.height;
+      if(w>h){if(w>M){h=h*M/w;w=M}}else{if(h>M){w=w*M/h;h=M}}
+      c.width=w;c.height=h;c.getContext('2d').drawImage(i,0,0,w,h);
+      const d=c.toDataURL('image/jpeg',.82);
+      document.getElementById(id).value=d;
+      document.getElementById('preview_'+id).src=d;
+    };
+  };
+}
+
+function uploadAudio(e){
+  const f=e.target.files[0];if(!f)return;
+  if(f.size>3.2*1024*1024){
+    alert('Fail MP3 terlalu besar (>3MB). Sila guna fail lebih kecil.');
+    e.target.value='';return;
+  }
+  const r=new FileReader();r.readAsDataURL(f);
+  r.onload=ev=>{
+    document.getElementById('mp3').value=ev.target.result;
+    document.getElementById('mp3-name').textContent='✅ '+f.name;
+  };
+}
+
+function collectData(){
+  return {
+    theme:document.getElementById('theme').value,
+    title:document.getElementById('title').value,
+    subtitle:document.getElementById('subtitle').value,
+    bday:document.getElementById('bday').value,
+    yt:document.getElementById('yt').value,
+    mp3:document.getElementById('mp3').value,
+    mtitle:document.getElementById('mtitle').value,
+    wishes:document.getElementById('wishes').value,
+    cake_img:document.getElementById('cake_img').value,
+    p1_img:document.getElementById('p1_img').value,p1_txt:document.getElementById('p1_txt').value,
+    p2_img:document.getElementById('p2_img').value,p2_txt:document.getElementById('p2_txt').value,
+    p3_img:document.getElementById('p3_img').value,p3_txt:document.getElementById('p3_txt').value,
+    quote:document.getElementById('quote').value,
+    author:document.getElementById('author').value,
+    story:document.getElementById('story').value,
+    story_img:document.getElementById('story_img').value,
+    surprise_img:document.getElementById('surprise_img').value,
+    surprise_msg:document.getElementById('surprise_msg').value
+  };
+}
+
+/* ── PRATONTON PERCUMA — tanpa simpan, tanpa bayar ── */
+function previewCard(){
+  const d=collectData();
+  let base=window.location.href.split('#')[0].split('?')[0].replace(/[^/]*$/,'');
+  if(!base.endsWith('/'))base+='/';
+  const url=base+'card-befday-1.html?preview=1';
+  try{
+    localStorage.setItem('gk_preview', JSON.stringify(d));
+  }catch(e){
+    // data terlalu besar (selalunya MP3) — cuba tanpa muzik untuk pratonton
+    try{
+      const lite={...d, mp3:''};
+      localStorage.setItem('gk_preview', JSON.stringify(lite));
+      alert('Pratonton dipaparkan tanpa muzik (fail terlalu besar). Muzik tetap akan ada dalam kad sebenar.');
+    }catch(e2){
+      alert('Gambar terlalu besar untuk pratonton. Cuba guna gambar lebih kecil.');
+      return;
+    }
+  }
+  window.open(url,'_blank');
+}
+
+async function generate(){
+  const btn=document.getElementById('gen-btn');
+  const err=document.getElementById('err-box');
+  const res=document.getElementById('result');
+
+  // guard: pastikan Supabase dah load sebelum guna db
+  if(!db){
+    showErr('Library Supabase tak berjaya dimuatkan. Refresh halaman & cuba lagi (semak talian internet).');
+    return;
+  }
+
+  btn.textContent='⏳ Menyediakan pembayaran...';btn.disabled=true;
+  err.style.display='none';res.style.display='none';
+
+  const d=collectData();
+
+  const kb=Math.round(JSON.stringify(d).length/1024);
+  if(kb>4500){
+    showErr(`Data terlalu besar (~${kb}KB). Guna gambar/MP3 yang lebih kecil.`);
+    btn.textContent='💳 Bayar & Dapatkan Link Kad';btn.disabled=false;return;
+  }
+
+  try{
+    // maklumat pembeli (wajib untuk resit & rekod)
+    const buyerName =document.getElementById('buyer_name').value.trim();
+    const buyerEmail=document.getElementById('buyer_email').value.trim();
+    const buyerPhone=document.getElementById('buyer_phone').value.trim();
+    if(!buyerName||!buyerEmail||!buyerPhone){
+      showErr('Sila isi Maklumat Anda (nama, email & no. telefon) sebelum bayar.');
+      btn.textContent='💳 Bayar & Dapatkan Link Kad';btn.disabled=false;return;
+    }
+    if(!/^\S+@\S+\.\S+$/.test(buyerEmail)){
+      showErr('Email tidak sah. Sila semak semula.');
+      btn.textContent='💳 Bayar & Dapatkan Link Kad';btn.disabled=false;return;
+    }
+
+    // kod affiliate (?ref=) jika ada
+    let ref=null;
+    try{ref=new URLSearchParams(location.search).get('ref')||localStorage.getItem('gk_ref')||null}catch(_e){}
+
+    // 1) simpan kad sebagai BELUM BAYAR + maklumat pembeli
+    const{data,error}=await db.from('cards').insert([{
+      card_data:d, paid:false, ref_code:ref,
+      buyer_name:buyerName, buyer_email:buyerEmail, buyer_phone:buyerPhone
+    }]).select();
+    if(error)throw error;
+    const id=data[0].id;
+
+    // 2) minta server cipta bill ToyyibPay
+    const plan=document.getElementById('plan').value||'basic';
+    const r=await fetch(API_BASE+'/api/create-bill',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({cardId:id, plan, buyerName, buyerEmail, buyerPhone})
+    });
+    const out=await r.json();
+    if(!out.paymentUrl)throw new Error(out.error||'Gagal cipta bil pembayaran. Cuba lagi.');
+
+    // 3) pergi ke halaman bayaran ToyyibPay
+    btn.textContent='🔒 Membawa ke pembayaran...';
+    window.location.href=out.paymentUrl;
+    return;
+  }catch(e){
+    let msg=e.message||String(e);
+    if(msg.includes('cards')&&msg.includes('exist')){
+      msg='Table "cards" belum dibuat. Run SQL ini dalam Supabase:';
+      document.getElementById('sql-hint').style.display='block';
+    }
+    showErr(msg);
+  }
+  btn.textContent='💳 Bayar & Dapatkan Link Kad';btn.disabled=false;
+}
+
+function pickPlan(p){
+  document.getElementById('plan').value=p;
+  document.getElementById('plan-basic').classList.toggle('sel',p==='basic');
+  document.getElementById('plan-premium').classList.toggle('sel',p==='premium');
+}
+
+/* simpan kod affiliate dari URL supaya kekal walau user browse dulu */
+(function saveRef(){
+  try{
+    const ref=new URLSearchParams(location.search).get('ref');
+    if(ref)localStorage.setItem('gk_ref',ref);
+  }catch(_e){}
+})();
+
+function showErr(msg){
+  document.getElementById('err-msg').textContent=msg;
+  document.getElementById('err-box').style.display='block';
+}
+
+function copyLink(){
+  const l=document.getElementById('share-link').href;
+  navigator.clipboard.writeText(l).catch(()=>{
+    const t=document.createElement('textarea');t.value=l;
+    document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t);
+  });
+  alert('✅ Link disalin!');
+}
+</script>
+<div id="gk-langtog" style="position:fixed;bottom:14px;left:14px;z-index:99999;display:inline-flex;border:1.5px solid #ffd6e6;border-radius:50px;overflow:hidden;font-family:Poppins,sans-serif;font-size:.72rem;font-weight:700;background:#fff;box-shadow:0 3px 12px rgba(233,30,99,.28)"><button data-l="en" onclick="gkApply('en')" style="border:none;background:#fff;color:#a07;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">EN</button><button data-l="ms" onclick="gkApply('ms')" style="border:none;background:#fff;color:#a07;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">BM</button></div>
+<script>
+var GK_DICT={
+"💖 Buat Kad Hari Jadi":"💖 Make a Birthday Card",
+"Isi maklumat di bawah & jana link kad cantik untuk orang istimewa kamu":"Fill in the details below & generate a beautiful card link for someone special",
+"Pilih Tema Kad 🎂":"Choose a Card Theme 🎂",
+"Setiap tema ada design tersendiri. Pilih satu untuk mula.":"Each theme has its own design. Pick one to start.",
+"↺ Tukar tema":"↺ Change theme",
+"🧑 Maklumat Anda (Pembeli)":"🧑 Your Details (Buyer)",
+"💳 Pilih Pakej & Bayar":"💳 Choose Package & Pay",
+"🎨 Tema Warna Kad":"🎨 Card Colour Theme",
+"🎂 Slide 1 — Muka Depan":"🎂 Slide 1 — Front",
+"⏳ Slide Countdown (Hari Lahir)":"⏳ Countdown Slide (Birthday)",
+"🎵 Muzik Latar":"🎵 Background Music",
+"🌟 Slide 2 — Doa & Harapan":"🌟 Slide 2 — Wishes",
+"📸 Slide 3 — Polaroid Kenangan":"📸 Slide 3 — Polaroid Memories",
+"💬 Slide 4 — Ayat Sweet":"💬 Slide 4 — Sweet Quote",
+"📖 Slide 5 — Cerita Kita":"📖 Slide 5 — Our Story",
+"🎁 Slide 7 — Kejutan!":"🎁 Slide 7 — Surprise!",
+"Nama":"Name","Email":"Email","No. Telefon (WhatsApp)":"Phone No. (WhatsApp)",
+"Tajuk Utama":"Main Title","Nama / Ucapan Kecil":"Name / Small Greeting",
+"Tarikh & masa hari jadi dia":"Their birthday date & time",
+"Nama Lagu (papar dalam kad)":"Song Name (shown in card)",
+"Senarai Doa (Enter = baris baru)":"Wishes List (Enter = new line)",
+"Gambar (Kek / Bunga dll)":"Photo (Cake / Flowers etc.)",
+"Gambar Kiri":"Left Photo","Gambar Tengah":"Middle Photo","Gambar Kanan":"Right Photo",
+"Petikan Kata":"Quote","Daripada":"From","Cerita Pendek":"Short Story","Gambar Cerita":"Story Photo",
+"Ucapan Kejutan":"Surprise Message","Gambar Kejutan":"Surprise Photo",
+"Link Lagu YouTube":"YouTube Song Link","Fail MP3":"MP3 File",
+"Resit pembayaran akan dihantar ke email ini. Data anda selamat & tidak dikongsi.":"The payment receipt will be sent to this email. Your data is safe & not shared.",
+"Slide countdown akan kira detik ke tarikh ni. Kosongkan kalau tak nak slide ni.":"The countdown slide counts down to this date. Leave blank to skip this slide.",
+"Saiz kecil sahaja (bawah 3MB) supaya kad tak terlalu berat.":"Small size only (under 3MB) so the card is not too heavy.",
+"Tema + muzik YouTube":"Theme + YouTube music","+ MP3 sendiri & semua ciri":"+ your own MP3 & all features",
+"🔗 Link YouTube":"🔗 YouTube Link","🎧 Upload MP3":"🎧 Upload MP3",
+"📷 Pilih Gambar":"📷 Choose Photo","📷 Pilih":"📷 Choose","🎧 Pilih Fail MP3":"🎧 Choose MP3 File","🎁 Pilih Gambar Kejutan":"🎁 Choose Surprise Photo",
+"👀 Pratonton Kad (Percuma)":"👀 Preview Card (Free)","💳 Bayar & Dapatkan Link Kad":"💳 Pay & Get Card Link",
+"Pembayaran selamat melalui ToyyibPay (FPX / Online Banking) 🔒":"Secure payment via ToyyibPay (FPX / Online Banking) 🔒",
+"TERSEDIA":"AVAILABLE",
+"Sila isi Maklumat Anda (nama, email & no. telefon) sebelum bayar.":"Please fill in Your Details (name, email & phone) before paying.",
+"Email tidak sah. Sila semak semula.":"Invalid email. Please check again.",
+"Library Supabase tak berjaya dimuatkan. Refresh halaman & cuba lagi (semak talian internet).":"Failed to load the payment library. Refresh the page & try again (check your connection)."
+};
+var GK_HTML={};
+var GK_PH={"buyer_name":{ms:"cth: Aina Sofea",en:"e.g. Aina Sofea"},"buyer_phone":{ms:"cth: 0123456789",en:"e.g. 0123456789"},"buyer_email":{ms:"cth: aina@gmail.com",en:"e.g. aina@gmail.com"}};
+(function(){var IN={B:1,I:1,EM:1,STRONG:1,BR:1,SMALL:1,U:1,SPAN:1};var SEL="h1,h2,h3,h4,h5,p,span,label,button,a,small,option,summary,li,div,strong";var cur="ms",busy=false;function nm(s){return s.replace(/\s+/g," ").trim();}function inl(el){if(!el.children.length)return false;for(var i=0;i<el.children.length;i++){if(!IN[el.children[i].tagName])return false;}return true;}function tag(el){if(el.hasAttribute("data-gki"))return;if(!el.children.length){var k=nm(el.textContent);if(k&&GK_DICT[k]!=null){el.setAttribute("data-gki","t");el.setAttribute("data-ms",el.textContent);}}else if(inl(el)){var k2=nm(el.innerHTML);if(k2&&GK_HTML[k2]!=null){el.setAttribute("data-gki","h");el.setAttribute("data-mh",el.innerHTML);}}}function apply(l){busy=true;cur=l;document.documentElement.lang=l;var els=document.querySelectorAll(SEL);for(var i=0;i<els.length;i++)tag(els[i]);document.querySelectorAll('[data-gki="t"]').forEach(function(el){var ms=el.getAttribute("data-ms"),k=nm(ms);el.textContent=(l=="en"&&GK_DICT[k]!=null)?GK_DICT[k]:ms;});document.querySelectorAll('[data-gki="h"]').forEach(function(el){var ms=el.getAttribute("data-mh"),k=nm(ms);el.innerHTML=(l=="en"&&GK_HTML[k]!=null)?GK_HTML[k]:ms;});for(var id in GK_PH){var e=document.getElementById(id);if(e)e.placeholder=(l=="en")?GK_PH[id].en:GK_PH[id].ms;}var t=document.getElementById("gk-langtog");if(t){var be=t.querySelector('[data-l="en"]'),bm=t.querySelector('[data-l="ms"]');be.style.background=l=="en"?"linear-gradient(135deg,#e91e63,#c2185b)":"#fff";be.style.color=l=="en"?"#fff":"#a07";bm.style.background=l=="ms"?"linear-gradient(135deg,#e91e63,#c2185b)":"#fff";bm.style.color=l=="ms"?"#fff":"#a07";}try{localStorage.setItem("gk_lang",l);}catch(e){}busy=false;}window.gkApply=apply;var mo=new MutationObserver(function(){if(busy)return;if(cur=="en"){clearTimeout(window._gkT);window._gkT=setTimeout(function(){apply("en");},60);}});mo.observe(document.body,{childList:true,subtree:true});var sv=null;try{sv=localStorage.getItem("gk_lang");}catch(e){}var dv=(navigator.language||"ms").toLowerCase();apply(sv||((dv.indexOf("ms")==0||dv.indexOf("id")==0)?"ms":"en"));})();
+</script>
+</body>
+</html>
