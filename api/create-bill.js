@@ -5,7 +5,7 @@
 
 // Harga dalam SEN (RM8 = 800, RM15 = 1500). Server yang tentukan harga,
 // BUKAN client — supaya tak boleh diubah jadi RM0.
-const PRICES    = { basic: 800,  premium: 1500 };
+const PRICES    = { basic: 600,  premium: 800 };
 const PLAN_NAME = { basic: 'GiftKita Basic', premium: 'GiftKita Premium' };
 
 module.exports = async (req, res) => {
@@ -53,7 +53,7 @@ module.exports = async (req, res) => {
     if (!billCode) { res.status(502).json({ error: 'Gagal cipta bill', detail: data }); return; }
 
     // 2) simpan bill_code + amount ke card (service key, bypass RLS)
-    await sbPatch(`cards?id=eq.${cardId}`, { bill_code: billCode, amount: amountCents / 100 });
+    await sbPatch(`cards?id=eq.${cardId}`, { bill_code: billCode, amount: amountCents / 100, plan });
 
     // 3) pulangkan URL bayaran
     res.status(200).json({ paymentUrl: `${TPAY}/${billCode}` });
