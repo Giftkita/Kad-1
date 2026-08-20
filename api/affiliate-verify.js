@@ -3,6 +3,9 @@
 //  POST {code} → {active, stats:{clicks, sales, total, unpaid}}
 // ════════════════════════════════════════════════════════════
 
+const crypto = require('crypto');
+function hashPass(pw){ return crypto.createHash('sha256').update('gk::'+pw).digest('hex'); }
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -11,13 +14,20 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST sahaja' }); return; }
 
   try {
-    let { code } = req.body || {};
+    let { code, password } = req.body || {};
     code = (code || '').trim().toUpperCase();
     if (!code) { res.status(400).json({ active: false, error: 'no code' }); return; }
 
-    const affs = await sbGet(`affiliates?code=eq.${encodeURIComponent(code)}&select=code,name,active,bill_code,commission_flat`);
+    const affs = await sbGet(`affiliates?code=eq.${encodeURIComponent(code)}&select=code,name,active,bill_code,commission_flat,pass_hash`);
     const aff = affs[0];
     if (!aff) { res.status(200).json({ active: false, error: 'Kod tidak dijumpai.' }); return; }
+
+    // sahkan password (affiliate lama tanpa password dibenarkan masuk & digalak set)
+    if (aff.pass_hash) {
+      if (!password || hashPass(String(password)) !== aff.pass_hash) {
+        res.status(200).json({ active: false, error: 'Password salah.' }); return;
+      }
+    }
 
     // belum aktif? cuba sahkan bayaran RM10 dengan ToyyibPay
     if (aff.active !== true) {
