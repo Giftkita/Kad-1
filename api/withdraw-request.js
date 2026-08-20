@@ -6,6 +6,9 @@
 
 const MIN_WITHDRAW = 10; // RM
 
+const crypto = require('crypto');
+function hashPass(pw){ return crypto.createHash('sha256').update('gk::'+pw).digest('hex'); }
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -14,7 +17,7 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST sahaja' }); return; }
 
   try {
-    let { code, bankName, bankAccount, accountName } = req.body || {};
+    let { code, password, bankName, bankAccount, accountName } = req.body || {};
     code        = (code        || '').trim().toUpperCase();
     bankName    = (bankName    || '').trim();
     bankAccount = (bankAccount || '').trim();
@@ -25,8 +28,13 @@ module.exports = async (req, res) => {
     }
 
     // affiliate mesti aktif
-    const affs = await sbGet(`affiliates?code=eq.${encodeURIComponent(code)}&active=eq.true&select=code`);
+    const affs = await sbGet(`affiliates?code=eq.${encodeURIComponent(code)}&active=eq.true&select=code,pass_hash`);
     if (!affs.length) { res.status(400).json({ error: 'Affiliate tidak aktif / tidak dijumpai.' }); return; }
+    if (affs[0].pass_hash) {
+      if (!password || hashPass(String(password)) !== affs[0].pass_hash) {
+        res.status(400).json({ error: 'Password salah. Tuntutan dibatalkan.' }); return;
+      }
+    }
 
     // kira komisen boleh dituntut
     const comms = await sbGet(`commissions?affiliate_code=eq.${encodeURIComponent(code)}&paid_out=eq.false&select=id,amount`);
