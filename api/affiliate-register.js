@@ -4,6 +4,8 @@
 // ════════════════════════════════════════════════════════════
 
 const REG_FEE = 1000; // RM10 dalam SEN
+const crypto = require('crypto');
+function hashPass(pw){ return crypto.createHash('sha256').update('gk::'+pw).digest('hex'); }
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -13,13 +15,14 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST sahaja' }); return; }
 
   try {
-    let { name, email, phone, code } = req.body || {};
+    let { name, email, phone, code, password } = req.body || {};
     name  = (name  || '').trim();
     email = (email || '').trim();
     phone = (phone || '').trim();
     code  = (code  || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
 
     if (!name || !email || !phone || !code) { res.status(400).json({ error: 'Sila isi semua maklumat.' }); return; }
+    if (!password || String(password).length < 6) { res.status(400).json({ error: 'Password mesti sekurang-kurangnya 6 aksara.' }); return; }
     if (!/^[A-Z0-9]{3,12}$/.test(code)) { res.status(400).json({ error: 'Kod mesti 3-12 huruf/nombor sahaja.' }); return; }
     if (!/^\S+@\S+\.\S+$/.test(email)) { res.status(400).json({ error: 'Email tidak sah.' }); return; }
 
@@ -59,7 +62,7 @@ module.exports = async (req, res) => {
     if (!billCode) { res.status(502).json({ error: 'Gagal cipta bil. Cuba lagi.', detail: data }); return; }
 
     // simpan / kemaskini rekod affiliate (belum aktif)
-    const row = { code, name, email, whatsapp: phone, active: false, commission_flat: 2, bill_code: billCode };
+    const row = { code, name, email, whatsapp: phone, active: false, commission_flat: 2, bill_code: billCode, pass_hash: hashPass(String(password)) };
     if (existing.length) {
       await sbPatch(`affiliates?code=eq.${encodeURIComponent(code)}`, row);
     } else {
