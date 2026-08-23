@@ -102,6 +102,7 @@ const API_BASE=(location.hostname.indexOf('github.io')>-1)?'https://www.giftkita
 const qs=new URLSearchParams(location.search);
 const cardId=qs.get('id');
 let tries=0;
+let PLAN='basic';
 const MAX_TRIES=6;   // ~30 saat
 
 function show(id){
@@ -120,7 +121,7 @@ async function checkNow(manual){
       body:JSON.stringify({cardId})
     });
     const out=await r.json();
-    if(out.paid===true){success();return;}
+    if(out.paid===true){ PLAN=out.plan||'basic'; success(); return; }
     if(out.error){
       console.log('verify error:',out.error);
       document.getElementById('fail-msg').textContent='Ralat semakan: '+out.error+' — cuba semak semula, atau hubungi kami.';
@@ -149,21 +150,23 @@ function success(){
 }
 
 async function showQR(link){
-  let plan='basic';   // QR hanya untuk Premium
-  try{
-    // baca card_data sahaja — tak bergantung pada kolum 'plan'
-    const r=await fetch(SB_URL+'/rest/v1/cards?id=eq.'+cardId+'&select=card_data',
-      {headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
-    const j=await r.json();
-    if(j&&j[0]&&j[0].card_data&&j[0].card_data.plan) plan=j[0].card_data.plan;
-  }catch(_e){}
-  if(plan!=='premium') return;
+  const dbg=new URLSearchParams(location.search).get('debug')==='1';
+  const log=(m)=>{ if(!dbg)return; let d=document.getElementById('gk-dbg');
+    if(!d){d=document.createElement('div');d.id='gk-dbg';
+      d.style.cssText='position:fixed;left:8px;bottom:8px;right:8px;z-index:999;background:#111;color:#0f0;font:11px monospace;padding:8px;border-radius:8px;max-height:40vh;overflow:auto';
+      document.body.appendChild(d);}
+    d.innerHTML+=m+'<br>'; };
 
-  // tunggu library QR jika masih memuat
-  for(let i=0;i<20&&!window.QRCode;i++){ await new Promise(r=>setTimeout(r,200)); }
+  log('plan dari server: '+PLAN);
+  if(PLAN!=='premium'){ log('bukan premium → QR tidak dipaparkan'); return; }
+
+  for(let i=0;i<25&&!window.QRCode;i++){ await new Promise(r=>setTimeout(r,200)); }
+  log('library QR: '+(window.QRCode?'OK':'GAGAL DIMUAT'));
   if(!window.QRCode) return;
+
   QRCode.toCanvas(document.getElementById('qr-cv'),link,
     {width:340,margin:1,color:{dark:'#a8121c',light:'#ffffff'}},err=>{
+      log('jana QR: '+(err?('RALAT '+err):'BERJAYA'));
       if(!err) document.getElementById('qr-box').style.display='block';
     });
 }
