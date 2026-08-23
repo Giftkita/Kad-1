@@ -6,8 +6,6 @@
 <title>Pembayaran — GiftKita 💝</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
-<script>if(!window.QRCode){document.write('<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"><\/script>');}</script>
 <script>
 if(!window.supabase){
   document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');
@@ -34,6 +32,181 @@ p{font-size:.86rem;color:#7a5666;line-height:1.6}
 .cf{position:absolute;top:-30px;animation:fall linear infinite}
 @keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
 </style>
+<script>
+/* Penjana QR minimal — mod byte, EC level M, versi 1..10 */
+var GKQR=(function(){
+  // ── GF(256) ──
+  var EXP=new Array(512),LOG=new Array(256);
+  (function(){var x=1;for(var i=0;i<255;i++){EXP[i]=x;LOG[x]=i;x<<=1;if(x&0x100)x^=0x11d;}
+   for(var i=255;i<512;i++)EXP[i]=EXP[i-255];})();
+  function mul(a,b){return (a===0||b===0)?0:EXP[LOG[a]+LOG[b]];}
+
+  function rsPoly(n){var p=[1];for(var i=0;i<n;i++){var q=[1,EXP[i]],r=new Array(p.length+1).fill(0);
+    for(var j=0;j<p.length;j++){r[j]^=mul(p[j],q[0]);r[j+1]^=mul(p[j],q[1]);}p=r;}return p;}
+  function rsEnc(data,n){var gen=rsPoly(n),res=data.concat(new Array(n).fill(0));
+    for(var i=0;i<data.length;i++){var c=res[i];if(c!==0)for(var j=1;j<gen.length;j++)res[i+j]^=mul(gen[j],c);}
+    return res.slice(data.length);}
+
+  // ── jadual versi (EC level M): [jumlah codeword, ec per blok, blok grup1, dc grup1, blok grup2, dc grup2] ──
+  var V={
+   1:[26,10,1,16,0,0], 2:[44,16,1,28,0,0], 3:[70,26,1,44,0,0], 4:[100,18,2,32,0,0],
+   5:[134,24,2,43,0,0], 6:[172,16,4,27,0,0], 7:[196,18,4,31,0,0], 8:[242,22,2,38,2,39],
+   9:[292,22,3,36,2,37], 10:[346,26,4,43,1,44]
+  };
+  var ALIGN={1:[],2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50]};
+
+  function capacity(v){var t=V[v];return t[2]*t[3]+t[4]*t[5];}
+
+  function encode(str){
+    var bytes=[],i;
+    for(i=0;i<str.length;i++){var c=str.charCodeAt(i);
+      if(c<0x80)bytes.push(c);
+      else if(c<0x800){bytes.push(0xc0|c>>6,0x80|c&63);}
+      else{bytes.push(0xe0|c>>12,0x80|(c>>6)&63,0x80|c&63);}}
+
+    var ver=0;
+    for(v=1;v<=10;v++){var cci=(v<10)?8:16;
+      var need=Math.ceil((4+cci+bytes.length*8)/8);
+      if(need<=capacity(v)){ver=v;break;}}
+    if(!ver)throw new Error('teks terlalu panjang');
+
+    var t=V[ver],total=capacity(ver),bits=[];
+    function put(val,len){for(var k=len-1;k>=0;k--)bits.push((val>>k)&1);}
+    put(4,4); put(bytes.length,(ver<10)?8:16);
+    for(i=0;i<bytes.length;i++)put(bytes[i],8);
+    var cap=total*8;
+    for(i=0;i<4&&bits.length<cap;i++)bits.push(0);
+    while(bits.length%8)bits.push(0);
+    var dc=[];for(i=0;i<bits.length;i+=8){var b=0;for(var k=0;k<8;k++)b=(b<<1)|bits[i+k];dc.push(b);}
+    var pad=[0xEC,0x11],pi=0;while(dc.length<total)dc.push(pad[pi++%2]);
+
+    // pecah blok
+    var blocks=[],idx=0,g;
+    for(g=0;g<t[2];g++){blocks.push(dc.slice(idx,idx+t[3]));idx+=t[3];}
+    for(g=0;g<t[4];g++){blocks.push(dc.slice(idx,idx+t[5]));idx+=t[5];}
+    var ecs=blocks.map(function(b){return rsEnc(b,t[1]);});
+
+    // interleave
+    var out=[],maxD=Math.max.apply(null,blocks.map(function(b){return b.length;}));
+    for(i=0;i<maxD;i++)for(g=0;g<blocks.length;g++)if(i<blocks[g].length)out.push(blocks[g][i]);
+    for(i=0;i<t[1];i++)for(g=0;g<ecs.length;g++)out.push(ecs[g][i]);
+    return {ver:ver,codewords:out,dataCodewords:dc,ecTest:ecs};
+  }
+
+  // ── bina matriks ──
+  function build(str){
+    var e=encode(str),ver=e.ver,size=ver*4+17;
+    var m=[],res=[],r,c;
+    for(r=0;r<size;r++){m.push(new Array(size).fill(0));res.push(new Array(size).fill(0));}
+    function setF(r,c,v){m[r][c]=v;res[r][c]=1;}
+
+    function finder(r0,c0){
+      for(r=-1;r<=7;r++)for(c=-1;c<=7;c++){
+        var rr=r0+r,cc=c0+c; if(rr<0||cc<0||rr>=size||cc>=size)continue;
+        var v=(r>=0&&r<=6&&(c===0||c===6))||(c>=0&&c<=6&&(r===0||r===6))||(r>=2&&r<=4&&c>=2&&c<=4)?1:0;
+        setF(rr,cc,v);}
+    }
+    finder(0,0);finder(0,size-7);finder(size-7,0);
+
+    var al=ALIGN[ver];
+    for(var a=0;a<al.length;a++)for(var b=0;b<al.length;b++){
+      var ar=al[a],ac=al[b];
+      if((ar<=8&&ac<=8)||(ar<=8&&ac>=size-9)||(ar>=size-9&&ac<=8))continue;
+      for(r=-2;r<=2;r++)for(c=-2;c<=2;c++)
+        setF(ar+r,ac+c,(Math.abs(r)===2||Math.abs(c)===2||(r===0&&c===0))?1:0);
+    }
+    for(i=8;i<size-8;i++){setF(6,i,i%2===0?1:0);setF(i,6,i%2===0?1:0);}
+    setF(size-8,8,1);
+
+    // rizab format
+    for(i=0;i<9;i++){if(!res[8][i])setF(8,i,0);if(!res[i][8])setF(i,8,0);}
+    for(i=0;i<8;i++){if(!res[8][size-1-i])setF(8,size-1-i,0);if(!res[size-1-i][8])setF(size-1-i,8,0);}
+    if(ver>=7){for(i=0;i<6;i++)for(var j=0;j<3;j++){setF(size-11+j,i,0);setF(i,size-11+j,0);}}
+
+    // letak data
+    var dbits=[];
+    e.codewords.forEach(function(b){for(var k=7;k>=0;k--)dbits.push((b>>k)&1);});
+    var di=0,up=true,col=size-1;
+    while(col>0){
+      if(col===6)col--;
+      for(var n=0;n<size;n++){
+        var rr=up?size-1-n:n;
+        for(var k=0;k<2;k++){var cc=col-k;
+          if(res[rr][cc])continue;
+          m[rr][cc]=di<dbits.length?dbits[di++]:0;}
+      }
+      up=!up;col-=2;
+    }
+    return {m:m,size:size,ver:ver,res:res,enc:e};
+  }
+
+  // ── mask + format ──
+  function maskFn(k,r,c){
+    switch(k){case 0:return (r+c)%2===0;case 1:return r%2===0;case 2:return c%3===0;
+      case 3:return (r+c)%3===0;case 4:return (Math.floor(r/2)+Math.floor(c/3))%2===0;
+      case 5:return (r*c)%2+(r*c)%3===0;case 6:return ((r*c)%2+(r*c)%3)%2===0;
+      default:return ((r+c)%2+(r*c)%3)%2===0;}
+  }
+  function penalty(m,size){
+    var p=0,r,c,i;
+    for(r=0;r<size;r++){var run=1;for(c=1;c<size;c++){if(m[r][c]===m[r][c-1])run++;else{if(run>=5)p+=3+(run-5);run=1;}}if(run>=5)p+=3+(run-5);}
+    for(c=0;c<size;c++){var run2=1;for(r=1;r<size;r++){if(m[r][c]===m[r-1][c])run2++;else{if(run2>=5)p+=3+(run2-5);run2=1;}}if(run2>=5)p+=3+(run2-5);}
+    for(r=0;r<size-1;r++)for(c=0;c<size-1;c++){var s=m[r][c]+m[r][c+1]+m[r+1][c]+m[r+1][c+1];if(s===0||s===4)p+=3;}
+    var dark=0;for(r=0;r<size;r++)for(c=0;c<size;c++)dark+=m[r][c];
+    p+=10*Math.floor(Math.abs(dark*100/(size*size)-50)/5);
+    return p;
+  }
+  function fmtBits(ec,mask){
+    var d=(ec<<3)|mask,v=d<<10,g=0x537;
+    for(var i=4;i>=0;i--)if(v&(1<<(i+10)))v^=g<<i;
+    return ((d<<10)|v)^0x5412;
+  }
+  function verBits(ver){
+    var v=ver<<12,g=0x1f25;
+    for(var i=5;i>=0;i--)if(v&(1<<(i+12)))v^=g<<i;
+    return (ver<<12)|v;
+  }
+
+  function make(str){
+    var B=build(str),size=B.size,best=null;
+    for(var k=0;k<8;k++){
+      var mm=B.m.map(function(row){return row.slice();});
+      for(var r=0;r<size;r++)for(var c=0;c<size;c++)
+        if(!B.res[r][c]&&maskFn(k,r,c))mm[r][c]^=1;
+      // format (EC M = 0)
+      var f=fmtBits(0,k);
+      for(var i=0;i<15;i++){
+        var b=(f>>i)&1;
+        if(i<6){mm[8][i]=b;} else if(i<8){mm[8][i+1]=b;} else if(i===8){mm[7][8]=b;} else {mm[14-i][8]=b;}
+        if(i<8){mm[size-1-i][8]=b;} else {mm[8][size-15+i]=b;}
+      }
+      mm[size-8][8]=1;
+      if(B.ver>=7){var vb=verBits(B.ver);
+        for(i=0;i<18;i++){var bb=(vb>>i)&1,rr=Math.floor(i/3),cc=i%3;
+          mm[size-11+cc][rr]=bb;mm[rr][size-11+cc]=bb;}}
+      var p=penalty(mm,size);
+      if(!best||p<best.p)best={p:p,m:mm};
+    }
+    return {size:size,modules:best.m,ver:B.ver,enc:B.enc};
+  }
+  return {make:make,_encode:encode,_rs:rsEnc};
+})();
+
+/* lukis QR ke canvas */
+function gkDrawQR(canvas,text,opt){
+  opt=opt||{};
+  var q=GKQR.make(text), n=q.size, quiet=2, total=n+quiet*2;
+  var px=Math.max(4,Math.floor((opt.size||360)/total));
+  var W=total*px;
+  canvas.width=W; canvas.height=W;
+  var ctx=canvas.getContext('2d');
+  ctx.fillStyle=opt.light||'#ffffff'; ctx.fillRect(0,0,W,W);
+  ctx.fillStyle=opt.dark||'#000000';
+  for(var r=0;r<n;r++)for(var c=0;c<n;c++)
+    if(q.modules[r][c]) ctx.fillRect((c+quiet)*px,(r+quiet)*px,px,px);
+  return q;
+}
+</script>
 </head>
 <body>
 <div class="conf" id="conf"></div>
@@ -158,17 +331,12 @@ async function showQR(link){
     d.innerHTML+=m+'<br>'; };
 
   log('plan dari server: '+PLAN);
-  if(PLAN!=='premium'){ log('bukan premium → QR tidak dipaparkan'); return; }
-
-  for(let i=0;i<25&&!window.QRCode;i++){ await new Promise(r=>setTimeout(r,200)); }
-  log('library QR: '+(window.QRCode?'OK':'GAGAL DIMUAT'));
-  if(!window.QRCode) return;
-
-  QRCode.toCanvas(document.getElementById('qr-cv'),link,
-    {width:340,margin:1,color:{dark:'#a8121c',light:'#ffffff'}},err=>{
-      log('jana QR: '+(err?('RALAT '+err):'BERJAYA'));
-      if(!err) document.getElementById('qr-box').style.display='block';
-    });
+  if(PLAN!=='premium'){ log('bukan premium - QR tidak dipaparkan'); return; }
+  try{
+    gkDrawQR(document.getElementById('qr-cv'),link,{size:360,dark:'#a8121c',light:'#ffffff'});
+    document.getElementById('qr-box').style.display='block';
+    log('jana QR: BERJAYA');
+  }catch(e){ log('jana QR: RALAT '+e.message); }
 }
 function dlQR(){
   const c=document.getElementById('qr-cv');
