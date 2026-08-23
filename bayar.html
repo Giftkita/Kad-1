@@ -64,7 +64,7 @@ var GKQR=(function(){
       else if(c<0x800){bytes.push(0xc0|c>>6,0x80|c&63);}
       else{bytes.push(0xe0|c>>12,0x80|(c>>6)&63,0x80|c&63);}}
 
-    var ver=0;
+    var ver=0,v;
     for(v=1;v<=10;v++){var cci=(v<10)?8:16;
       var need=Math.ceil((4+cci+bytes.length*8)/8);
       if(need<=capacity(v)){ver=v;break;}}
@@ -96,7 +96,7 @@ var GKQR=(function(){
   // ── bina matriks ──
   function build(str){
     var e=encode(str),ver=e.ver,size=ver*4+17;
-    var m=[],res=[],r,c;
+    var m=[],res=[],r,c,i,a,b;
     for(r=0;r<size;r++){m.push(new Array(size).fill(0));res.push(new Array(size).fill(0));}
     function setF(r,c,v){m[r][c]=v;res[r][c]=1;}
 
@@ -109,7 +109,7 @@ var GKQR=(function(){
     finder(0,0);finder(0,size-7);finder(size-7,0);
 
     var al=ALIGN[ver];
-    for(var a=0;a<al.length;a++)for(var b=0;b<al.length;b++){
+    for(a=0;a<al.length;a++)for(b=0;b<al.length;b++){
       var ar=al[a],ac=al[b];
       if((ar<=8&&ac<=8)||(ar<=8&&ac>=size-9)||(ar>=size-9&&ac<=8))continue;
       for(r=-2;r<=2;r++)for(c=-2;c<=2;c++)
@@ -177,8 +177,14 @@ var GKQR=(function(){
       var f=fmtBits(0,k);
       for(var i=0;i<15;i++){
         var b=(f>>i)&1;
-        if(i<6){mm[8][i]=b;} else if(i<8){mm[8][i+1]=b;} else if(i===8){mm[7][8]=b;} else {mm[14-i][8]=b;}
-        if(i<7){mm[size-1-i][8]=b;} else {mm[8][size-15+i]=b;}
+        /* salinan menegak (lajur 8) */
+        if(i<6){mm[i][8]=b;}
+        else if(i<8){mm[i+1][8]=b;}
+        else {mm[size-15+i][8]=b;}
+        /* salinan mendatar (baris 8) */
+        if(i<8){mm[8][size-i-1]=b;}
+        else if(i===8){mm[8][7]=b;}
+        else {mm[8][14-i]=b;}
       }
       mm[size-8][8]=1;
       if(B.ver>=7){var vb=verBits(B.ver);
