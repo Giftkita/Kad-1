@@ -53,11 +53,18 @@ var GKQR=(function(){
    5:[134,24,2,43,0,0], 6:[172,16,4,27,0,0], 7:[196,18,4,31,0,0], 8:[242,22,2,38,2,39],
    9:[292,22,3,36,2,37], 10:[346,26,4,43,1,44]
   };
+  // EC level H (30% pemulihan) — untuk QR berlogo
+  var VH={
+   1:[26,17,1,9,0,0], 2:[44,28,1,16,0,0], 3:[70,22,2,13,0,0], 4:[100,16,4,9,0,0],
+   5:[134,22,2,11,2,12], 6:[172,28,4,15,0,0], 7:[196,26,4,13,1,14], 8:[242,26,4,14,2,15],
+   9:[292,24,4,12,4,13], 10:[346,28,6,15,2,16]
+  };
   var ALIGN={1:[],2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50]};
 
-  function capacity(v){var t=V[v];return t[2]*t[3]+t[4]*t[5];}
+  function tbl(ecl){return ecl==='H'?VH:V;}
+  function capacity(v,ecl){var t=tbl(ecl)[v];return t[2]*t[3]+t[4]*t[5];}
 
-  function encode(str){
+  function encode(str,ecl){
     var bytes=[],i;
     for(i=0;i<str.length;i++){var c=str.charCodeAt(i);
       if(c<0x80)bytes.push(c);
@@ -67,10 +74,10 @@ var GKQR=(function(){
     var ver=0,v;
     for(v=1;v<=10;v++){var cci=(v<10)?8:16;
       var need=Math.ceil((4+cci+bytes.length*8)/8);
-      if(need<=capacity(v)){ver=v;break;}}
+      if(need<=capacity(v,ecl)){ver=v;break;}}
     if(!ver)throw new Error('teks terlalu panjang');
 
-    var t=V[ver],total=capacity(ver),bits=[];
+    var t=tbl(ecl)[ver],total=capacity(ver,ecl),bits=[];
     function put(val,len){for(var k=len-1;k>=0;k--)bits.push((val>>k)&1);}
     put(4,4); put(bytes.length,(ver<10)?8:16);
     for(i=0;i<bytes.length;i++)put(bytes[i],8);
@@ -94,8 +101,8 @@ var GKQR=(function(){
   }
 
   // ── bina matriks ──
-  function build(str){
-    var e=encode(str),ver=e.ver,size=ver*4+17;
+  function build(str,ecl){
+    var e=encode(str,ecl),ver=e.ver,size=ver*4+17;
     var m=[],res=[],r,c,i,a,b;
     for(r=0;r<size;r++){m.push(new Array(size).fill(0));res.push(new Array(size).fill(0));}
     function setF(r,c,v){m[r][c]=v;res[r][c]=1;}
@@ -167,14 +174,15 @@ var GKQR=(function(){
     return (ver<<12)|v;
   }
 
-  function make(str){
-    var B=build(str),size=B.size,best=null;
+  function make(str,ecl){
+    ecl=ecl||'M';
+    var B=build(str,ecl),size=B.size,best=null;
     for(var k=0;k<8;k++){
       var mm=B.m.map(function(row){return row.slice();});
       for(var r=0;r<size;r++)for(var c=0;c<size;c++)
         if(!B.res[r][c]&&maskFn(k,r,c))mm[r][c]^=1;
       // format (EC M = 0)
-      var f=fmtBits(0,k);
+      var f=fmtBits(ecl==='H'?2:0,k);
       for(var i=0;i<15;i++){
         var b=(f>>i)&1;
         /* salinan menegak (lajur 8) */
@@ -198,19 +206,46 @@ var GKQR=(function(){
   return {make:make,_encode:encode,_rs:rsEnc};
 })();
 
-/* lukis QR ke canvas — quiet zone 4 modul mengikut spesifikasi */
+/* lukis QR ke canvas — quiet zone 4 modul; logo GiftKita di tengah (perlu level H) */
 function gkDrawQR(canvas,text,opt){
   opt=opt||{};
-  var q=GKQR.make(text), n=q.size, quiet=4, total=n+quiet*2;
-  var px=Math.max(6,Math.round((opt.size||480)/total));
+  var logo=opt.logo!==false;
+  var q=GKQR.make(text, logo?'H':'M'), n=q.size, quiet=4, total=n+quiet*2;
+  var px=Math.max(6,Math.round((opt.size||520)/total));
   var W=total*px;
   canvas.width=W; canvas.height=W;
   var ctx=canvas.getContext('2d');
-  ctx.fillStyle=opt.light||'#ffffff'; ctx.fillRect(0,0,W,W);
-  ctx.fillStyle=opt.dark||'#000000';
+  var dark=opt.dark||'#a8121c', light=opt.light||'#ffffff';
+
+  ctx.fillStyle=light; ctx.fillRect(0,0,W,W);
+  ctx.fillStyle=dark;
   for(var r=0;r<n;r++)for(var c=0;c<n;c++)
     if(q.modules[r][c]) ctx.fillRect((c+quiet)*px,(r+quiet)*px,px,px);
+
+  if(logo) gkLogo(ctx,W,px,dark,light);
   return q;
+}
+
+/* logo: bulatan putih + hati merah GiftKita */
+function gkLogo(ctx,W,px,dark,light){
+  var R=Math.round(W*0.115);           // jejari ~11.5% lebar (tutup ~4% modul)
+  var cx=W/2, cy=W/2;
+
+  ctx.save();
+  // cincin putih
+  ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
+  ctx.fillStyle=light; ctx.fill();
+  ctx.lineWidth=Math.max(2,px*0.5); ctx.strokeStyle=dark; ctx.stroke();
+
+  // hati
+  var h=R*1.05, w=R*1.15;
+  ctx.beginPath();
+  ctx.moveTo(cx, cy + h*0.36);
+  ctx.bezierCurveTo(cx - w*0.62, cy - h*0.06, cx - w*0.40, cy - h*0.56, cx, cy - h*0.22);
+  ctx.bezierCurveTo(cx + w*0.40, cy - h*0.56, cx + w*0.62, cy - h*0.06, cx, cy + h*0.36);
+  ctx.closePath();
+  ctx.fillStyle=dark; ctx.fill();
+  ctx.restore();
 }
 </script>
 </head>
@@ -339,7 +374,7 @@ async function showQR(link){
   log('plan dari server: '+PLAN);
   if(PLAN!=='premium'){ log('bukan premium - QR tidak dipaparkan'); return; }
   try{
-    gkDrawQR(document.getElementById('qr-cv'),link,{size:520,dark:'#a8121c',light:'#ffffff'});
+    gkDrawQR(document.getElementById('qr-cv'),link,{size:560,dark:'#a8121c',light:'#ffffff',logo:true});
     document.getElementById('qr-box').style.display='block';
     log('jana QR: BERJAYA');
   }catch(e){ log('jana QR: RALAT '+e.message); }
