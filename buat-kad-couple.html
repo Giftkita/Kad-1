@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Buat Kad Couple 💑 GiftKita</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;1,600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<style>
+:root{
+  --plum:#241021; --wine:#5e2140; --rose:#c96a86; --gold:#d9a441;
+  --cream:#fdf7f2; --line:#ecdde2; --ink:#2b1520;
+  --gk-accent:#c96a86; --gk-accent-2:#5e2140;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Poppins',sans-serif;background:var(--cream);color:var(--ink);line-height:1.6;padding:0 0 40px}
+.disp{font-family:'Cormorant Garamond',serif;font-weight:600;line-height:1.1}
+
+.top{background:radial-gradient(ellipse 90% 70% at 50% 10%,#59203c,var(--plum) 75%);color:var(--cream);
+  padding:38px 22px 34px;text-align:center}
+.top .back{position:absolute;left:16px;top:14px;font-size:.72rem;color:rgba(253,247,242,.6);text-decoration:none}
+.top h1{font-size:clamp(1.9rem,7vw,2.6rem)}
+.top h1 em{font-style:italic;color:var(--gold)}
+.top p{font-size:.84rem;color:rgba(253,247,242,.72);margin-top:8px;max-width:26rem;margin-left:auto;margin-right:auto}
+
+.sheet{max-width:640px;margin:-18px auto 0;background:#fff;border-radius:22px 22px 0 0;
+  box-shadow:0 -8px 40px rgba(43,21,32,.12);padding:26px 20px 30px;position:relative}
+
+h2{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:1.45rem;color:var(--wine);
+  margin:30px 0 4px;display:flex;align-items:baseline;gap:10px}
+h2:first-of-type{margin-top:6px}
+h2 .num{font-family:'Poppins';font-size:.62rem;letter-spacing:.16em;color:var(--rose);font-weight:600}
+.sub{font-size:.76rem;color:#9a8189;margin-bottom:6px}
+
+label{font-weight:600;font-size:.8rem;display:block;margin-top:13px;margin-bottom:4px}
+.hint{font-size:.72rem;color:#b3a3ab;display:block;margin-bottom:4px}
+input[type=text],textarea{width:100%;padding:11px 13px;border:1.5px solid var(--line);border-radius:10px;
+  font-family:inherit;font-size:.85rem;outline:none;transition:.2s;background:#fff;color:var(--ink)}
+input[type=text]:focus,textarea:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,106,134,.12)}
+textarea{height:120px;resize:vertical;line-height:1.7}
+.row{display:flex;gap:12px;flex-wrap:wrap}
+.row>div{flex:1;min-width:160px}
+
+.upl{position:relative;display:block;width:100%;margin-top:5px;overflow:hidden}
+.upl input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upl .b{border:1.5px dashed var(--line);background:#fdfafb;padding:11px;text-align:center;border-radius:10px;
+  color:#a5919a;font-size:.78rem;transition:.2s}
+.upl:hover .b{border-color:var(--rose);color:var(--rose);background:#fff5f7}
+.prev{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:11px;margin-top:8px;border:1px solid var(--line)}
+
+.stop{border:1px solid var(--line);border-left:3px solid var(--rose);border-radius:12px;padding:12px 14px;margin-top:12px;background:#fffdfd}
+.stop .lbl{font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--rose);font-weight:600}
+.count{font-size:.68rem;text-align:right;margin-top:4px;color:#c3aeb6}
+.mtabs{display:flex;gap:8px;margin-top:8px}
+.mtab{flex:1;padding:9px;text-align:center;border:1.5px solid var(--line);border-radius:10px;font-size:.78rem;
+  font-weight:600;color:#a5919a;cursor:pointer;transition:.2s;background:#fff}
+.mtab.on{border-color:var(--rose);background:#fff5f7;color:var(--wine)}
+.pane{display:none;margin-top:4px}.pane.on{display:block}
+.okfile{font-size:.74rem;color:#1a9e54;margin-top:6px;display:block;word-break:break-all}
+.divider{height:1px;background:var(--line);margin:30px 0 6px}
+</style>
+</head>
+<body>
+
+<header class="top" style="position:relative">
+  <a href="index.html" class="back">‹ Kembali</a>
+  <h1 class="disp">Kad untuk <em>kita</em></h1>
+  <p>Isi cerita kamu berdua. Kad akan dijana sebagai satu link yang boleh dihantar terus kepada dia.</p>
+</header>
+
+<div class="sheet">
+
+  <h2><span class="num">01</span> Nama kamu berdua</h2>
+  <div class="row">
+    <div><label>Nama awak</label><input type="text" id="nama_a" placeholder="cth: Aisyah"></div>
+    <div><label>Nama dia</label><input type="text" id="nama_b" placeholder="cth: Danial"></div>
+  </div>
+  <label>Ayat pembuka</label>
+  <span class="hint">Satu ayat pendek di muka depan kad.</span>
+  <input type="text" id="tagline" placeholder="cth: Empat tahun, dan aku masih pilih kamu.">
+
+  <h2><span class="num">02</span> Bersama sejak</h2>
+  <p class="sub">Kad akan mengira sendiri berapa lama kamu bersama — tahun, bulan, hari, sampai ke minit.</p>
+  <label>Tarikh mula bersama</label>
+  <span class="hint">Format: TAHUN-BULAN-HARI. Kosongkan kalau tak mahu bahagian ini.</span>
+  <input type="text" id="tarikh_mula" placeholder="2021-03-14">
+
+  <h2><span class="num">03</span> Detik yang kamu simpan</h2>
+  <p class="sub">Sampai tiga detik penting. Kosongkan mana-mana yang tak perlu.</p>
+
+  <div class="stop">
+    <span class="lbl">Detik pertama</span>
+    <div class="row">
+      <div><label>Bila</label><input type="text" id="m1_date" placeholder="Mac 2021"></div>
+      <div><label>Apa yang berlaku</label><input type="text" id="m1_txt" placeholder="Kali pertama kita jumpa"></div>
+    </div>
+    <label>Gambar (pilihan)</label>
+    <label class="upl"><div class="b">Pilih gambar</div><input type="file" accept="image/*" data-img="m1_img"></label>
+    <img class="prev" id="prev_m1_img" alt="" style="display:none">
+  </div>
+
+  <div class="stop">
+    <span class="lbl">Detik kedua</span>
+    <div class="row">
+      <div><label>Bila</label><input type="text" id="m2_date" placeholder="Disember 2022"></div>
+      <div><label>Apa yang berlaku</label><input type="text" id="m2_txt" placeholder="Trip pertama kita berdua"></div>
+    </div>
+    <label>Gambar (pilihan)</label>
+    <label class="upl"><div class="b">Pilih gambar</div><input type="file" accept="image/*" data-img="m2_img"></label>
+    <img class="prev" id="prev_m2_img" alt="" style="display:none">
+  </div>
+
+  <div class="stop">
+    <span class="lbl">Detik ketiga</span>
+    <div class="row">
+      <div><label>Bila</label><input type="text" id="m3_date" placeholder="Ogos 2024"></div>
+      <div><label>Apa yang berlaku</label><input type="text" id="m3_txt" placeholder="Hari kita putuskan untuk teruskan"></div>
+    </div>
+    <label>Gambar (pilihan)</label>
+    <label class="upl"><div class="b">Pilih gambar</div><input type="file" accept="image/*" data-img="m3_img"></label>
+    <img class="prev" id="prev_m3_img" alt="" style="display:none">
+  </div>
+
+  <h2><span class="num">04</span> Album gambar</h2>
+  <p class="sub">Sampai empat gambar. Kalau tiga, gambar pertama jadi besar melintang.</p>
+  <div class="row">
+    <div>
+      <label>Gambar 1</label>
+      <label class="upl"><div class="b">Pilih</div><input type="file" accept="image/*" data-img="g1_img"></label>
+      <img class="prev" id="prev_g1_img" alt="" style="display:none">
+    </div>
+    <div>
+      <label>Gambar 2</label>
+      <label class="upl"><div class="b">Pilih</div><input type="file" accept="image/*" data-img="g2_img"></label>
+      <img class="prev" id="prev_g2_img" alt="" style="display:none">
+    </div>
+  </div>
+  <div class="row">
+    <div>
+      <label>Gambar 3</label>
+      <label class="upl"><div class="b">Pilih</div><input type="file" accept="image/*" data-img="g3_img"></label>
+      <img class="prev" id="prev_g3_img" alt="" style="display:none">
+    </div>
+    <div>
+      <label>Gambar 4</label>
+      <label class="upl"><div class="b">Pilih</div><input type="file" accept="image/*" data-img="g4_img"></label>
+      <img class="prev" id="prev_g4_img" alt="" style="display:none">
+    </div>
+  </div>
+
+  <h2><span class="num">05</span> Surat untuk dia</h2>
+  <p class="sub">Ditulis atas kertas putih dalam kad. Tekan Enter dua kali untuk perenggan baru.</p>
+  <textarea id="surat" placeholder="Aku tak pandai cakap benda macam ni depan-depan..."></textarea>
+  <div class="count" id="c_surat"></div>
+
+  <h2><span class="num">06</span> Ayat penutup</h2>
+  <label>Satu ayat terakhir</label>
+  <span class="hint">Dipapar besar di hujung kad, dalam tanda petik.</span>
+  <input type="text" id="janji" placeholder="Sampai bila-bila, dan lepas tu pun.">
+
+  <h2><span class="num">07</span> Lagu kita</h2>
+  <div class="mtabs">
+    <div class="mtab on" data-m="yt" onclick="pickMusic(this)">Link YouTube</div>
+    <div class="mtab" data-m="mp3" onclick="pickMusic(this)">Upload MP3</div>
+  </div>
+  <div class="pane on" id="pane-yt">
+    <label>Link lagu YouTube</label>
+    <input type="text" id="yt" placeholder="https://www.youtube.com/watch?v=...">
+  </div>
+  <div class="pane" id="pane-mp3">
+    <label>Fail MP3</label>
+    <span class="hint">Bawah 3MB. Pilihan Premium.</span>
+    <label class="upl"><div class="b">Pilih fail MP3</div><input type="file" accept="audio/*" id="mp3file"></label>
+    <span class="okfile" id="mp3name"></span>
+  </div>
+  <label>Nama lagu (papar dalam kad)</label>
+  <input type="text" id="mtitle" placeholder="Lagu Kita">
+
+  <div class="divider"></div>
+  <h2><span class="num">08</span> Maklumat &amp; bayaran</h2>
+  <div id="gk-bayar"></div>
+
+</div>
+
+<script src="gk-bayar.js"></script>
+<script>
+var IMG={}, MP3='';
+var TEXTS=['nama_a','nama_b','tagline','tarikh_mula',
+  'm1_date','m1_txt','m2_date','m2_txt','m3_date','m3_txt',
+  'surat','janji','yt','mtitle'];
+
+/* ── upload gambar ── */
+document.querySelectorAll('[data-img]').forEach(function(inp){
+  inp.addEventListener('change',function(e){
+    var id=inp.getAttribute('data-img'), f=e.target.files[0]; if(!f) return;
+    var r=new FileReader();
+    r.onload=function(ev){
+      var im=new Image();
+      im.onload=function(){
+        var c=document.createElement('canvas'), M=1000, w=im.width, h=im.height;
+        if(w>h){ if(w>M){h=h*M/w;w=M} } else { if(h>M){w=w*M/h;h=M} }
+        c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);
+        var d=c.toDataURL('image/jpeg',.82);
+        IMG[id]=d;
+        var p=document.getElementById('prev_'+id);
+        p.src=d; p.style.display='block';
+        saveDraft();
+      };
+      im.src=ev.target.result;
+    };
+    r.readAsDataURL(f);
+  });
+});
+
+/* ── muzik ── */
+function pickMusic(el){
+  document.querySelectorAll('.mtab').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on')});
+  document.getElementById('pane-'+el.dataset.m).classList.add('on');
+  if(el.dataset.m==='yt'){ MP3=''; document.getElementById('mp3name').textContent=''; }
+  else { document.getElementById('yt').value=''; }
+  saveDraft();
+}
+document.getElementById('mp3file').addEventListener('change',function(e){
+  var f=e.target.files[0]; if(!f) return;
+  if(f.size>3.2*1024*1024){ alert('Fail MP3 melebihi 3MB. Guna fail yang lebih kecil.'); e.target.value=''; return; }
+  var r=new FileReader();
+  r.onload=function(ev){ MP3=ev.target.result; document.getElementById('mp3name').textContent='Tersimpan: '+f.name; saveDraft(); };
+  r.readAsDataURL(f);
+});
+
+/* ── kiraan perenggan surat ── */
+function countSurat(){
+  var v=document.getElementById('surat').value;
+  var w=v.trim()?v.trim().split(/\s+/).length:0;
+  document.getElementById('c_surat').textContent=w+' patah perkataan';
+}
+
+/* ── kumpul data kad ── */
+function collectData(){
+  var d={ template:'couple' };
+  TEXTS.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el && el.value.trim()) d[id]=el.value.trim();
+  });
+  for(var k in IMG){ if(IMG[k]) d[k]=IMG[k]; }
+  if(MP3) d.mp3=MP3;
+  return d;
+}
+
+/* ── simpan draf ── */
+var KEY='gk_draft_couple';
+function saveDraft(){
+  try{
+    var d=collectData();
+    var b=(window.GKBayar&&GKBayar.buyer)?GKBayar.buyer():null;
+    if(b) d._buyer=b;
+    d._tab=document.querySelector('.mtab.on').dataset.m;
+    localStorage.setItem(KEY,JSON.stringify(d));
+  }catch(e){}
+}
+function restoreDraft(){
+  var d=null; try{ d=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+  if(!d) return;
+  TEXTS.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el && d[id]) el.value=d[id];
+  });
+  ['m1_img','m2_img','m3_img','g1_img','g2_img','g3_img','g4_img'].forEach(function(id){
+    if(d[id]){ IMG[id]=d[id]; var p=document.getElementById('prev_'+id); p.src=d[id]; p.style.display='block'; }
+  });
+  if(d.mp3){ MP3=d.mp3; document.getElementById('mp3name').textContent='Fail MP3 tersimpan'; }
+  if(d._tab){
+    var tab=document.querySelector('.mtab[data-m="'+d._tab+'"]');
+    if(tab) pickMusic(tab);
+  }
+  if(d._buyer){
+    var b=d._buyer;
+    if(document.getElementById('gkb-name'))  document.getElementById('gkb-name').value=b.name||'';
+    if(document.getElementById('gkb-email')) document.getElementById('gkb-email').value=b.email||'';
+    if(document.getElementById('gkb-phone')) document.getElementById('gkb-phone').value=b.phone||'';
+  }
+  countSurat();
+}
+
+document.addEventListener('input',function(e){
+  if(e.target.id==='surat') countSurat();
+  saveDraft();
+});
+
+/* ── pasang enjin bayaran bersama ── */
+GKBayar.mount({ el:'gk-bayar', viewer:'card-couple-1.html', collect:collectData });
+restoreDraft();
+countSurat();
+</script>
+</body>
+</html>
