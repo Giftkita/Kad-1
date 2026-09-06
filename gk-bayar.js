@@ -124,7 +124,6 @@ function build(){
   +'</div>'
   +'<span class="gkb-hint">Resit dihantar ke email ini. Guna email &amp; telefon yang sama jika anda perlu cari semula link kad nanti.</span>'
 
-  +'<button class="gkb-btn ghost" id="gkb-prev">Lihat kad dulu — percuma</button>'
   +'<button class="gkb-btn" id="gkb-pay">Bayar &amp; dapatkan link kad</button>'
   +'<div class="gkb-safe">'+shield()+'<span>Pembayaran dilindungi &amp; disulitkan melalui ToyyibPay</span></div>'
   +'<div class="gkb-msg" id="gkb-err"></div>'
@@ -260,8 +259,18 @@ window.GKBayar={
         paintSummary();
       };
     });
-    $('gkb-prev').onclick=preview;
     $('gkb-pay').onclick=pay;
+
+    /* butang pratonton berasingan — diletak lebih awal dalam borang */
+    var pv=(typeof CFG.previewEl==='string')?$(CFG.previewEl):CFG.previewEl;
+    if(pv){
+      pv.className=(pv.className+' gkb').trim();
+      pv.innerHTML='<button class="gkb-btn ghost" id="gkb-prev" style="margin-top:6px">'
+        +'Lihat kad dulu — percuma</button>'
+        +'<p style="text-align:center;font-size:.74rem;color:#a2909a;margin-top:8px">'
+        +'Tengok rupa sebenar kad anda. Tiada bayaran, tiada maklumat diperlukan.</p>';
+      $('gkb-prev').onclick=preview;
+    }
 
     paintSummary();
     pendingRedirect();
