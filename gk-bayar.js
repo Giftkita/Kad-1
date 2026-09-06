@@ -1,20 +1,21 @@
 /* ══════════════════════════════════════════════════════════════
    GiftKita — Enjin Bayaran Bersama
-   Satu file untuk SEMUA borang kad. Betulkan bug sekali,
-   semua borang dapat pembetulan.
+   Satu file untuk SEMUA borang kad.
 
-   Cara guna dalam borang:
+   Cara guna:
      <div id="gk-bayar"></div>
      <script src="gk-bayar.js"></script>
      <script>
        GKBayar.mount({
          el:'gk-bayar',
          viewer:'card-couple-1.html',
-         collect:collectData          // fungsi yang pulangkan objek data kad
+         collect:collectData,
+         produk:'Kad Anniversary',   // nama produk pada ringkasan
+         qr:false                    // tukar true bila DuitNow QR diluluskan
        });
      </script>
 
-   Warna butang ikut tema borang melalui CSS variable:
+   Warna ikut tema borang melalui CSS variable:
      --gk-accent  dan  --gk-accent-2
    ══════════════════════════════════════════════════════════════ */
 (function(){
@@ -28,48 +29,108 @@ var db=null;
 try{ if(window.supabase&&window.supabase.createClient) db=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ db=null; }
 
 var CFG={};
+var HARGA={ basic:6, premium:8 };
+var NAMA ={ basic:'Basic', premium:'Premium' };
 
 var CSS=''
-+'.gkb label{font-weight:600;font-size:.8rem;display:block;margin-top:12px;margin-bottom:4px}'
++'.gkb{font-family:inherit}'
++'.gkb-card{border:1.5px solid #e8dfe3;border-radius:16px;overflow:hidden;margin-top:14px;background:#fff}'
++'.gkb-card h4{margin:0;padding:13px 16px;font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;'
++'font-weight:700;color:#8a7b82;background:#faf6f7;border-bottom:1.5px solid #e8dfe3}'
++'.gkb-line{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:13px 16px;'
++'border-bottom:1px solid #f2eaee;font-size:.86rem}'
++'.gkb-line:last-child{border-bottom:none}'
++'.gkb-line .k{color:#7d6b73}'
++'.gkb-line .v{font-weight:600;text-align:right}'
++'.gkb-total{background:#faf6f7;padding:15px 16px;display:flex;justify-content:space-between;align-items:center}'
++'.gkb-total .k{font-size:.8rem;font-weight:600;color:#7d6b73}'
++'.gkb-total .v{font-size:1.5rem;font-weight:700;color:var(--gk-accent-2,#c2185b)}'
++'.gkb-plans{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}'
++'.gkb-plan{flex:1;min-width:150px;border:2px solid #e8dfe3;border-radius:14px;padding:14px 12px;cursor:pointer;'
++'transition:.2s;background:#fff;position:relative}'
++'.gkb-plan:hover{border-color:var(--gk-accent,#e91e63)}'
++'.gkb-plan.on{border-color:var(--gk-accent,#e91e63);box-shadow:0 0 0 3px rgba(0,0,0,.05)}'
++'.gkb-plan .rm{font-size:1.35rem;font-weight:700;color:var(--gk-accent-2,#c2185b);line-height:1}'
++'.gkb-plan .nm{font-size:.82rem;font-weight:600;margin-top:3px}'
++'.gkb-plan .ds{font-size:.68rem;color:#a2909a;margin-top:4px;line-height:1.45}'
++'.gkb-plan .tick{position:absolute;top:10px;right:10px;width:17px;height:17px;border-radius:50%;'
++'border:1.5px solid #ddd0d6;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff}'
++'.gkb-plan.on .tick{background:var(--gk-accent,#e91e63);border-color:var(--gk-accent,#e91e63)}'
++'.gkb label{font-weight:600;font-size:.8rem;display:block;margin-top:13px;margin-bottom:4px}'
 +'.gkb .gkb-hint{font-size:.72rem;color:#b3a3ab;display:block;margin-bottom:4px}'
-+'.gkb input{width:100%;padding:11px 13px;border:1.5px solid #e8dfe3;border-radius:10px;font-family:inherit;font-size:.85rem;outline:none;transition:.2s;background:#fff}'
++'.gkb input{width:100%;padding:11px 13px;border:1.5px solid #e8dfe3;border-radius:10px;font-family:inherit;'
++'font-size:.85rem;outline:none;transition:.2s;background:#fff}'
 +'.gkb input:focus{border-color:var(--gk-accent,#e91e63);box-shadow:0 0 0 3px rgba(0,0,0,.05)}'
 +'.gkb .gkb-row{display:flex;gap:12px;flex-wrap:wrap}.gkb .gkb-row>div{flex:1;min-width:170px}'
-+'.gkb .gkb-plans{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}'
-+'.gkb .gkb-plan{flex:1;min-width:140px;border:2px solid #e8dfe3;border-radius:14px;padding:14px 10px;text-align:center;cursor:pointer;transition:.2s;background:#fff}'
-+'.gkb .gkb-plan.on{border-color:var(--gk-accent,#e91e63);box-shadow:0 0 0 3px rgba(0,0,0,.05)}'
-+'.gkb .gkb-plan b{display:block;font-size:1.5rem;color:var(--gk-accent-2,#c2185b)}'
-+'.gkb .gkb-plan i{display:block;font-style:normal;font-size:.78rem;font-weight:600;margin-top:2px}'
-+'.gkb .gkb-plan span{display:block;font-size:.66rem;color:#a99;margin-top:3px;line-height:1.4}'
-+'.gkb .gkb-btn{width:100%;padding:15px;border:none;border-radius:12px;font-family:inherit;font-size:.95rem;font-weight:700;cursor:pointer;margin-top:16px;transition:.2s;color:#fff;background:linear-gradient(135deg,var(--gk-accent,#e91e63),var(--gk-accent-2,#c2185b))}'
-+'.gkb .gkb-btn:hover{transform:translateY(-2px)}'
-+'.gkb .gkb-btn:disabled{background:#ccc;transform:none;cursor:not-allowed}'
-+'.gkb .gkb-btn.ghost{background:#fff;color:var(--gk-accent-2,#c2185b);border:2px solid var(--gk-accent,#e91e63)}'
-+'.gkb .gkb-msg{margin-top:14px;padding:13px 15px;border-radius:12px;font-size:.8rem;line-height:1.6;display:none}'
-+'.gkb .gkb-err{background:#ffebee;border:1.5px solid #ef9a9a;color:#c62828}'
-+'.gkb .gkb-tip{margin-top:12px;padding:12px 14px;background:#fff8e1;border:1.5px solid #ffe0a3;border-radius:12px;font-size:.75rem;color:#8a6d00;line-height:1.6}'
-+'.gkb .gkb-sec{padding-top:6px}';
-
-var HTML=''
-+'<div class="gkb-sec">'
-+'  <label>Nama anda</label>'
-+'  <input type="text" id="gkb-name" placeholder="cth: Aina Sofea">'
-+'  <div class="gkb-row">'
-+'    <div><label>No. telefon (WhatsApp)</label><input type="text" id="gkb-phone" placeholder="cth: 0123456789"></div>'
-+'    <div><label>Email</label><input type="text" id="gkb-email" placeholder="cth: aina@gmail.com"></div>'
-+'  </div>'
-+'  <span class="gkb-hint">Resit dihantar ke email ini. Guna email &amp; telefon yang sama jika anda perlu cari semula link kad nanti.</span>'
-+'  <div class="gkb-plans">'
-+'    <div class="gkb-plan on" data-plan="basic"><b>RM6</b><i>Basic</i><span>Muzik YouTube</span></div>'
-+'    <div class="gkb-plan" data-plan="premium"><b>RM8</b><i>Premium</i><span>MP3 sendiri · kod QR · album PDF</span></div>'
-+'  </div>'
-+'  <button class="gkb-btn ghost" id="gkb-prev">Lihat kad dulu — percuma</button>'
-+'  <button class="gkb-btn" id="gkb-pay">Bayar &amp; dapatkan link kad</button>'
-+'  <div class="gkb-msg gkb-err" id="gkb-err"></div>'
-+'  <div class="gkb-tip">Selepas bayar, jika bank papar &quot;transaction is being processed&quot;, tekan <b>Close</b> sahaja. Anda akan dibawa kembali ke halaman link kad secara automatik.</div>'
-+'</div>';
++'.gkb-ways{display:flex;gap:8px;flex-wrap:wrap;padding:13px 16px}'
++'.gkb-way{display:flex;align-items:center;gap:7px;border:1.5px solid #e8dfe3;border-radius:10px;'
++'padding:9px 12px;font-size:.76rem;font-weight:600;color:#5d4a53;background:#fff}'
++'.gkb-way i{font-style:normal;font-size:.62rem;letter-spacing:.06em;color:#fff;background:#1a4fa0;'
++'padding:3px 6px;border-radius:4px}'
++'.gkb-way.qr i{background:#c8102e}'
++'.gkb-btn{width:100%;padding:16px;border:none;border-radius:12px;font-family:inherit;font-size:.95rem;'
++'font-weight:700;cursor:pointer;margin-top:14px;transition:.2s;color:#fff;'
++'background:linear-gradient(135deg,var(--gk-accent,#e91e63),var(--gk-accent-2,#c2185b))}'
++'.gkb-btn:hover{transform:translateY(-2px)}'
++'.gkb-btn:disabled{background:#ccc;transform:none;cursor:not-allowed}'
++'.gkb-btn.ghost{background:#fff;color:var(--gk-accent-2,#c2185b);border:2px solid var(--gk-accent,#e91e63)}'
++'.gkb-safe{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:14px;'
++'font-size:.76rem;color:#5d8f6b}'
++'.gkb-safe svg{width:15px;height:15px;fill:#5d8f6b;flex-shrink:0}'
++'.gkb-msg{margin-top:14px;padding:13px 15px;border-radius:12px;font-size:.8rem;line-height:1.6;display:none;'
++'background:#ffebee;border:1.5px solid #ef9a9a;color:#c62828}'
++'.gkb-tip{margin-top:12px;padding:12px 14px;background:#fff8e1;border:1.5px solid #ffe0a3;border-radius:12px;'
++'font-size:.75rem;color:#8a6d00;line-height:1.6}';
 
 function $(id){ return document.getElementById(id); }
+
+function shield(){
+  return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4zm-1.2 16-4-4 1.4-1.4 2.6 2.6 5.6-5.6L17.8 10l-7 7z"/></svg>';
+}
+
+function build(){
+  var qr = CFG.qr===true;
+  var h=''
+  +'<div class="gkb-plans">'
+  +'  <div class="gkb-plan on" data-plan="basic"><div class="tick">✓</div>'
+  +'    <div class="rm">RM6</div><div class="nm">Basic</div>'
+  +'    <div class="ds">Muzik YouTube · link kekal</div></div>'
+  +'  <div class="gkb-plan" data-plan="premium"><div class="tick">✓</div>'
+  +'    <div class="rm">RM8</div><div class="nm">Premium</div>'
+  +'    <div class="ds">MP3 sendiri · kod QR · album PDF</div></div>'
+  +'</div>'
+
+  +'<div class="gkb-card">'
+  +'  <h4>Ringkasan pesanan</h4>'
+  +'  <div class="gkb-line"><span class="k" id="gkb-pnama">Kad digital</span><span class="v" id="gkb-pplan">Basic</span></div>'
+  +'  <div class="gkb-line"><span class="k">Kuantiti</span><span class="v">1</span></div>'
+  +'  <div class="gkb-line"><span class="k">Harga</span><span class="v" id="gkb-pharga">RM6.00</span></div>'
+  +'  <div class="gkb-total"><span class="k">Jumlah dibayar</span><span class="v" id="gkb-ptotal">RM6.00</span></div>'
+  +'</div>'
+
+  +'<div class="gkb-card">'
+  +'  <h4>Cara bayaran diterima</h4>'
+  +'  <div class="gkb-ways">'
+  +'    <div class="gkb-way"><i>FPX</i> Perbankan Internet</div>'
+  + (qr?'    <div class="gkb-way qr"><i>QR</i> DuitNow QR</div>':'')
+  +'  </div>'
+  +'</div>'
+
+  +'<label>Nama anda</label>'
+  +'<input type="text" id="gkb-name" placeholder="cth: Aina Sofea">'
+  +'<div class="gkb-row">'
+  +'  <div><label>No. telefon (WhatsApp)</label><input type="text" id="gkb-phone" placeholder="cth: 0123456789"></div>'
+  +'  <div><label>Email</label><input type="text" id="gkb-email" placeholder="cth: aina@gmail.com"></div>'
+  +'</div>'
+  +'<span class="gkb-hint">Resit dihantar ke email ini. Guna email &amp; telefon yang sama jika anda perlu cari semula link kad nanti.</span>'
+
+  +'<button class="gkb-btn ghost" id="gkb-prev">Lihat kad dulu — percuma</button>'
+  +'<button class="gkb-btn" id="gkb-pay">Bayar &amp; dapatkan link kad</button>'
+  +'<div class="gkb-safe">'+shield()+'<span>Pembayaran dilindungi &amp; disulitkan melalui ToyyibPay</span></div>'
+  +'<div class="gkb-msg" id="gkb-err"></div>'
+  +'<div class="gkb-tip">Selepas bayar, jika bank papar &quot;transaction is being processed&quot;, tekan <b>Close</b> sahaja. Anda akan dibawa kembali ke halaman link kad secara automatik.</div>';
+  return h;
+}
 
 function showErr(msg){
   var e=$('gkb-err'); e.textContent=msg; e.style.display='block';
@@ -82,7 +143,14 @@ function plan(){
   return el?el.getAttribute('data-plan'):'basic';
 }
 
-/* ── pratonton percuma ── */
+function paintSummary(){
+  var p=plan(), rm=HARGA[p].toFixed(2);
+  $('gkb-pnama').textContent = CFG.produk || 'Kad digital';
+  $('gkb-pplan').textContent = NAMA[p];
+  $('gkb-pharga').textContent = 'RM'+rm;
+  $('gkb-ptotal').textContent = 'RM'+rm;
+}
+
 function preview(){
   var d=CFG.collect();
   try{
@@ -102,7 +170,6 @@ function preview(){
   window.open(base+CFG.viewer+'?preview=1','_blank');
 }
 
-/* ── bayar ── */
 function pay(){
   var btn=$('gkb-pay');
   hideErr();
@@ -147,7 +214,6 @@ function pay(){
   });
 }
 
-/* ── selepas balik dari ToyyibPay ── */
 function pendingRedirect(){
   var id=null; try{ id=localStorage.getItem('gk_pending'); }catch(e){}
   if(!id) return;
@@ -170,7 +236,6 @@ function pendingRedirect(){
   };
 }
 
-/* ── simpan kod affiliate ── */
 (function saveRef(){
   try{
     var ref=new URLSearchParams(location.search).get('ref');
@@ -180,27 +245,30 @@ function pendingRedirect(){
 
 window.GKBayar={
   mount:function(cfg){
-    CFG=cfg;
-    var host=(typeof cfg.el==='string')?$(cfg.el):cfg.el;
-    if(!host){ return; }
+    CFG=cfg||{};
+    var host=(typeof CFG.el==='string')?$(CFG.el):CFG.el;
+    if(!host) return;
+
     var st=document.createElement('style'); st.textContent=CSS; document.head.appendChild(st);
     host.className=(host.className+' gkb').trim();
-    host.innerHTML=HTML;
+    host.innerHTML=build();
 
     document.querySelectorAll('.gkb-plan').forEach(function(p){
       p.onclick=function(){
         document.querySelectorAll('.gkb-plan').forEach(function(x){ x.classList.remove('on'); });
         p.classList.add('on');
+        paintSummary();
       };
     });
     $('gkb-prev').onclick=preview;
     $('gkb-pay').onclick=pay;
 
+    paintSummary();
     pendingRedirect();
   },
-  /* borang boleh guna semula untuk simpan/pulih draf pembeli */
   buyer:function(){
-    return { name:$('gkb-name').value.trim(), email:$('gkb-email').value.trim(), phone:$('gkb-phone').value.trim(), plan:plan() };
+    return { name:$('gkb-name').value.trim(), email:$('gkb-email').value.trim(),
+             phone:$('gkb-phone').value.trim(), plan:plan() };
   }
 };
 })();
