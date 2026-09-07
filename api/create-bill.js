@@ -8,6 +8,14 @@
 const PRICES    = { basic: 600,  premium: 800 };
 const PLAN_NAME = { basic: 'GiftKita Basic', premium: 'GiftKita Premium' };
 
+// ── DuitNow QR ──
+// enableDuitNowQR : '1' hidupkan pilihan QR, '0' matikan
+// chargeDuitNowQR : '1' CUSTOMER bayar caj, '0' kita yang bayar
+// Caj DNQR = 1% atau RM1, mana lebih tinggi. Pada kad RM6, RM1 itu ~16%,
+// jadi caj diletak pada customer. Tukar ke '0' jika mahu tanggung sendiri.
+const DNQR_ENABLE = process.env.DNQR_ENABLE || '1';
+const DNQR_CHARGE = process.env.DNQR_CHARGE || '1';
+
 module.exports = async (req, res) => {
   // CORS: benarkan panggilan dari GitHub Pages / domain lain
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -40,7 +48,9 @@ module.exports = async (req, res) => {
       billTo:          (buyerName  || 'Pelanggan').slice(0, 30),
       billEmail:       buyerEmail || 'noemail@giftkita.my',
       billPhone:       buyerPhone || '0000000000',
-      billPaymentChannel: '0'
+      billPaymentChannel: '0',
+      enableDuitNowQR: DNQR_ENABLE,
+      chargeDuitNowQR: DNQR_CHARGE
     });
 
     const r = await fetch(`${TPAY}/index.php/api/createBill`, {
