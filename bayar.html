@@ -377,8 +377,14 @@ async function showQR(link){
     d.innerHTML+=m+'<br>'; };
 
   log('plan dari server: '+PLAN);
+  /* sandaran: kalau server tak pulangkan plan, tanya database terus */
+  if(PLAN!=='premium' && db){
+    try{
+      const q=await db.from('cards').select('plan').eq('id',cardId).single();
+      if(q.data && q.data.plan){ PLAN=q.data.plan; log('plan dari database: '+PLAN); }
+    }catch(e){ log('gagal baca plan: '+e.message); }
+  }
   if(PLAN!=='premium'){ log('bukan premium - QR tidak dipaparkan'); return; }
-  try{
     if(document.fonts&&document.fonts.ready){ try{ await document.fonts.ready; }catch(_e){} }
     for(var w=0;w<15&&!GK_LOGO_IMG;w++){ await new Promise(r=>setTimeout(r,100)); }
     gkDrawQR(document.getElementById('qr-cv'),link,{size:560,dark:'#a8121c',light:'#ffffff',logo:true});
