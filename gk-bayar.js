@@ -68,6 +68,8 @@ var CSS=''
 +'.gkb-way i{font-style:normal;font-size:.62rem;letter-spacing:.06em;color:#fff;background:#1a4fa0;'
 +'padding:3px 6px;border-radius:4px}'
 +'.gkb-way.qr i{background:#c8102e}'
++'.gkb-fee{padding:0 16px 14px;font-size:.74rem;color:#8a7b82;line-height:1.6}'
++'.gkb-fee b{color:#5d4a53}'
 +'.gkb-btn{width:100%;padding:16px;border:none;border-radius:12px;font-family:inherit;font-size:.95rem;'
 +'font-weight:700;cursor:pointer;margin-top:14px;transition:.2s;color:#fff;'
 +'background:linear-gradient(135deg,var(--gk-accent,#e91e63),var(--gk-accent-2,#c2185b))}'
@@ -114,6 +116,9 @@ function build(){
   +'    <div class="gkb-way"><i>FPX</i> Perbankan Internet</div>'
   + (qr?'    <div class="gkb-way qr"><i>QR</i> DuitNow QR</div>':'')
   +'  </div>'
+  + (qr?'  <div class="gkb-fee">Bayaran melalui <b>DuitNow QR</b> dikenakan caj pemprosesan '
+        +'<b>RM1.00</b> oleh penyedia pembayaran, ditambah pada jumlah anda. '
+        +'Bayaran melalui <b>FPX</b> tiada caj tambahan.</div>':'')
   +'</div>'
 
   +'<label>Nama anda</label>'
