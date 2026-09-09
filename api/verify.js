@@ -16,12 +16,16 @@ module.exports = async (req, res) => {
     if (!cardId) { res.status(400).json({ paid: false, error: 'no cardId' }); return; }
 
     // 1) ambil kad
-    const cards = await sbGet(`cards?id=eq.${cardId}&select=id,paid,amount,ref_code,bill_code,plan:card_data->>plan`);
+    //    'plan' kini lajur sebenar (ditulis oleh create-bill.js).
+    //    card_data->>plan dibaca sebagai sandaran untuk kad lama.
+    const cards = await sbGet(
+      `cards?id=eq.${cardId}&select=id,paid,amount,ref_code,bill_code,plan,plan_lama:card_data->>plan`
+    );
     const card = cards[0];
     if (!card) { res.status(200).json({ paid: false, error: 'card not found' }); return; }
 
     // dah paid? terus jawab ya
-    if (card.paid === true) { res.status(200).json({ paid: true, plan: card.plan || 'basic' }); return; }
+    if (card.paid === true) { res.status(200).json({ paid: true, plan: pakej(card) }); return; }
     if (!card.bill_code) { res.status(200).json({ paid: false, error: 'no bill yet' }); return; }
 
     // 2) tanya ToyyibPay: bill ni dah dibayar?
@@ -55,12 +59,17 @@ module.exports = async (req, res) => {
       }
     }
 
-    res.status(200).json({ paid: true, plan: card.plan || 'basic' });
+    res.status(200).json({ paid: true, plan: pakej(card) });
 
   } catch (e) {
     res.status(200).json({ paid: false, error: e.message });
   }
 };
+
+// ── tentukan pakej: lajur 'plan' dahulu, card_data sebagai sandaran ──
+function pakej(card) {
+  return card.plan || card.plan_lama || 'basic';
+}
 
 // ── sahkan status bayaran via ToyyibPay ──
 async function verifyPaid(billCode) {
