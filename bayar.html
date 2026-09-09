@@ -322,7 +322,7 @@ const qs=new URLSearchParams(location.search);
 const cardId=qs.get('id');
 let tries=0;
 let PLAN='basic';
-const MAX_TRIES=6;   // ~30 saat
+const MAX_TRIES=6;   // ~15 saat (1.5+2+3+4+5)
 
 function show(id){
   ['st-check','st-ok','st-fail','st-bad'].forEach(s=>document.getElementById(s).classList.add('hide'));
@@ -348,7 +348,9 @@ async function checkNow(manual){
   }catch(_e){/* teruskan retry */}
   tries++;
   if(tries<MAX_TRIES){
-    setTimeout(()=>checkNow(false),5000);
+    /* cepat pada mulanya supaya bayaran yang berjaya disahkan dalam beberapa saat */
+    var jeda=[1500,2000,3000,4000,5000][tries-1]||5000;
+    setTimeout(()=>checkNow(false),jeda);
   }else{
     show('st-fail');
   }
@@ -385,6 +387,7 @@ async function showQR(link){
     }catch(e){ log('gagal baca plan: '+e.message); }
   }
   if(PLAN!=='premium'){ log('bukan premium - QR tidak dipaparkan'); return; }
+  try{
     if(document.fonts&&document.fonts.ready){ try{ await document.fonts.ready; }catch(_e){} }
     for(var w=0;w<15&&!GK_LOGO_IMG;w++){ await new Promise(r=>setTimeout(r,100)); }
     gkDrawQR(document.getElementById('qr-cv'),link,{size:560,dark:'#a8121c',light:'#ffffff',logo:true});
