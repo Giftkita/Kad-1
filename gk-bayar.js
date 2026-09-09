@@ -116,8 +116,9 @@ function build(){
   +'    <div class="gkb-way"><i>FPX</i> Perbankan Internet</div>'
   + (qr?'    <div class="gkb-way qr"><i>QR</i> DuitNow QR</div>':'')
   +'  </div>'
-  +'  <div class="gkb-fee">Setiap transaksi dikenakan caj pemprosesan <b>RM1.00</b> '
-   +'oleh penyedia pembayaran.</div>'
+  + (qr?'  <div class="gkb-fee">Bayaran melalui <b>DuitNow QR</b> dikenakan caj pemprosesan '
+        +'<b>RM1.00</b> oleh penyedia pembayaran, ditambah pada jumlah anda. '
+        +'Bayaran melalui <b>FPX</b> tiada caj tambahan.</div>':'')
   +'</div>'
 
   +'<label>Nama anda</label>'
