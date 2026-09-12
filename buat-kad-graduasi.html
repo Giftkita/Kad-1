@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Buat Kad Graduasi 🎓 GiftKita</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<style>
+:root{--pink:#c2185b;--pink2:#e6799b;--muda:#fdf2f6;--garis:#f0dbe4;--dakwat:#4a3b3f;
+ --gk-accent:#e6799b;--gk-accent-2:#c2185b}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Poppins',sans-serif;background:var(--muda);color:var(--dakwat);
+ line-height:1.6;padding-bottom:40px}
+.top{background:linear-gradient(155deg,#f7dbe6,#eab6cb 55%,#d894ae);color:#6a2a44;
+ padding:38px 22px 34px;text-align:center;position:relative}
+.top .back{position:absolute;left:16px;top:14px;font-size:.72rem;color:rgba(106,42,68,.7);text-decoration:none}
+.top h1{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,7vw,2.5rem);line-height:1.1}
+.top p{font-size:.84rem;color:rgba(106,42,68,.8);margin-top:8px;max-width:27rem;margin-inline:auto}
+.sheet{max-width:640px;margin:-18px auto 0;background:#fff;border-radius:22px 22px 0 0;
+ box-shadow:0 -8px 40px rgba(160,90,120,.14);padding:26px 20px 30px}
+h2{font-family:'Playfair Display',serif;font-size:1.35rem;color:var(--pink);
+ margin:30px 0 2px;display:flex;align-items:baseline;gap:10px}
+h2:first-of-type{margin-top:6px}
+h2 .num{font-family:'Poppins';font-size:.6rem;letter-spacing:.18em;color:var(--pink2);font-weight:600}
+.sub{font-size:.76rem;color:#a08a94;margin-bottom:6px}
+label{font-weight:600;font-size:.8rem;display:block;margin-top:13px;margin-bottom:4px}
+.hint{font-size:.72rem;color:#b9a5ad;display:block;margin-bottom:4px}
+input[type=text],textarea{width:100%;padding:11px 13px;border:1.5px solid var(--garis);
+ border-radius:10px;font-family:inherit;font-size:.85rem;outline:none;transition:.2s;background:#fff}
+input[type=text]:focus,textarea:focus{border-color:var(--pink2);box-shadow:0 0 0 3px rgba(230,121,155,.14)}
+textarea{height:130px;resize:vertical;line-height:1.7}
+.row{display:flex;gap:12px;flex-wrap:wrap}.row>div{flex:1;min-width:150px}
+.upl{position:relative;display:block;width:100%;margin-top:6px;overflow:hidden}
+.upl input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.upl .b{border:1.5px dashed var(--garis);background:#fffafc;padding:14px;text-align:center;
+ border-radius:12px;color:#b08;font-size:.82rem;font-weight:600;transition:.2s}
+.upl:hover .b{border-color:var(--pink2);background:#fff2f7}
+#kiraan{font-size:.72rem;text-align:right;margin-top:6px;color:#a89}
+#galeri{display:grid;grid-template-columns:repeat(auto-fill,minmax(86px,1fr));gap:8px;margin-top:10px}
+.kep{position:relative;border-radius:9px;overflow:hidden;aspect-ratio:1;border:1px solid var(--garis)}
+.kep img{width:100%;height:100%;object-fit:cover}
+.kep .no{position:absolute;left:4px;top:4px;background:rgba(0,0,0,.5);color:#fff;
+ font-size:.6rem;padding:1px 5px;border-radius:20px}
+.kep .buang{position:absolute;right:3px;top:3px;width:20px;height:20px;border-radius:50%;
+ border:none;background:rgba(0,0,0,.55);color:#fff;font-size:.6rem;cursor:pointer;line-height:1}
+.prev{width:100%;max-width:220px;aspect-ratio:4/3;object-fit:cover;border-radius:11px;
+ margin-top:8px;border:1px solid var(--garis)}
+.mtabs{display:flex;gap:8px;margin-top:8px}
+.mtab{flex:1;padding:9px;text-align:center;border:1.5px solid var(--garis);border-radius:10px;
+ font-size:.78rem;font-weight:600;color:#a89;cursor:pointer;transition:.2s;background:#fff}
+.mtab.on{border-color:var(--pink2);background:#fff2f7;color:var(--pink)}
+.pane{display:none;margin-top:4px}.pane.on{display:block}
+.okfile{font-size:.74rem;color:#1a7a42;margin-top:6px;display:block;word-break:break-all}
+.divider{height:1px;background:var(--garis);margin:30px 0 6px}
+</style>
+</head>
+<body>
+<header class="top">
+  <a href="index.html" class="back">‹ Kembali</a>
+  <h1>Buku kenangan konvo</h1>
+  <p>Kad scrapbook yang boleh diselak macam buku sebenar. Isi cerita korang, kami jadikan satu link.</p>
+</header>
+
+<div class="sheet">
+
+  <h2><span class="num">01</span> Muka depan</h2>
+  <div class="row">
+    <div><label>Tajuk</label><input type="text" id="tajuk" placeholder="cth: Kita Orang"></div>
+    <div><label>Tahun</label><input type="text" id="sub" placeholder="cth: 2020 — 2026"></div>
+  </div>
+
+  <h2><span class="num">02</span> Gambar</h2>
+  <p class="sub">Sehingga 16 gambar. Boleh pilih banyak sekali gus dari galeri. Susunan ikut urutan nombor.</p>
+  <label class="upl"><div class="b">📷 Pilih gambar dari galeri</div>
+    <input type="file" accept="image/*" multiple onchange="tambahGambar(event)"></label>
+  <div id="kiraan">0 / 16 gambar</div>
+  <div id="galeri"></div>
+
+  <h2><span class="num">03</span> Ucapan</h2>
+  <p class="sub">Ditulis dalam tulisan tangan pada muka "our story".</p>
+  <textarea id="ucapan" placeholder="Enam tahun.&#10;&#10;Dari kelas yang kita tak faham apa-apa..."></textarea>
+  <label>Daripada</label>
+  <input type="text" id="drp" placeholder="cth: Aisyah">
+
+  <h2><span class="num">04</span> Muka akhir</h2>
+  <p class="sub">Diisi pada garisan FOR / DATE / YEAR / LOVE.</p>
+  <div class="row">
+    <div><label>Untuk</label><input type="text" id="untuk" placeholder="cth: Sofea"></div>
+    <div><label>Tarikh</label><input type="text" id="tarikh" placeholder="cth: 12 Sep 2026"></div>
+  </div>
+  <label>Tahun</label>
+  <input type="text" id="tahun" placeholder="cth: 2026">
+
+  <h2><span class="num">05</span> Video</h2>
+  <label>Link video YouTube</label>
+  <span class="hint">Dipapar pada muka "play this memory". Boleh kosongkan.</span>
+  <input type="text" id="video_yt" placeholder="https://www.youtube.com/watch?v=...">
+
+  <h2><span class="num">06</span> Kejutan</h2>
+  <p class="sub">Tersembunyi sehingga penerima ketuk.</p>
+  <label>Ayat kejutan</label>
+  <input type="text" id="kejut_msg" placeholder="cth: Kita janji jumpa lagi tahun depan.">
+  <label>Gambar kejutan</label>
+  <label class="upl"><div class="b">Pilih gambar</div>
+    <input type="file" accept="image/*" onchange="pilihKejut(event)"></label>
+  <img class="prev" id="prev_kejut" alt="" style="display:none">
+
+  <h2><span class="num">07</span> Lagu</h2>
+  <div class="mtabs">
+    <div class="mtab on" data-m="yt" onclick="pickMusic(this)">Link YouTube</div>
+    <div class="mtab" data-m="mp3" onclick="pickMusic(this)">Upload MP3</div>
+  </div>
+  <div class="pane on" id="pane-yt">
+    <label>Link lagu YouTube</label>
+    <input type="text" id="yt" placeholder="https://www.youtube.com/watch?v=...">
+  </div>
+  <div class="pane" id="pane-mp3">
+    <label>Fail MP3</label>
+    <span class="hint">Bawah 3MB. Pilihan Premium.</span>
+    <label class="upl"><div class="b">Pilih fail MP3</div>
+      <input type="file" accept="audio/*" id="mp3file"></label>
+    <span class="okfile" id="mp3name"></span>
+  </div>
+  <label>Nama lagu (papar dalam kad)</label>
+  <input type="text" id="mtitle" placeholder="Lagu Kita">
+
+  <div class="divider"></div>
+  <h2><span class="num">08</span> Pratonton kad</h2>
+  <div id="gk-pratonton"></div>
+
+  <h2><span class="num">09</span> Maklumat &amp; bayaran</h2>
+  <div id="gk-bayar"></div>
+</div>
+
+<script src="gk-bayar.js"></script>
+<script>
+var IMG={}, MP3='';
+var TEXTS=['tajuk','sub','ucapan','drp','untuk','tarikh','tahun','kejut_msg','video_yt','yt','mtitle'];
+var MAKS=16, SAIZ=800;
+
+function kecilkan(file,cb){
+  var r=new FileReader();
+  r.onload=function(ev){
+    var im=new Image();
+    im.onload=function(){
+      var c=document.createElement('canvas'),w=im.width,h=im.height;
+      if(w>h){ if(w>SAIZ){h=h*SAIZ/w;w=SAIZ} } else { if(h>SAIZ){w=w*SAIZ/h;h=SAIZ} }
+      c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);
+      cb(c.toDataURL('image/jpeg',.8));
+    };
+    im.src=ev.target.result;
+  };
+  r.readAsDataURL(file);
+}
+
+function tambahGambar(e){
+  var files=Array.prototype.slice.call(e.target.files||[]);
+  if(!files.length) return;
+  var ada=Object.keys(IMG).length;
+  if(ada+files.length>MAKS){
+    alert('Maksimum '+MAKS+' gambar. Anda sudah ada '+ada+'.');
+    files=files.slice(0,MAKS-ada);
+  }
+  var sisa=files.length;
+  files.forEach(function(f){
+    kecilkan(f,function(d){
+      for(var i=1;i<=MAKS;i++){ if(!IMG['f'+i]){ IMG['f'+i]=d; break; } }
+      if(--sisa===0){ lukisGaleri(); saveDraft(); }
+    });
+  });
+  e.target.value='';
+}
+
+function buangGambar(k){
+  delete IMG[k];
+  // rapatkan nombor supaya tiada lompang
+  var senarai=[];
+  for(var i=1;i<=MAKS;i++){ if(IMG['f'+i]) senarai.push(IMG['f'+i]); }
+  IMG={};
+  senarai.forEach(function(d,i){ IMG['f'+(i+1)]=d; });
+  lukisGaleri(); saveDraft();
+}
+
+function lukisGaleri(){
+  var g=document.getElementById('galeri'), h='';
+  for(var i=1;i<=MAKS;i++){
+    if(!IMG['f'+i]) continue;
+    h+='<div class="kep"><img src="'+IMG['f'+i]+'" alt=""><span class="no">'+i+'</span>'+
+       '<button type="button" class="buang" onclick="buangGambar(\'f'+i+'\')">&#10005;</button></div>';
+  }
+  g.innerHTML=h;
+  var n=Object.keys(IMG).length;
+  document.getElementById('kiraan').textContent=n+' / '+MAKS+' gambar';
+  document.getElementById('kiraan').style.color = n>=MAKS ? '#c2185b' : '#a89';
+}
+
+function pickMusic(el){
+  document.querySelectorAll('.mtab').forEach(function(t){t.classList.remove('on')});
+  el.classList.add('on');
+  document.querySelectorAll('.pane').forEach(function(p){p.classList.remove('on')});
+  document.getElementById('pane-'+el.dataset.m).classList.add('on');
+  if(el.dataset.m==='yt'){ MP3=''; document.getElementById('mp3name').textContent=''; }
+  else { document.getElementById('yt').value=''; }
+  saveDraft();
+}
+
+function collectData(){
+  var d={ template:'graduasi' };
+  TEXTS.forEach(function(id){
+    var el=document.getElementById(id);
+    if(el&&el.value.trim()) d[id]=el.value.trim();
+  });
+  for(var k in IMG){ if(IMG[k]) d[k]=IMG[k]; }
+  if(KEJUT) d.kejut_img=KEJUT;
+  if(MP3) d.mp3=MP3;
+  return d;
+}
+
+var KEJUT='';
+function pilihKejut(e){
+  var f=e.target.files[0]; if(!f) return;
+  kecilkan(f,function(d){
+    KEJUT=d;
+    var p=document.getElementById('prev_kejut'); p.src=d; p.style.display='block';
+    saveDraft();
+  });
+  e.target.value='';
+}
+
+var KEY='gk_draft_graduasi';
+function saveDraft(){
+  try{
+    var d=collectData();
+    var b=(window.GKBayar&&GKBayar.buyer)?GKBayar.buyer():null;
+    if(b) d._buyer=b;
+    d._tab=document.querySelector('.mtab.on').dataset.m;
+    localStorage.setItem(KEY,JSON.stringify(d));
+  }catch(e){}
+}
+function restoreDraft(){
+  var d=null; try{ d=JSON.parse(localStorage.getItem(KEY)); }catch(e){}
+  if(!d) return;
+  TEXTS.forEach(function(id){ var el=document.getElementById(id); if(el&&d[id]) el.value=d[id]; });
+  for(var i=1;i<=MAKS;i++){ if(d['f'+i]) IMG['f'+i]=d['f'+i]; }
+  if(d.kejut_img){ KEJUT=d.kejut_img; var p=document.getElementById('prev_kejut'); p.src=KEJUT; p.style.display='block'; }
+  if(d.mp3){ MP3=d.mp3; document.getElementById('mp3name').textContent='Fail MP3 tersimpan'; }
+  if(d._tab){ var t=document.querySelector('.mtab[data-m="'+d._tab+'"]'); if(t) pickMusic(t); }
+  if(d._buyer){
+    var b=d._buyer;
+    ['name','email','phone'].forEach(function(f){
+      var e=document.getElementById('gkb-'+f); if(e) e.value=b[f]||'';
+    });
+  }
+  lukisGaleri();
+}
+
+document.addEventListener('input',saveDraft);
+
+if(window.GKBayar){
+  GKBayar.mount({ el:'gk-bayar', previewEl:'gk-pratonton',
+                  viewer:'card-graduasi-1.html', collect:collectData,
+                  produk:'Kad Graduasi', qr:true });
+}else{
+  document.getElementById('gk-bayar').innerHTML=
+    '<div style="padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;'
+   +'font-size:.82rem;color:#c62828;line-height:1.6">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia '
+   +'dimuat naik ke root repo, bukan dalam folder api.</div>';
+}
+restoreDraft();
+lukisGaleri();
+
+document.getElementById('mp3file').addEventListener('change',function(e){
+  var f=e.target.files[0]; if(!f) return;
+  if(f.size>3.2*1024*1024){ alert('Fail MP3 melebihi 3MB. Guna fail yang lebih kecil.'); e.target.value=''; return; }
+  var r=new FileReader();
+  r.onload=function(ev){ MP3=ev.target.result; document.getElementById('mp3name').textContent='Tersimpan: '+f.name; saveDraft(); };
+  r.readAsDataURL(f);
+});
+</script>
+<div id="gk-langtog" style="position:fixed;bottom:14px;left:14px;z-index:99999;display:inline-flex;border:1.5px solid #f0dbe4;border-radius:50px;overflow:hidden;font-family:Poppins,sans-serif;font-size:.72rem;font-weight:700;background:#fff;box-shadow:0 3px 12px rgba(160,90,120,.25)"><button data-l="en" onclick="gkApply('en')" style="border:none;background:#fff;color:#c2185b;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">EN</button><button data-l="ms" onclick="gkApply('ms')" style="border:none;background:#fff;color:#c2185b;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">BM</button></div>
+<script>
+var GK_DICT={
+"Kembali":"Back","Buku kenangan konvo":"Graduation memory book",
+"Kad scrapbook yang boleh diselak macam buku sebenar. Isi cerita korang, kami jadikan satu link.":"A scrapbook card you flip like a real book. Fill in your story, we turn it into one link.",
+"Muka depan":"Front page","Tajuk":"Title","Tahun":"Year","Gambar":"Photos",
+"Sehingga 16 gambar. Boleh pilih banyak sekali gus dari galeri. Susunan ikut urutan nombor.":"Up to 16 photos. You can pick several at once from your gallery. Order follows the numbers.",
+"📷 Pilih gambar dari galeri":"📷 Choose photos from gallery",
+"Ucapan":"The message","Ditulis dalam tulisan tangan pada muka \"our story\".":"Written in handwriting on the \"our story\" page.",
+"Daripada":"From","Muka akhir":"Final page",
+"Diisi pada garisan FOR / DATE / YEAR / LOVE.":"Filled onto the FOR / DATE / YEAR / LOVE lines.",
+"Untuk":"For","Tarikh":"Date","Video":"Video","Link video YouTube":"YouTube video link",
+"Dipapar pada muka \"play this memory\". Boleh kosongkan.":"Shown on the \"play this memory\" page. Can be left blank.",
+"Kejutan":"Surprise","Tersembunyi sehingga penerima ketuk.":"Hidden until they tap it.",
+"Ayat kejutan":"Surprise message","Gambar kejutan":"Surprise photo","Pilih gambar":"Choose photo",
+"Lagu":"Music","Link YouTube":"YouTube link","Upload MP3":"Upload MP3","Link lagu YouTube":"YouTube song link",
+"Fail MP3":"MP3 file","Bawah 3MB. Pilihan Premium.":"Under 3MB. Premium option.",
+"Pilih fail MP3":"Choose MP3 file","Nama lagu (papar dalam kad)":"Song name (shown in card)",
+"Pratonton kad":"Preview card","Maklumat & bayaran":"Details & payment",
+"Tengok rupa sebenar kad anda. Tiada bayaran, tiada maklumat diperlukan.":"See how your card really looks. No payment, no details needed.",
+"Ringkasan pesanan":"Order summary","Kad Graduasi":"Graduation Card","Kuantiti":"Quantity",
+"Harga":"Price","Jumlah dibayar":"Total to pay","Cara bayaran diterima":"Payment methods accepted",
+"Perbankan Internet":"Online Banking","Nama anda":"Your name",
+"No. telefon (WhatsApp)":"Phone no. (WhatsApp)","Email":"Email",
+"Resit dihantar ke email ini. Guna email & telefon yang sama jika anda perlu cari semula link kad nanti.":"The receipt goes to this email. Use the same email & phone if you ever need to retrieve the card link.",
+"Bayaran melalui DuitNow QR dikenakan caj pemprosesan RM1.00 oleh penyedia pembayaran, ditambah pada jumlah anda. Bayaran melalui FPX tiada caj tambahan.":"Paying by DuitNow QR carries an RM1.00 processing fee from the payment provider, added to your total. Paying by FPX has no extra fee.",
+"Lihat kad dulu — percuma":"Preview the card — free","Bayar & dapatkan link kad":"Pay & get your card link",
+"Pembayaran dilindungi & disulitkan melalui ToyyibPay":"Payment is protected & encrypted via ToyyibPay",
+"Basic":"Basic","Premium":"Premium","Muzik YouTube · link kekal":"YouTube music · permanent link",
+"MP3 sendiri · kod QR · album PDF":"Own MP3 · QR code · PDF album",
+"Isi nama, email dan no. telefon dahulu.":"Fill in your name, email and phone first.",
+"Email tidak sah. Semak semula.":"Invalid email. Please check again.","Terima kasih":"Thank you",
+"Kami sedang menyemak pembayaran dan menyediakan link kad anda.":"We are confirming your payment and preparing your card link.",
+"Bukan saya — kembali ke borang":"Not me — back to the form"};
+var GK_HTML={};
+var GK_PH={"tajuk":{ms:"cth: Kita Orang",en:"e.g. Us"},"sub":{ms:"cth: 2020 — 2026",en:"e.g. 2020 — 2026"},
+"drp":{ms:"cth: Aisyah",en:"e.g. Aisyah"},"untuk":{ms:"cth: Sofea",en:"e.g. Sofea"},
+"tarikh":{ms:"cth: 12 Sep 2026",en:"e.g. 12 Sep 2026"},"tahun":{ms:"cth: 2026",en:"e.g. 2026"},
+"kejut_msg":{ms:"cth: Kita janji jumpa lagi tahun depan.",en:"e.g. We promise to meet again next year."},
+"mtitle":{ms:"Lagu Kita",en:"Our Song"},
+"gkb-name":{ms:"cth: Aina Sofea",en:"e.g. Aina Sofea"},
+"gkb-phone":{ms:"cth: 0123456789",en:"e.g. 0123456789"},
+"gkb-email":{ms:"cth: aina@gmail.com",en:"e.g. aina@gmail.com"}};
+(function(){var IN={B:1,I:1,EM:1,STRONG:1,BR:1,SMALL:1,U:1,SPAN:1};var SEL="h1,h2,h3,p,span,label,button,a,small,div,b";var cur="ms",busy=false;function nm(s){return s.replace(/\s+/g," ").trim();}function tag(el){if(el.hasAttribute("data-gki"))return;if(!el.children.length){var k=nm(el.textContent);if(k&&GK_DICT[k]!=null){el.setAttribute("data-gki","t");el.setAttribute("data-ms",el.textContent);}}}function apply(l){busy=true;cur=l;document.documentElement.lang=l;var els=document.querySelectorAll(SEL);for(var i=0;i<els.length;i++)tag(els[i]);document.querySelectorAll('[data-gki="t"]').forEach(function(el){var ms=el.getAttribute("data-ms"),k=nm(ms);el.textContent=(l=="en"&&GK_DICT[k]!=null)?GK_DICT[k]:ms;});for(var id in GK_PH){var e=document.getElementById(id);if(e)e.placeholder=(l=="en")?GK_PH[id].en:GK_PH[id].ms;}var t=document.getElementById("gk-langtog");if(t){var be=t.querySelector('[data-l="en"]'),bm=t.querySelector('[data-l="ms"]');be.style.background=l=="en"?"linear-gradient(135deg,#e6799b,#c2185b)":"#fff";be.style.color=l=="en"?"#fff":"#c2185b";bm.style.background=l=="ms"?"linear-gradient(135deg,#e6799b,#c2185b)":"#fff";bm.style.color=l=="ms"?"#fff":"#c2185b";}try{localStorage.setItem("gk_lang",l)}catch(e){}busy=false;}window.gkApply=apply;var mo=new MutationObserver(function(){if(busy)return;if(cur=="en"){clearTimeout(window._t);window._t=setTimeout(function(){apply("en")},60)}});mo.observe(document.body,{childList:true,subtree:true});var sv=null;try{sv=localStorage.getItem("gk_lang")}catch(e){}var dv=(navigator.language||"ms").toLowerCase();apply(sv||((dv.indexOf("ms")==0||dv.indexOf("id")==0)?"ms":"en"));})();
+</script>
+</body>
+</html>
