@@ -326,8 +326,8 @@ document.getElementById('adjustDone').addEventListener('click', function(){
   document.getElementById('adjustOverlay').classList.remove('on');
   adjState = null;
   renderFotoGrid();
-  if (antrean.length) { setTimeout(prosesAntrean, 150); }
-  else { sedangLaras = false; }
+  sedangLaras = false;
+  if (antrean.length) setTimeout(prosesAntrean, 150);
 });
 
 document.getElementById('pilihGambarBtn').addEventListener('click', function(){
