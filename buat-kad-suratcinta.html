@@ -33,70 +33,76 @@ textarea{min-height:90px;resize:vertical}
 #gk-bayar{margin-top:6px}
 .previewbtn{width:100%;padding:12px;background:#0a1a2f;color:#f3ead9;border:none;border-radius:8px;
  font-size:.95rem;cursor:pointer;margin-top:6px}
+.langtoggle{position:fixed;top:10px;right:10px;z-index:50;display:flex;background:#fff;
+ border:1px solid #c9a24b;border-radius:30px;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.langtoggle button{border:0;background:transparent;color:#8a6a3f;font-family:inherit;
+ font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:20px;cursor:pointer}
+.langtoggle button.on{background:#0a1a2f;color:#f3ead9}
 </style>
 </head>
 <body>
+<div class="langtoggle"><button id="btnMS2" class="on" onclick="setFormLang('ms')">BM</button><button id="btnEN2" onclick="setFormLang('en')">EN</button></div>
 <div class="wrap">
-  <a href="buat-kad-anniversary.html" style="display:block;text-align:center;font-size:.8rem;color:#8a7a55;margin-bottom:10px;text-decoration:none">‹ Kembali</a>
-  <h1>A Special Letter — Just For You</h1>
-  <div class="sub">Isi borang di bawah untuk buat kad surat cinta korang sendiri</div>
+  <a href="buat-kad-anniversary.html" data-i18n="back" style="display:block;text-align:center;font-size:.8rem;color:#8a7a55;margin-bottom:10px;text-decoration:none">‹ Kembali</a>
+  <h1 data-i18n="h1">A Special Letter — Just For You</h1>
+  <div class="sub" data-i18n="sub">Isi borang di bawah untuk buat kad surat cinta korang sendiri</div>
 
   <div class="sect">
-    <h2>Nama</h2>
-    <label>Nama penerima (untuk rujukan sahaja — belum dipaparkan atas kad)</label>
-    <input type="text" id="f-nama" placeholder="Contoh: Aina">
-    <label>Nama pengirim (untuk rujukan sahaja)</label>
-    <input type="text" id="f-pengirim" placeholder="Contoh: Danial">
+    <h2 data-i18n="h_nama">Nama</h2>
+    <label data-i18n="lbl_penerima">Nama penerima (untuk rujukan sahaja — belum dipaparkan atas kad)</label>
+    <input type="text" id="f-nama" placeholder="Contoh: Aina" data-i18n-ph="ph_nama">
+    <label data-i18n="lbl_pengirim">Nama pengirim (untuk rujukan sahaja)</label>
+    <input type="text" id="f-pengirim" placeholder="Contoh: Danial" data-i18n-ph="ph_pengirim">
   </div>
 
   <div class="sect">
-    <h2>Gambar (maksimum 10)</h2>
-    <div class="hint">Ketik setiap kotak untuk upload. Boleh biar kosong jika tiada gambar untuk slot tu.</div>
+    <h2 data-i18n="h_gambar">Gambar (maksimum 10)</h2>
+    <div class="hint" data-i18n="hint_gambar">Ketik setiap kotak untuk upload. Boleh biar kosong jika tiada gambar untuk slot tu.</div>
     <div class="foto-grid" id="fotoGrid"></div>
   </div>
 
   <div class="sect">
-    <h2>Video (pilihan)</h2>
-    <label>Pautan YouTube</label>
+    <h2 data-i18n="h_video">Video (pilihan)</h2>
+    <label data-i18n="lbl_yt">Pautan YouTube</label>
     <input type="url" id="f-vid" placeholder="https://youtube.com/watch?v=...">
   </div>
 
   <div class="sect">
-    <h2>Surat Cinta</h2>
-    <label>Bahagian 1 (surat permulaan)</label>
-    <textarea id="f-surat1" placeholder="Hai, sayang..."></textarea>
-    <label>Bahagian 2 (sambungan &amp; penutup surat)</label>
-    <textarea id="f-surat2" placeholder="Aku harap kau tahu..."></textarea>
+    <h2 data-i18n="h_surat">Surat Cinta</h2>
+    <label data-i18n="lbl_surat1">Bahagian 1 (surat permulaan)</label>
+    <textarea id="f-surat1" placeholder="Hai, sayang..." data-i18n-ph="ph_surat1"></textarea>
+    <label data-i18n="lbl_surat2">Bahagian 2 (sambungan &amp; penutup surat)</label>
+    <textarea id="f-surat2" placeholder="Aku harap kau tahu..." data-i18n-ph="ph_surat2"></textarea>
   </div>
 
   <div class="sect">
-    <h2>Kejutan</h2>
-    <label>Mesej kejutan (dipaparkan bila customer ketik reveal)</label>
-    <textarea id="f-kejut" placeholder="Aku ada satu lagi kejutan untuk kau..."></textarea>
+    <h2 data-i18n="h_kejut">Kejutan</h2>
+    <label data-i18n="lbl_kejut">Mesej kejutan (dipaparkan bila customer ketik reveal)</label>
+    <textarea id="f-kejut" placeholder="Aku ada satu lagi kejutan untuk kau..." data-i18n-ph="ph_kejut"></textarea>
   </div>
 
   <div class="sect">
-    <h2>Muzik</h2>
+    <h2 data-i18n="h_muzik">Muzik</h2>
     <div class="music-toggle">
-      <button type="button" id="btnYT" class="on">Pautan YouTube</button>
-      <button type="button" id="btnMP3">Upload MP3</button>
+      <button type="button" id="btnYT" class="on" data-i18n="btn_yt">Pautan YouTube</button>
+      <button type="button" id="btnMP3" data-i18n="btn_mp3">Upload MP3</button>
     </div>
     <div class="music-panel on" id="panelYT">
-      <label>Pautan YouTube lagu</label>
+      <label data-i18n="lbl_yt2">Pautan YouTube lagu</label>
       <input type="url" id="f-lagu-yt" placeholder="https://youtube.com/watch?v=...">
     </div>
     <div class="music-panel" id="panelMP3">
-      <label>Fail MP3</label>
+      <label data-i18n="lbl_mp3file">Fail MP3</label>
       <input type="file" id="f-lagu-mp3" accept="audio/mpeg,audio/mp3">
     </div>
-    <label>Tajuk lagu (papar semasa main)</label>
-    <input type="text" id="f-mtitle" placeholder="Contoh: Lagu Kita">
+    <label data-i18n="lbl_mtitle">Tajuk lagu (papar semasa main)</label>
+    <input type="text" id="f-mtitle" placeholder="Contoh: Lagu Kita" data-i18n-ph="ph_mtitle">
   </div>
 
-  <button class="previewbtn" id="btnPreview" type="button">Pratonton Kad</button>
+  <button class="previewbtn" id="btnPreview" type="button" data-i18n="btn_preview">Pratonton Kad</button>
 
   <div class="sect" style="margin-top:16px">
-    <h2>Bayaran</h2>
+    <h2 data-i18n="h_bayar">Bayaran</h2>
     <div id="gk-pratonton"></div>
     <div id="gk-bayar"></div>
   </div>
@@ -106,6 +112,60 @@ textarea{min-height:90px;resize:vertical}
 <script>
 var FOTO_N = 10;
 var fotoData = {};
+var FORMLANG = 'ms';
+
+var FORM_TXT = {
+  ms: {
+    back:'‹ Kembali', h1:'A Special Letter — Just For You',
+    sub:'Isi borang di bawah untuk buat kad surat cinta korang sendiri',
+    h_nama:'Nama', lbl_penerima:'Nama penerima (untuk rujukan sahaja — belum dipaparkan atas kad)',
+    ph_nama:'Contoh: Aina', lbl_pengirim:'Nama pengirim (untuk rujukan sahaja)', ph_pengirim:'Contoh: Danial',
+    h_gambar:'Gambar (maksimum 10)',
+    hint_gambar:'Ketik setiap kotak untuk upload. Boleh biar kosong jika tiada gambar untuk slot tu.',
+    h_video:'Video (pilihan)', lbl_yt:'Pautan YouTube',
+    h_surat:'Surat Cinta', lbl_surat1:'Bahagian 1 (surat permulaan)', ph_surat1:'Hai, sayang...',
+    lbl_surat2:'Bahagian 2 (sambungan & penutup surat)', ph_surat2:'Aku harap kau tahu...',
+    h_kejut:'Kejutan', lbl_kejut:'Mesej kejutan (dipaparkan bila customer ketik reveal)',
+    ph_kejut:'Aku ada satu lagi kejutan untuk kau...',
+    h_muzik:'Muzik', btn_yt:'Pautan YouTube', btn_mp3:'Upload MP3',
+    lbl_yt2:'Pautan YouTube lagu', lbl_mp3file:'Fail MP3', lbl_mtitle:'Tajuk lagu (papar semasa main)',
+    ph_mtitle:'Contoh: Lagu Kita', btn_preview:'Pratonton Kad', h_bayar:'Bayaran', foto:'Foto'
+  },
+  en: {
+    back:'‹ Back', h1:'A Special Letter — Just For You',
+    sub:"Fill in the form below to create your own love letter card",
+    h_nama:'Names', lbl_penerima:"Recipient's name (for reference only — not yet shown on the card)",
+    ph_nama:'e.g. Aina', lbl_pengirim:"Sender's name (for reference only)", ph_pengirim:'e.g. Danial',
+    h_gambar:'Photos (max 10)',
+    hint_gambar:"Tap each box to upload. You can leave it empty if you don't have a photo for that slot.",
+    h_video:'Video (optional)', lbl_yt:'YouTube link',
+    h_surat:'Love Letter', lbl_surat1:'Part 1 (opening letter)', ph_surat1:'Hi, love...',
+    lbl_surat2:'Part 2 (continuation & closing)', ph_surat2:'I hope you know...',
+    h_kejut:'Surprise', lbl_kejut:'Surprise message (shown when the customer taps reveal)',
+    ph_kejut:'I have one more surprise for you...',
+    h_muzik:'Music', btn_yt:'YouTube Link', btn_mp3:'Upload MP3',
+    lbl_yt2:'Song YouTube link', lbl_mp3file:'MP3 file', lbl_mtitle:'Song title (shown while playing)',
+    ph_mtitle:'e.g. Our Song', btn_preview:'Preview Card', h_bayar:'Payment', foto:'Photo'
+  }
+};
+
+function setFormLang(l){
+  FORMLANG = l;
+  document.getElementById('btnMS2').classList.toggle('on', l==='ms');
+  document.getElementById('btnEN2').classList.toggle('on', l==='en');
+  var t = FORM_TXT[l];
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k = el.getAttribute('data-i18n');
+    if (t[k] != null) el.textContent = t[k];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var k = el.getAttribute('data-i18n-ph');
+    if (t[k] != null) el.placeholder = t[k];
+  });
+  document.querySelectorAll('.foto-slot').forEach(function(el, idx){
+    if (!el.querySelector('img')) el.childNodes[0].textContent = t.foto + ' ' + (idx+1);
+  });
+}
 
 (function buildFotoGrid(){
   var grid = document.getElementById('fotoGrid');
