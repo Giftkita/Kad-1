@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Buat Kad — Surat Cinta</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:Georgia,'Times New Roman',serif;background:#f3ead9;color:#0a1a2f}
@@ -413,19 +415,21 @@ document.getElementById('btnPreview').addEventListener('click', function(){
   });
 });
 
-/* ---- sambung ke enjin bayaran (gk-bayar.js) ----
-   Ikut corak sedia ada: GKBayar.mount({el, previewEl, viewer, collect, produk, qr})
-   Sila semak semula selepas gk-bayar.js diupload — struktur ni ikut dokumentasi
-   projek, belum diuji terus dengan fail gk-bayar.js sebenar dalam sesi ni. */
+/* ---- sambung ke enjin bayaran (gk-bayar.js) ---- */
 if (window.GKBayar) {
   GKBayar.mount({
-    el: document.getElementById('gk-bayar'),
-    previewEl: document.getElementById('gk-pratonton'),
+    el: 'gk-bayar',
+    previewEl: 'gk-pratonton',
     viewer: 'card-suratcinta-1.html',
     collect: collect,
     produk: 'Surat Cinta',
-    qr: false
+    qr: true
   });
+} else {
+  document.getElementById('gk-bayar').innerHTML =
+    '<div style="padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;'
+   +'font-size:.82rem;color:#c62828;line-height:1.6">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia '
+   +'dimuat naik ke root repo, bukan dalam folder api.</div>';
 }
 </script>
 </body>
