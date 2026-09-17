@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buat Kad — Surat Cinta</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Georgia,'Times New Roman',serif;background:#f3ead9;color:#0a1a2f}
+.wrap{max-width:620px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:1.3rem;color:#0a1a2f;text-align:center;margin-bottom:4px}
+.sub{text-align:center;color:#6b5c3f;font-size:.8rem;margin-bottom:20px}
+.sect{background:#fff;border:1px solid #e3d7bd;border-radius:10px;padding:16px;margin-bottom:16px}
+.sect h2{font-size:1rem;color:#13294b;border-bottom:2px solid #c9a24b;padding-bottom:6px;margin-bottom:12px}
+label{display:block;font-size:.85rem;color:#3a2f12;margin:10px 0 4px}
+input[type=text],input[type=url],textarea{width:100%;padding:9px 10px;border:1px solid #cbb98f;
+ border-radius:6px;font-family:inherit;font-size:.9rem;background:#fffdf7}
+textarea{min-height:90px;resize:vertical}
+.hint{font-size:.72rem;color:#8a7a55;margin-top:2px}
+.foto-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px}
+.foto-thumb{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;background:#f7f1e3;
+ border:1.5px dashed #c9a24b;display:flex;align-items:center;justify-content:center;
+ font-size:.65rem;color:#8a7a55;text-align:center;cursor:pointer}
+.foto-thumb img{width:100%;height:100%;object-fit:cover}
+.foto-thumb .num{position:absolute;top:4px;left:4px;width:20px;height:20px;border-radius:50%;
+ background:rgba(10,26,47,.75);color:#f3ead9;font-size:.68rem;display:flex;align-items:center;
+ justify-content:center;font-family:inherit;z-index:2}
+.foto-thumb .del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;
+ background:rgba(10,26,47,.75);color:#f3ead9;font-size:.75rem;display:flex;align-items:center;
+ justify-content:center;cursor:pointer;border:0;z-index:2}
+.foto-thumb .oneinput{position:absolute;inset:0;opacity:0;cursor:pointer}
+.pilih-btn{display:block;width:100%;padding:14px;border:1.5px dashed #c9a24b;border-radius:8px;
+ background:#f7f1e3;color:#8a5a2b;font-family:inherit;font-size:.85rem;font-weight:700;
+ text-align:center;cursor:pointer;margin-top:8px}
+.kiraan{text-align:right;font-size:.72rem;color:#8a7a55;margin-top:6px}
+#adjustOverlay{position:fixed;inset:0;z-index:100;background:rgba(10,26,47,.94);display:none;
+ flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#adjustOverlay.on{display:flex}
+#adjustOverlay .adj-label{color:#f3ead9;font-size:.78rem;margin-bottom:14px;text-align:center}
+#adjustBox{position:relative;overflow:hidden;border:2px solid #c9a24b;border-radius:8px;
+ touch-action:none;max-width:100%}
+#adjustImg{position:absolute;max-width:none;-webkit-user-drag:none;user-select:none;cursor:grab}
+#adjustDone{margin-top:16px;padding:11px 34px;background:#c9a24b;color:#0a1a2f;border:0;
+ border-radius:30px;font-weight:700;font-size:.85rem;cursor:pointer;font-family:inherit}
+.music-toggle{display:flex;gap:8px;margin-top:8px}
+.music-toggle button{flex:1;padding:8px;border:1px solid #c9a24b;background:#fff;border-radius:6px;
+ font-size:.8rem;cursor:pointer;color:#13294b}
+.music-toggle button.on{background:#13294b;color:#fff}
+.music-panel{display:none;margin-top:8px}
+.music-panel.on{display:block}
+#gk-pratonton{min-height:40px;margin-bottom:10px}
+#gk-bayar{margin-top:6px}
+.previewbtn{width:100%;padding:12px;background:#0a1a2f;color:#f3ead9;border:none;border-radius:8px;
+ font-size:.95rem;cursor:pointer;margin-top:6px}
+.langtoggle{position:fixed;top:10px;right:10px;z-index:50;display:flex;background:#fff;
+ border:1px solid #c9a24b;border-radius:30px;padding:3px;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.langtoggle button{border:0;background:transparent;color:#8a6a3f;font-family:inherit;
+ font-size:.72rem;font-weight:700;padding:5px 12px;border-radius:20px;cursor:pointer}
+.langtoggle button.on{background:#0a1a2f;color:#f3ead9}
+</style>
+</head>
+<body>
+<div class="langtoggle"><button id="btnMS2" class="on" onclick="setFormLang('ms')">BM</button><button id="btnEN2" onclick="setFormLang('en')">EN</button></div>
+<div class="wrap">
+  <a href="buat-kad-anniversary.html" data-i18n="back" style="display:block;text-align:center;font-size:.8rem;color:#8a7a55;margin-bottom:10px;text-decoration:none">‹ Kembali</a>
+  <h1 data-i18n="h1">A Special Letter — Just For You</h1>
+  <div class="sub" data-i18n="sub">Isi borang di bawah untuk buat kad surat cinta korang sendiri</div>
+
+  <div class="sect">
+    <h2 data-i18n="h_nama">Nama</h2>
+    <label data-i18n="lbl_penerima">Nama penerima (untuk rujukan sahaja — belum dipaparkan atas kad)</label>
+    <input type="text" id="f-nama" placeholder="Contoh: Aina" data-i18n-ph="ph_nama">
+    <label data-i18n="lbl_pengirim">Nama pengirim (untuk rujukan sahaja)</label>
+    <input type="text" id="f-pengirim" placeholder="Contoh: Danial" data-i18n-ph="ph_pengirim">
+  </div>
+
+  <div class="sect">
+    <h2 data-i18n="h_gambar">Gambar (maksimum 10)</h2>
+    <div class="hint" data-i18n="hint_gambar">Ketik satu kotak untuk gambar tu sahaja, atau guna butang di bawah untuk isi beberapa sekali gus.</div>
+    <button type="button" class="pilih-btn" id="pilihGambarBtn">📷 <span data-i18n="btn_pilih">Isi beberapa sekali gus</span></button>
+    <input type="file" id="fotoInputMulti" accept="image/*" multiple style="display:none">
+    <div class="kiraan" id="kiraanFoto">0 / 10 <span data-i18n="lbl_gambar_kiraan">gambar</span></div>
+    <div class="foto-grid" id="fotoGrid"></div>
+  </div>
+
+  <div id="adjustOverlay">
+    <div class="adj-label">Seret gambar untuk laraskan kedudukan</div>
+    <div id="adjustBox"><img id="adjustImg" alt=""></div>
+    <button type="button" id="adjustDone">Selesai</button>
+  </div>
+
+  <div class="sect">
+    <h2 data-i18n="h_video">Video (pilihan)</h2>
+    <label data-i18n="lbl_yt">Pautan YouTube</label>
+    <input type="url" id="f-vid" placeholder="https://youtube.com/watch?v=...">
+  </div>
+
+  <div class="sect">
+    <h2 data-i18n="h_surat">Surat Cinta</h2>
+    <label data-i18n="lbl_surat1">Bahagian 1 (surat permulaan)</label>
+    <textarea id="f-surat1" placeholder="Hai, sayang..." data-i18n-ph="ph_surat1"></textarea>
+    <label data-i18n="lbl_surat2">Bahagian 2 (sambungan &amp; penutup surat)</label>
+    <textarea id="f-surat2" placeholder="Aku harap kau tahu..." data-i18n-ph="ph_surat2"></textarea>
+  </div>
+
+  <div class="sect">
+    <h2 data-i18n="h_kejut">Kejutan</h2>
+    <label data-i18n="lbl_kejut">Mesej kejutan (dipaparkan bila customer ketik reveal)</label>
+    <textarea id="f-kejut" placeholder="Aku ada satu lagi kejutan untuk kau..." data-i18n-ph="ph_kejut"></textarea>
+  </div>
+
+  <div class="sect">
+    <h2 data-i18n="h_muzik">Muzik</h2>
+    <div class="music-toggle">
+      <button type="button" id="btnYT" class="on" data-i18n="btn_yt">Pautan YouTube</button>
+      <button type="button" id="btnMP3" data-i18n="btn_mp3">Upload MP3</button>
+    </div>
+    <div class="music-panel on" id="panelYT">
+      <label data-i18n="lbl_yt2">Pautan YouTube lagu</label>
+      <input type="url" id="f-lagu-yt" placeholder="https://youtube.com/watch?v=...">
+    </div>
+    <div class="music-panel" id="panelMP3">
+      <label data-i18n="lbl_mp3file">Fail MP3</label>
+      <input type="file" id="f-lagu-mp3" accept="audio/mpeg,audio/mp3">
+    </div>
+    <label data-i18n="lbl_mtitle">Tajuk lagu (papar semasa main)</label>
+    <input type="text" id="f-mtitle" placeholder="Contoh: Lagu Kita" data-i18n-ph="ph_mtitle">
+  </div>
+
+  <button class="previewbtn" id="btnPreview" type="button" data-i18n="btn_preview">Pratonton Kad</button>
+
+  <div class="sect" style="margin-top:16px">
+    <h2 data-i18n="h_bayar">Bayaran</h2>
+    <div id="gk-pratonton"></div>
+    <div id="gk-bayar"></div>
+  </div>
+</div>
+
+<script src="gk-bayar.js"></script>
+<script>
+var FOTO_N = 10;
+var FORMLANG = 'ms';
+
+var FORM_TXT = {
+  ms: {
+    back:'‹ Kembali', h1:'A Special Letter — Just For You',
+    sub:'Isi borang di bawah untuk buat kad surat cinta korang sendiri',
+    h_nama:'Nama', lbl_penerima:'Nama penerima (untuk rujukan sahaja — belum dipaparkan atas kad)',
+    ph_nama:'Contoh: Aina', lbl_pengirim:'Nama pengirim (untuk rujukan sahaja)', ph_pengirim:'Contoh: Danial',
+    h_gambar:'Gambar (maksimum 10)',
+    hint_gambar:'Ketik satu kotak untuk gambar tu sahaja, atau guna butang di bawah untuk isi beberapa sekali gus.',
+    btn_pilih:'Isi beberapa sekali gus', lbl_gambar_kiraan:'gambar',
+    h_video:'Video (pilihan)', lbl_yt:'Pautan YouTube',
+    h_surat:'Surat Cinta', lbl_surat1:'Bahagian 1 (surat permulaan)', ph_surat1:'Hai, sayang...',
+    lbl_surat2:'Bahagian 2 (sambungan & penutup surat)', ph_surat2:'Aku harap kau tahu...',
+    h_kejut:'Kejutan', lbl_kejut:'Mesej kejutan (dipaparkan bila customer ketik reveal)',
+    ph_kejut:'Aku ada satu lagi kejutan untuk kau...',
+    h_muzik:'Muzik', btn_yt:'Pautan YouTube', btn_mp3:'Upload MP3',
+    lbl_yt2:'Pautan YouTube lagu', lbl_mp3file:'Fail MP3', lbl_mtitle:'Tajuk lagu (papar semasa main)',
+    ph_mtitle:'Contoh: Lagu Kita', btn_preview:'Pratonton Kad', h_bayar:'Bayaran', foto:'Foto'
+  },
+  en: {
+    back:'‹ Back', h1:'A Special Letter — Just For You',
+    sub:"Fill in the form below to create your own love letter card",
+    h_nama:'Names', lbl_penerima:"Recipient's name (for reference only — not yet shown on the card)",
+    ph_nama:'e.g. Aina', lbl_pengirim:"Sender's name (for reference only)", ph_pengirim:'e.g. Danial',
+    h_gambar:'Photos (max 10)',
+    hint_gambar:"Tap one box to set just that photo, or use the button below to fill several at once.",
+    btn_pilih:'Fill several at once', lbl_gambar_kiraan:'photos',
+    h_video:'Video (optional)', lbl_yt:'YouTube link',
+    h_surat:'Love Letter', lbl_surat1:'Part 1 (opening letter)', ph_surat1:'Hi, love...',
+    lbl_surat2:'Part 2 (continuation & closing)', ph_surat2:'I hope you know...',
+    h_kejut:'Surprise', lbl_kejut:'Surprise message (shown when the customer taps reveal)',
+    ph_kejut:'I have one more surprise for you...',
+    h_muzik:'Music', btn_yt:'YouTube Link', btn_mp3:'Upload MP3',
+    lbl_yt2:'Song YouTube link', lbl_mp3file:'MP3 file', lbl_mtitle:'Song title (shown while playing)',
+    ph_mtitle:'e.g. Our Song', btn_preview:'Preview Card', h_bayar:'Payment', foto:'Photo'
+  }
+};
+
+function setFormLang(l){
+  FORMLANG = l;
+  document.getElementById('btnMS2').classList.toggle('on', l==='ms');
+  document.getElementById('btnEN2').classList.toggle('on', l==='en');
+  var t = FORM_TXT[l];
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k = el.getAttribute('data-i18n');
+    if (t[k] != null) el.textContent = t[k];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var k = el.getAttribute('data-i18n-ph');
+    if (t[k] != null) el.placeholder = t[k];
+  });
+  document.querySelectorAll('.foto-thumb').forEach(function(el, idx){
+    if (!el.querySelector('img')) el.textContent = t.foto + ' ' + (idx+1);
+  });
+  document.getElementById('kiraanFoto').lastElementChild.textContent = t.lbl_gambar_kiraan;
+}
+
+var FOTO_N = 10;
+var fotoData = {}; // keyed f1..f10, each slot is a specific fixed position on the card
+var fotoPos = {};  // keyed f1..f10, {x,y} percent (object-position)
+
+var RATIO = { // width/height ratio of each slot's frame on the actual card
+  1:1.733, 2:0.616, 3:0.610, 4:1.033, 5:1.035,
+  6:1.149, 7:1.468, 8:1.462, 9:1.453, 10:1.106
+};
+
+function countFoto(){ return Object.keys(fotoData).length; }
+
+function renderFotoGrid(){
+  var grid = document.getElementById('fotoGrid');
+  grid.innerHTML = '';
+  for (var i = 1; i <= FOTO_N; i++) {
+    var el = document.createElement('div');
+    el.className = 'foto-thumb';
+    el.style.aspectRatio = RATIO[i];
+    if (fotoData['f'+i]) {
+      var pos = fotoPos['f'+i] || {x:50,y:50};
+      el.innerHTML = '<img src="'+fotoData['f'+i]+'" alt="" style="object-position:'+pos.x+'% '+pos.y+'%" data-n="'+i+'">'+
+        '<div class="num">'+i+'</div>'+
+        '<button type="button" class="del" data-n="'+i+'">\u2715</button>';
+    } else {
+      el.textContent = FORM_TXT[FORMLANG].foto + ' ' + i;
+      el.innerHTML += '<input type="file" class="oneinput" accept="image/*" data-n="'+i+'">';
+    }
+    grid.appendChild(el);
+  }
+  document.getElementById('kiraanFoto').firstChild.textContent = countFoto() + ' / ' + FOTO_N + ' ';
+  grid.querySelectorAll('.del').forEach(function(btn){
+    btn.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      var n = btn.getAttribute('data-n');
+      delete fotoData['f'+n]; delete fotoPos['f'+n];
+      renderFotoGrid();
+    });
+  });
+  grid.querySelectorAll('.foto-thumb img').forEach(function(img){
+    img.style.cursor='pointer';
+    img.addEventListener('click', function(){
+      openAdjust(img.getAttribute('data-n'), fotoData['f'+img.getAttribute('data-n')]);
+    });
+  });
+  grid.querySelectorAll('.oneinput').forEach(function(inp){
+    inp.addEventListener('change', function(){
+      var n = inp.getAttribute('data-n');
+      var file = inp.files[0];
+      if (!file) return;
+      resizeImage(file, 1200, 0.85, function(dataUrl){
+        antrean.push({n:n, src:dataUrl});
+        prosesAntrean();
+      });
+    });
+  });
+}
+renderFotoGrid();
+
+/* ---- antrean + pelaras kedudukan (drag object-position) ---- */
+var antrean = [];
+var sedangLaras = false;
+function prosesAntrean(){
+  if (sedangLaras || !antrean.length) return;
+  sedangLaras = true;
+  var item = antrean.shift();
+  openAdjust(item.n, item.src, true);
+}
+
+var adjState = null;
+function openAdjust(n, src, isNew){
+  var overlay = document.getElementById('adjustOverlay');
+  var box = document.getElementById('adjustBox');
+  var img = document.getElementById('adjustImg');
+  var ratio = RATIO[n];
+  var boxW = Math.min(320, window.innerWidth - 40);
+  var boxH = boxW / ratio;
+  box.style.width = boxW + 'px';
+  box.style.height = boxH + 'px';
+  img.src = src;
+  overlay.classList.add('on');
+  img.onload = function(){
+    var iw = img.naturalWidth, ih = img.naturalHeight;
+    var scale = Math.max(boxW / iw, boxH / ih);
+    var dw = iw * scale, dh = ih * scale;
+    var pos = fotoPos['f'+n] || {x:50,y:50};
+    var offX = -((pos.x/100) * (dw - boxW));
+    var offY = -((pos.y/100) * (dh - boxH));
+    img.style.width = dw + 'px';
+    img.style.height = dh + 'px';
+    adjState = {n:n, src:src, isNew:isNew, dw:dw, dh:dh, boxW:boxW, boxH:boxH, offX:offX, offY:offY};
+    applyAdjTransform();
+  };
+}
+function applyAdjTransform(){
+  var img = document.getElementById('adjustImg');
+  img.style.left = adjState.offX + 'px';
+  img.style.top = adjState.offY + 'px';
+}
+(function wireDrag(){
+  var img = document.getElementById('adjustImg');
+  var dragging = false, sx=0, sy=0, startOffX=0, startOffY=0;
+  function down(x,y){
+    if (!adjState) return;
+    dragging = true; sx=x; sy=y; startOffX=adjState.offX; startOffY=adjState.offY;
+  }
+  function move(x,y){
+    if (!dragging || !adjState) return;
+    var nx = startOffX + (x - sx);
+    var ny = startOffY + (y - sy);
+    nx = Math.min(0, Math.max(adjState.boxW - adjState.dw, nx));
+    ny = Math.min(0, Math.max(adjState.boxH - adjState.dh, ny));
+    adjState.offX = nx; adjState.offY = ny;
+    applyAdjTransform();
+  }
+  function up(){ dragging = false; }
+  img.addEventListener('pointerdown', function(e){ down(e.clientX, e.clientY); });
+  window.addEventListener('pointermove', function(e){ move(e.clientX, e.clientY); });
+  window.addEventListener('pointerup', up);
+})();
+document.getElementById('adjustDone').addEventListener('click', function(){
+  if (!adjState) return;
+  var n = adjState.n;
+  var posX = adjState.dw>adjState.boxW ? (-adjState.offX/(adjState.dw-adjState.boxW))*100 : 50;
+  var posY = adjState.dh>adjState.boxH ? (-adjState.offY/(adjState.dh-adjState.boxH))*100 : 50;
+  fotoData['f'+n] = adjState.src;
+  fotoPos['f'+n] = {x:Math.round(posX), y:Math.round(posY)};
+  document.getElementById('adjustOverlay').classList.remove('on');
+  adjState = null;
+  renderFotoGrid();
+  if (antrean.length) { setTimeout(prosesAntrean, 150); }
+  else { sedangLaras = false; }
+});
+
+document.getElementById('pilihGambarBtn').addEventListener('click', function(){
+  document.getElementById('fotoInputMulti').click();
+});
+document.getElementById('fotoInputMulti').addEventListener('change', function(e){
+  var files = Array.from(e.target.files || []);
+  var kosong = [];
+  for (var i = 1; i <= FOTO_N; i++) if (!fotoData['f'+i]) kosong.push(i);
+  if (files.length > kosong.length) {
+    alert('Ruang kosong tinggal ' + kosong.length + '. Lebihan gambar diabaikan.');
+    files = files.slice(0, kosong.length);
+  }
+  files.forEach(function(file, idx){
+    var slotN = kosong[idx];
+    resizeImage(file, 1200, 0.85, function(dataUrl){
+      antrean.push({n:slotN, src:dataUrl});
+      prosesAntrean();
+    });
+  });
+  e.target.value = '';
+});
+
+function resizeImage(file, maxW, quality, cb){
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var img = new Image();
+    img.onload = function(){
+      var scale = Math.min(1, maxW / img.width);
+      var w = Math.round(img.width * scale);
+      var h = Math.round(img.height * scale);
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      cb(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* muzik toggle */
+var btnYT = document.getElementById('btnYT'), btnMP3 = document.getElementById('btnMP3');
+var panelYT = document.getElementById('panelYT'), panelMP3 = document.getElementById('panelMP3');
+btnYT.onclick = function(){
+  btnYT.classList.add('on'); btnMP3.classList.remove('on');
+  panelYT.classList.add('on'); panelMP3.classList.remove('on');
+};
+btnMP3.onclick = function(){
+  btnMP3.classList.add('on'); btnYT.classList.remove('on');
+  panelMP3.classList.add('on'); panelYT.classList.remove('on');
+};
+
+function collect(cb){
+  var D = {
+    nama: document.getElementById('f-nama').value.trim(),
+    pengirim: document.getElementById('f-pengirim').value.trim(),
+    vid_yt: document.getElementById('f-vid').value.trim(),
+    surat1: document.getElementById('f-surat1').value,
+    surat2: document.getElementById('f-surat2').value,
+    kejut_msg: document.getElementById('f-kejut').value,
+    mtitle: document.getElementById('f-mtitle').value.trim() || 'Lagu Kita'
+  };
+  for (var i = 1; i <= FOTO_N; i++) {
+    if (fotoData['f' + i]) {
+      D['f' + i] = fotoData['f' + i];
+      var p = fotoPos['f' + i];
+      if (p) D['f' + i + '_pos'] = p.x + '% ' + p.y + '%';
+    }
+  }
+  var useMP3 = btnMP3.classList.contains('on');
+  if (useMP3) {
+    var file = document.getElementById('f-lagu-mp3').files[0];
+    if (file) {
+      var reader = new FileReader();
+      reader.onload = function(ev){ D.mp3 = ev.target.result; if (cb) cb(D); };
+      reader.readAsDataURL(file);
+      return;
+    }
+    if (cb) cb(D);
+  } else {
+    D.yt = document.getElementById('f-lagu-yt').value.trim();
+    if (cb) cb(D);
+  }
+}
+
+document.getElementById('btnPreview').addEventListener('click', function(){
+  collect(function(D){
+    try { localStorage.setItem('gk_preview', JSON.stringify(D)); } catch (e) {}
+    window.open('card-suratcinta-1.html?preview=1', '_blank');
+  });
+});
+
+/* ---- sambung ke enjin bayaran (gk-bayar.js) ----
+   Ikut corak sedia ada: GKBayar.mount({el, previewEl, viewer, collect, produk, qr})
+   Sila semak semula selepas gk-bayar.js diupload — struktur ni ikut dokumentasi
+   projek, belum diuji terus dengan fail gk-bayar.js sebenar dalam sesi ni. */
+if (window.GKBayar) {
+  GKBayar.mount({
+    el: document.getElementById('gk-bayar'),
+    previewEl: document.getElementById('gk-pratonton'),
+    viewer: 'card-suratcinta-1.html',
+    collect: collect,
+    produk: 'Surat Cinta',
+    qr: false
+  });
+}
+</script>
+</body>
+</html>
