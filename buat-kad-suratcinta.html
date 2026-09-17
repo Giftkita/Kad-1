@@ -375,8 +375,18 @@ btnMP3.onclick = function(){
   panelMP3.classList.add('on'); panelYT.classList.remove('on');
 };
 
-function collect(cb){
+var MP3 = null;
+document.getElementById('f-lagu-mp3').addEventListener('change', function(e){
+  var file = e.target.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(ev){ MP3 = ev.target.result; };
+  reader.readAsDataURL(file);
+});
+
+function collect(){
   var D = {
+    template: 'suratcinta',
     nama: document.getElementById('f-nama').value.trim(),
     pengirim: document.getElementById('f-pengirim').value.trim(),
     vid_yt: document.getElementById('f-vid').value.trim(),
@@ -392,27 +402,18 @@ function collect(cb){
       if (p) D['f' + i + '_pos'] = p.x + '% ' + p.y + '%';
     }
   }
-  var useMP3 = btnMP3.classList.contains('on');
-  if (useMP3) {
-    var file = document.getElementById('f-lagu-mp3').files[0];
-    if (file) {
-      var reader = new FileReader();
-      reader.onload = function(ev){ D.mp3 = ev.target.result; if (cb) cb(D); };
-      reader.readAsDataURL(file);
-      return;
-    }
-    if (cb) cb(D);
+  if (btnMP3.classList.contains('on')) {
+    if (MP3) D.mp3 = MP3;
   } else {
     D.yt = document.getElementById('f-lagu-yt').value.trim();
-    if (cb) cb(D);
   }
+  return D;
 }
 
 document.getElementById('btnPreview').addEventListener('click', function(){
-  collect(function(D){
-    try { localStorage.setItem('gk_preview', JSON.stringify(D)); } catch (e) {}
-    window.open('card-suratcinta-1.html?preview=1', '_blank');
-  });
+  var D = collect();
+  try { localStorage.setItem('gk_preview', JSON.stringify(D)); } catch (e) {}
+  window.open('card-suratcinta-1.html?preview=1', '_blank');
 });
 
 /* ---- sambung ke enjin bayaran (gk-bayar.js) ---- */
