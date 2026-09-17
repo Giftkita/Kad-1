@@ -76,11 +76,12 @@ textarea{min-height:90px;resize:vertical}
 
   <div class="sect">
     <h2 data-i18n="h_gambar">Gambar (maksimum 10)</h2>
-    <div class="hint" data-i18n="hint_gambar">Ketik satu kotak untuk gambar tu sahaja, atau guna butang di bawah untuk isi beberapa sekali gus.</div>
+    <div class="hint" data-i18n="hint_gambar">Guna butang di bawah untuk isi banyak sekali gus, atau ketik satu kotak untuk gambar tu sahaja. Lepas gambar masuk, ketik gambar tu untuk laraskan kedudukan.</div>
     <button type="button" class="pilih-btn" id="pilihGambarBtn">📷 <span data-i18n="btn_pilih">Isi beberapa sekali gus</span></button>
     <input type="file" id="fotoInputMulti" accept="image/*" multiple style="display:none">
     <div class="kiraan" id="kiraanFoto">0 / 10 <span data-i18n="lbl_gambar_kiraan">gambar</span></div>
     <div class="foto-grid" id="fotoGrid"></div>
+    <div class="hint" style="margin-top:8px" data-i18n="note_kejut_foto">❤ Foto 10 akan dipaparkan pada bahagian kejutan (halaman terakhir).</div>
   </div>
 
   <div id="adjustOverlay">
@@ -148,8 +149,9 @@ var FORM_TXT = {
     h_nama:'Nama', lbl_penerima:'Nama penerima (untuk rujukan sahaja — belum dipaparkan atas kad)',
     ph_nama:'Contoh: Aina', lbl_pengirim:'Nama pengirim (untuk rujukan sahaja)', ph_pengirim:'Contoh: Danial',
     h_gambar:'Gambar (maksimum 10)',
-    hint_gambar:'Ketik satu kotak untuk gambar tu sahaja, atau guna butang di bawah untuk isi beberapa sekali gus.',
+    hint_gambar:'Guna butang di bawah untuk isi banyak sekali gus, atau ketik satu kotak untuk gambar tu sahaja. Lepas gambar masuk, ketik gambar tu untuk laraskan kedudukan.',
     btn_pilih:'Isi beberapa sekali gus', lbl_gambar_kiraan:'gambar',
+    note_kejut_foto:'\u2764 Foto 10 akan dipaparkan pada bahagian kejutan (halaman terakhir).',
     h_video:'Video (pilihan)', lbl_yt:'Pautan YouTube',
     h_surat:'Surat Cinta', lbl_surat1:'Bahagian 1 (surat permulaan)', ph_surat1:'Hai, sayang...',
     lbl_surat2:'Bahagian 2 (sambungan & penutup surat)', ph_surat2:'Aku harap kau tahu...',
@@ -165,8 +167,9 @@ var FORM_TXT = {
     h_nama:'Names', lbl_penerima:"Recipient's name (for reference only — not yet shown on the card)",
     ph_nama:'e.g. Aina', lbl_pengirim:"Sender's name (for reference only)", ph_pengirim:'e.g. Danial',
     h_gambar:'Photos (max 10)',
-    hint_gambar:"Tap one box to set just that photo, or use the button below to fill several at once.",
+    hint_gambar:"Use the button below to fill several at once, or tap one box for just that photo. Once a photo is in, tap it again to adjust its position.",
     btn_pilih:'Fill several at once', lbl_gambar_kiraan:'photos',
+    note_kejut_foto:'\u2764 Photo 10 will be shown on the surprise section (last page).',
     h_video:'Video (optional)', lbl_yt:'YouTube link',
     h_surat:'Love Letter', lbl_surat1:'Part 1 (opening letter)', ph_surat1:'Hi, love...',
     lbl_surat2:'Part 2 (continuation & closing)', ph_surat2:'I hope you know...',
@@ -192,7 +195,7 @@ function setFormLang(l){
     if (t[k] != null) el.placeholder = t[k];
   });
   document.querySelectorAll('.foto-thumb').forEach(function(el, idx){
-    if (!el.querySelector('img')) el.textContent = t.foto + ' ' + (idx+1);
+    if (!el.querySelector('img')) el.textContent = t.foto + ' ' + (idx+1) + (idx+1===10?' \u2764':'');
   });
   document.getElementById('kiraanFoto').lastElementChild.textContent = t.lbl_gambar_kiraan;
 }
@@ -222,6 +225,7 @@ function renderFotoGrid(){
         '<button type="button" class="del" data-n="'+i+'">\u2715</button>';
     } else {
       el.textContent = FORM_TXT[FORMLANG].foto + ' ' + i;
+      if (i === 10) el.textContent += ' \u2764';
       el.innerHTML += '<input type="file" class="oneinput" accept="image/*" data-n="'+i+'">';
     }
     grid.appendChild(el);
@@ -247,26 +251,17 @@ function renderFotoGrid(){
       var file = inp.files[0];
       if (!file) return;
       resizeImage(file, 1200, 0.85, function(dataUrl){
-        antrean.push({n:n, src:dataUrl});
-        prosesAntrean();
+        fotoData['f'+n] = dataUrl;
+        renderFotoGrid();
       });
     });
   });
 }
 renderFotoGrid();
 
-/* ---- antrean + pelaras kedudukan (drag object-position) ---- */
-var antrean = [];
-var sedangLaras = false;
-function prosesAntrean(){
-  if (sedangLaras || !antrean.length) return;
-  sedangLaras = true;
-  var item = antrean.shift();
-  openAdjust(item.n, item.src, true);
-}
-
+/* ---- pelaras kedudukan (drag object-position) — dibuka bila tap gambar sedia ada ---- */
 var adjState = null;
-function openAdjust(n, src, isNew){
+function openAdjust(n, src){
   var overlay = document.getElementById('adjustOverlay');
   var box = document.getElementById('adjustBox');
   var img = document.getElementById('adjustImg');
@@ -286,7 +281,7 @@ function openAdjust(n, src, isNew){
     var offY = -((pos.y/100) * (dh - boxH));
     img.style.width = dw + 'px';
     img.style.height = dh + 'px';
-    adjState = {n:n, src:src, isNew:isNew, dw:dw, dh:dh, boxW:boxW, boxH:boxH, offX:offX, offY:offY};
+    adjState = {n:n, src:src, dw:dw, dh:dh, boxW:boxW, boxH:boxH, offX:offX, offY:offY};
     applyAdjTransform();
   };
 }
@@ -321,13 +316,10 @@ document.getElementById('adjustDone').addEventListener('click', function(){
   var n = adjState.n;
   var posX = adjState.dw>adjState.boxW ? (-adjState.offX/(adjState.dw-adjState.boxW))*100 : 50;
   var posY = adjState.dh>adjState.boxH ? (-adjState.offY/(adjState.dh-adjState.boxH))*100 : 50;
-  fotoData['f'+n] = adjState.src;
   fotoPos['f'+n] = {x:Math.round(posX), y:Math.round(posY)};
   document.getElementById('adjustOverlay').classList.remove('on');
   adjState = null;
   renderFotoGrid();
-  sedangLaras = false;
-  if (antrean.length) setTimeout(prosesAntrean, 150);
 });
 
 document.getElementById('pilihGambarBtn').addEventListener('click', function(){
@@ -344,8 +336,8 @@ document.getElementById('fotoInputMulti').addEventListener('change', function(e)
   files.forEach(function(file, idx){
     var slotN = kosong[idx];
     resizeImage(file, 1200, 0.85, function(dataUrl){
-      antrean.push({n:slotN, src:dataUrl});
-      prosesAntrean();
+      fotoData['f'+slotN] = dataUrl;
+      renderFotoGrid();
     });
   });
   e.target.value = '';
