@@ -359,7 +359,32 @@ async function checkNow(manual){
 function success(){
   try{localStorage.removeItem('gk_pending');}catch(_e){}
   const base=location.href.split('#')[0].split('?')[0].replace(/[^/]*$/,'');
-  const link=base+'card-befday-1.html?id='+cardId;
+  buildLink(base);
+}
+
+// ── peta template → fail kad ──
+// Template BARU (contoh: 'graduasi', 'nikah', dll) TAK PERLU ditambah sini —
+// automatik guna corak 'card-<template>-1.html'. Letak entry di sini HANYA
+// jika nama fail sebenar tak ikut corak tu (pengecualian).
+const VIEWER_OVERRIDE = {
+  // template lama tanpa 'template' field disimpan (kad sebelum ciri ni wujud)
+  // dianggap befday secara automatik — lihat viewerFor() di bawah.
+};
+function viewerFor(template){
+  if(!template) return 'card-befday-1.html';           // kad lama, tiada template
+  if(VIEWER_OVERRIDE[template]) return VIEWER_OVERRIDE[template];
+  return 'card-'+template+'-1.html';                    // corak standard
+}
+
+async function buildLink(base){
+  let template=null;
+  if(db){
+    try{
+      const q=await db.from('cards').select('card_data').eq('id',cardId).single();
+      template = q.data && q.data.card_data && q.data.card_data.template;
+    }catch(_e){/* sandaran ke befday di viewerFor() */}
+  }
+  const link=base+viewerFor(template)+'?id='+cardId;
   document.getElementById('card-link').href=link;
   document.getElementById('card-link').textContent=link;
   document.getElementById('view-btn').href=link;
