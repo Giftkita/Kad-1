@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════════════
 //  /api/recover.js — customer cari semula link kad mereka.
-//  POST {email, phone} → {cards:[{id, created_at, plan}]}
+//  POST {email, phone} → {cards:[{id, created_at, plan, template}]}
 //  Bonus: kad yang bayarannya lambat disahkan akan di-verify
 //  secara automatik di sini (self-healing).
 // ════════════════════════════════════════════════════════════
@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
 
     // cari kad ikut email (padankan telefon secara longgar: abaikan 0 depan / kod negara 60)
     const rows = await sbGet(
-      `cards?buyer_email=ilike.${encodeURIComponent(email)}&select=id,paid,amount,ref_code,bill_code,buyer_phone,created_at,plan:card_data->>plan&order=created_at.desc&limit=15`
+      `cards?buyer_email=ilike.${encodeURIComponent(email)}&select=id,paid,amount,ref_code,bill_code,buyer_phone,created_at,plan,plan_lama:card_data->>plan,template:card_data->>template&order=created_at.desc&limit=15`
     );
     const mine = rows.filter(r => normPhone(r.buyer_phone) === phone);
 
@@ -60,7 +60,7 @@ module.exports = async (req, res) => {
     }
 
     // pulangkan hanya kad yang PAID
-    const paidCards = mine.filter(c => c.paid === true).map(c => ({ id: c.id, created_at: c.created_at, plan: c.plan || 'basic' }));
+    const paidCards = mine.filter(c => c.paid === true).map(c => ({ id: c.id, created_at: c.created_at, plan: c.plan || c.plan_lama || 'basic', template: c.template || null }));
     if (!paidCards.length) {
       res.status(200).json({ cards: [], error: 'Kad dijumpai tetapi bayaran belum disahkan. Jika baru bayar, tunggu beberapa minit & cuba lagi.' });
       return;
