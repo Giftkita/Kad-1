@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Buat Kad Hari Jadi — Butterfly | GiftKita</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--maroon:#6b2737}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#F6F0DE;color:#4a3b33;line-height:1.5;padding:0 0 40px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+header{background:linear-gradient(180deg,#f3dfe0,#f6f0de);padding:26px 16px 22px;text-align:center;border-bottom:1px solid rgba(150,125,110,.18);margin-bottom:18px;position:relative}
+header h1{font-family:Georgia,serif;font-size:1.4rem;color:#3f3129;margin-bottom:4px}
+header p{font-size:.86rem;color:#8a7767}
+.back{position:absolute;left:14px;top:14px;font-size:.8rem;color:#8a6a3f;text-decoration:none}
+#lang{position:absolute;top:14px;right:14px;background:#fff;border:1px solid rgba(150,125,110,.3);border-radius:999px;padding:6px 12px;font-size:12px;color:#6b5a4c;cursor:pointer}
+.sec{background:#fffdf7;border:1px solid rgba(150,125,110,.18);border-radius:14px;padding:16px;margin-bottom:14px}
+.sec h2{font-family:Georgia,serif;font-size:1.02rem;margin-bottom:3px;color:#3f3129}
+.sec .hint{font-size:.78rem;color:#9a8578;margin-bottom:12px}
+label{display:block;font-size:.8rem;font-weight:600;color:#6b5a4c;margin:10px 0 4px}
+input[type=text],input[type=url],textarea{width:100%;padding:10px 12px;font-size:.92rem;font-family:inherit;border:1px solid rgba(150,125,110,.34);border-radius:10px;background:#fff;color:#3f3129}
+textarea{min-height:110px;resize:vertical;line-height:1.55}
+#fLetter{min-height:220px;font-family:Georgia,serif;font-style:italic}
+input:focus,textarea:focus{outline:2px solid var(--maroon);outline-offset:1px}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+.fotoGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.fotoSlot{aspect-ratio:1;border:1.5px dashed rgba(150,125,110,.45);border-radius:10px;background:#fcf8ee;display:grid;place-items:center;cursor:pointer;overflow:hidden;position:relative}
+.fotoSlot img{width:100%;height:100%;object-fit:cover}
+.fotoSlot span{font-size:.72rem;color:#a8947f;text-align:center;padding:4px;line-height:1.3}
+.fotoSlot .del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;border:0;width:20px;height:20px;border-radius:50%;font-size:13px;cursor:pointer;line-height:1}
+.fotoSlot.hati{border-color:#c4737b;background:#fdf3f2}
+.fotoSlot.hati .klip{position:absolute;inset:0;clip-path:url(#hatiClip)}
+.fotoSlot .klip img{position:absolute;left:50%;top:50%;width:100%;height:100%;object-fit:cover;transform:translate(-50%,-50%)}
+.fotoSlot.kejutan{border-color:#c9a24b;background:#fdf8ea}
+.nota{font-size:.76rem;color:#9a8578;margin-top:8px}
+.sm{font-size:.76rem;color:#9a8578}
+.fileBtn{display:inline-block;margin-top:6px;font-size:.8rem}
+#gk-pratonton,#gk-bayar{margin-top:16px}
+.fotoSlot img{transform-origin:50% 50%}
+.fotoSlot .laras-tip{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);color:#fff;font-size:.62rem;text-align:center;padding:3px;pointer-events:none}
+/* ---- popup laras ---- */
+#laras{position:fixed;inset:0;z-index:90;background:rgba(40,28,26,.86);display:none;align-items:center;justify-content:center;padding:18px}
+#laras.on{display:flex}
+#laras .box{width:100%;max-width:420px;background:#f6efe2;border-radius:18px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+#laras h3{font-family:Georgia,serif;font-size:1rem;color:#3f3129;margin-bottom:4px}
+#laras .sm{margin-bottom:10px}
+#bingkai{position:relative;width:100%;margin:0 auto;background:#2a1f1c;border-radius:8px;overflow:hidden;touch-action:none;cursor:grab;user-select:none}
+#bingkai img{position:absolute;left:50%;top:50%;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+#bingkai .pudar{opacity:.28}
+#bingkai .terangWrap{position:absolute;inset:0}
+#bingkai.hati .terangWrap{clip-path:url(#hatiClip)}
+#bingkai .garis{position:absolute;inset:0;border:1.5px dashed rgba(255,255,255,.35);pointer-events:none;border-radius:6px}
+#laras .baris{display:flex;align-items:center;gap:10px;margin-top:12px}
+#laras input[type=range]{flex:1}
+#laras .btns{display:flex;gap:8px;margin-top:12px}
+#laras button{flex:1;padding:11px;border-radius:10px;border:0;font-family:inherit;font-size:.88rem;cursor:pointer}
+#laras .simpan{background:var(--maroon);color:#f4e6dc}
+#laras .semula,#laras .tukar{background:#fff;border:1px solid rgba(150,125,110,.34);color:#4a3b33}
+.amaran{padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;font-size:.82rem;color:#c62828}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs><clipPath id="hatiClip" clipPathUnits="objectBoundingBox">
+<path d="M0.5,0.95 C0.5,0.95 0.03,0.62 0.03,0.33 C0.03,0.15 0.17,0.05 0.3,0.05 C0.4,0.05 0.47,0.11 0.5,0.18 C0.53,0.11 0.6,0.05 0.7,0.05 C0.83,0.05 0.97,0.15 0.97,0.33 C0.97,0.62 0.5,0.95 0.5,0.95 Z"/>
+</clipPath></defs></svg>
+
+<header>
+  <a class="back" href="buat-kad.html">‹ Kembali</a>
+  <button id="lang">BM / EN</button>
+  <h1 id="hTajuk">Kad Hari Jadi — Butterfly</h1>
+  <p id="hSub">Sampul → rama-rama → surat panjang, polaroid & kejutan calar</p>
+</header>
+
+<div class="wrap">
+  <div class="sec">
+    <h2 id="s1">Untuk siapa</h2><div class="hint" id="s1h">Nama ni keluar atas surat dan kad</div>
+    <div class="row">
+      <div><label id="lTo">Nama penerima</label><input type="text" id="fTo" maxlength="24" placeholder="Sam"></div>
+      <div><label id="lFrom">Daripada</label><input type="text" id="fFrom" maxlength="24" placeholder="Alex"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s2">Surat</h2><div class="hint" id="s2h">Ayat dah siap — boleh guna terus, ubah sikit, atau padam dan tulis sendiri. Keluar atas kertas surat, dan penuh dalam popup.</div>
+    <textarea id="fLetter" maxlength="2000"></textarea>
+    <div class="nota"><span id="kiraSurat">0</span>/2000 &nbsp;·&nbsp; <a href="#" id="pulihSurat" style="color:#6b2737" data-t="pulih">Guna ayat asal semula</a></div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s3">Gambar</h2><div class="hint" id="s3h">3 polaroid (setiap satu bawah lapisan calar) + galeri bouquet</div>
+    <div class="fotoGrid" id="fotoGrid"></div>
+    <input type="file" id="fotoInput" accept="image/*" multiple style="display:none">
+    <div class="nota" id="s3n">Tekan kotak untuk pilih. Boleh pilih beberapa sekali gus — diisi ikut urutan.</div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s4">Kejutan — gambar dalam kotak hadiah</h2><div class="hint" id="s4h">Dia tekan kotak hadiah, tudung terbuka, gambar ni keluar. Nota di bawah pilihan — keluar bila gambar ditekan.</div>
+    <div class="fotoGrid" id="fotoKejutan" style="grid-template-columns:1fr 2fr"></div>
+    <label id="lNotaK">Nota kejutan (pilihan)</label>
+    <textarea id="fSurprise" maxlength="300" style="min-height:70px" placeholder="Malam ni kita sambut. Pukul 8, jangan lambat ♡"></textarea>
+  </div>
+
+  <div class="sec">
+    <h2 id="s5">Lagu</h2><div class="hint" id="s5h">Main sendiri bila sampul dibuka. Link YouTube atau upload MP3.</div>
+    <div class="row">
+      <div><label id="lSong">Tajuk lagu</label><input type="text" id="fSong" maxlength="40" placeholder="Perfect"></div>
+      <div><label id="lArtist">Penyanyi</label><input type="text" id="fArtist" maxlength="40" placeholder="Ed Sheeran"></div>
+    </div>
+    <label>YouTube</label><input type="url" id="fYt" placeholder="https://www.youtube.com/watch?v=...">
+    <div class="sm" style="margin-top:6px"><span id="atauMp3">atau upload MP3</span> <input class="fileBtn" type="file" accept="audio/*" id="fMp3"><span id="mp3n" class="sm"></span></div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s6">Video YouTube</h2><div class="hint" id="s6h">Pilihan — keluar dalam polaroid cyan, tekan untuk main</div>
+    <input type="url" id="fVideo" placeholder="https://www.youtube.com/watch?v=...">
+  </div>
+
+  <div id="gk-pratonton"></div>
+  <div id="gk-bayar"></div>
+</div>
+
+<div id="laras"><div class="box">
+  <h3 id="lrTajuk">Laras gambar</h3>
+  <div class="sm" id="lrHint">Seret untuk gerak · cubit atau slider untuk zum</div>
+  <div id="bingkai"><img class="pudar" alt=""><div class="terangWrap"><img class="terang" alt=""></div><div class="garis"></div></div>
+  <div class="baris"><span class="sm">−</span><input type="range" id="lrZum" min="100" max="300" value="100"><span class="sm">+</span></div>
+  <div class="btns">
+    <button class="semula" id="lrSemula">Tengah semula</button>
+    <button class="tukar" id="lrTukar">Tukar gambar</button>
+    <button class="simpan" id="lrSimpan">Simpan</button>
+  </div>
+</div></div>
+
+<script src="gk-bayar.js"></script>
+<script>
+var lang='ms';
+/* Ayat surat siap isi — customer boleh guna terus, ubah, atau padam & tulis sendiri */
+var SURAT_ASAL={
+ ms:'Selamat hari jadi, sayang.\n\nHari ni hari kau. Aku nak kau tahu yang setiap hari bersama kau — yang biasa-biasa, yang penat, yang tak ada apa-apa istimewa pun — semua tu jadi istimewa sebab ada kau dalamnya.\n\nTerima kasih sebab ketawa dengan aku bila lawak aku tak lawak. Terima kasih sebab sabar. Terima kasih sebab tinggal.\n\nTahun ni, aku doakan semua yang kau impikan sampai. Kalau ada yang tak sampai pun, aku ada. Kita cuba lagi sama-sama.\n\nAku sayang kau, hari ni dan setiap hari.',
+ en:'Happy birthday, love.\n\nToday is yours. I want you to know that every day with you — the ordinary ones, the tired ones, the ones where nothing special happened — all of them became special because you were in them.\n\nThank you for laughing at my jokes that are not funny. Thank you for being patient. Thank you for staying.\n\nThis year, I hope everything you have been wishing for finds its way to you. And if some of it does not, I am here. We will try again together.\n\nI love you, today and every day.'
+};
+var suratDiubah=false;   /* true bila customer sentuh textarea */
+var L={
+ ms:{hTajuk:'Kad Hari Jadi — Butterfly',hSub:'Sampul → rama-rama → surat, polaroid calar & kotak hadiah',
+     s1:'Untuk siapa',s1h:'Nama ni keluar atas surat dan kad',lTo:'Nama penerima',lFrom:'Daripada',
+     s2:'Surat',s2h:'Ayat dah siap — boleh guna terus, ubah sikit, atau padam dan tulis sendiri. Keluar atas kertas surat, dan penuh dalam popup.',
+     pulih:'Guna ayat asal semula',
+     s3:'Gambar',s3h:'3 polaroid (setiap satu bawah lapisan calar) + galeri bouquet',
+     s3n:'Tekan kotak untuk pilih. Boleh pilih beberapa sekali gus — diisi ikut urutan.',
+     s4:'Kejutan — gambar dalam kotak hadiah',s4h:'Dia tekan kotak hadiah, tudung terbuka, gambar ni keluar. Nota di bawah pilihan — keluar bila gambar ditekan.',
+     lNotaK:'Nota kejutan (pilihan)',
+     s5:'Lagu',s5h:'Main sendiri bila sampul dibuka. Link YouTube atau upload MP3.',lSong:'Tajuk lagu',lArtist:'Penyanyi',atauMp3:'atau upload MP3',
+     s6:'Video YouTube',s6h:'Pilihan — keluar dalam polaroid cyan, tekan untuk main',
+     f:['Polaroid 1','Polaroid HATI','Polaroid 2','Gambar kejutan ✦','Galeri 1','Galeri 2','Galeri 3','Galeri 4','Galeri 5','Galeri 6']},
+ en:{hTajuk:'Birthday Card — Butterfly',hSub:'Envelope → butterflies → a letter, scratch polaroids & a gift box',
+     s1:'Who it is for',s1h:'These names appear on the letter and card',lTo:'Their name',lFrom:'From',
+     s2:'Letter',s2h:'The text is ready — use it as is, tweak it, or clear it and write your own. Shows on the letter paper, and in full in the popup.',
+     pulih:'Restore the original text',
+     s3:'Photos',s3h:'3 polaroids (each under a scratch layer) + bouquet gallery',
+     s3n:'Tap a box to choose. You can pick several at once — they fill in order.',
+     s4:'Surprise — a photo inside a gift box',s4h:'They tap the gift box, the lid opens, this photo appears. The note below is optional — shows when the photo is tapped.',
+     lNotaK:'Surprise note (optional)',
+     s5:'Song',s5h:'Plays when the envelope opens. YouTube link or upload an MP3.',lSong:'Song title',lArtist:'Artist',atauMp3:'or upload an MP3',
+     s6:'YouTube video',s6h:'Optional — shows in the cyan polaroid, tap to play',
+     f:['Polaroid 1','HEART polaroid','Polaroid 2','Surprise photo ✦','Gallery 1','Gallery 2','Gallery 3','Gallery 4','Gallery 5','Gallery 6']}
+};
+function pasangTeks(){ var t=L[lang];
+  ['hTajuk','hSub','s1','s1h','lTo','lFrom','s2','s2h','s3','s3h','s3n','s4','s4h','lNotaK','s5','s5h','lSong','lArtist','atauMp3','s6','s6h','pulihSurat']
+   .forEach(function(k){ var e=document.getElementById(k); if(e) e.textContent=t[e.getAttribute('data-t')||k]; });
+  /* kalau customer belum ubah surat, tukar ayat asal ikut bahasa */
+  var fl=document.getElementById('fLetter');
+  if(!suratDiubah||!fl.value.trim()){ fl.value=SURAT_ASAL[lang]; suratDiubah=false; }
+  document.getElementById('kiraSurat').textContent=fl.value.length;
+  binaFoto(); }
+document.getElementById('pulihSurat').onclick=function(e){ e.preventDefault();
+  var fl=document.getElementById('fLetter'); fl.value=SURAT_ASAL[lang]; suratDiubah=false;
+  document.getElementById('kiraSurat').textContent=fl.value.length; };
+document.getElementById('lang').onclick=function(){ lang=(lang==='ms')?'en':'ms'; try{localStorage.setItem('gk_lang',lang);}catch(e){} pasangTeks(); };
+try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }catch(e){}
+
+/* ---- gambar: 0=p1 1=p2(hati) 2=p3 3=kejutan 4..9=galeri ---- */
+var BIL=10, fotoData=new Array(BIL).fill(''), sasar=0;
+/* ---- kedudukan laras: {x,y,s} — x,y = anjakan % kotak, s = zum ----
+   CSS yang SAMA dipakai dalam viewer, jadi apa yang customer nampak = hasil akhir */
+var posData={};
+/* nisbah bukaan sebenar setiap slot (lebar/tinggi dalam piksel latar 1240×1748) */
+var NISBAH={0:310/320, 1:253/229, 2:315/318, 3:312/322};
+function transformCSS(p){ p=p||{x:0,y:0,s:1}; return 'translate(-50%,-50%) translate('+p.x+'%,'+p.y+'%) scale('+p.s+')'; }
+function klamp(p){ var had=(p.s-1)*50; p.x=Math.max(-had,Math.min(had,p.x)); p.y=Math.max(-had,Math.min(had,p.y)); return p; }
+
+/* indeks 3 (kejutan) dipapar dalam seksyen sendiri; grid utama = 0,1,2 + galeri 4..9 */
+function tileHTML(i){ var t=L[lang], kls=i===1?' hati':(i===3?' kejutan':'');
+  var tip=(i<=3&&fotoData[i])?'<div class="laras-tip">'+(lang==='ms'?'tekan untuk laras':'tap to adjust')+'</div>':'';
+  var st=(i<=3&&posData[i])?' style="transform:'+transformCSS(posData[i])+'"':'';
+  var img='<div class="klip"><img src="'+fotoData[i]+'"'+st+'></div>';
+  return '<div class="fotoSlot'+kls+'" data-i="'+i+'">'+(fotoData[i]?img+'<button class="del" data-del="'+i+'">&times;</button>'+tip:'<span>'+t.f[i]+'</span>')+'</div>'; }
+function binaFoto(){
+  document.getElementById('fotoGrid').innerHTML=[0,1,2,4,5,6,7,8,9].map(tileHTML).join('');
+  document.getElementById('fotoKejutan').innerHTML=tileHTML(3)+'<div class="sm" style="align-self:center">'+
+    (lang==='ms'?'Gambar yang paling dia tak sangka — keluar bila kotak hadiah dibuka.':'The photo they least expect — revealed when the gift box opens.')+'</div>';
+  [].forEach.call(document.querySelectorAll('.fotoSlot'),function(s){ s.onclick=function(e){
+    if(e.target.hasAttribute('data-del')) return;
+    var i=+s.getAttribute('data-i');
+    /* kotak dah ada gambar & ada slot sebenar → laras. Kosong → pilih fail. */
+    if(fotoData[i]&&i<=3){ bukaLaras(i); return; }
+    sasar=i; document.getElementById('fotoInput').click(); }; });
+  [].forEach.call(document.querySelectorAll('[data-del]'),function(b){ b.onclick=function(e){ e.stopPropagation(); var i=+b.getAttribute('data-del'); fotoData[i]=''; delete posData[i]; binaFoto(); }; });
+}
+
+/* ---- popup laras ---- */
+var lrIdx=-1, lrPos=null;
+function bukaLaras(i){
+  lrIdx=i; lrPos=Object.assign({x:0,y:0,s:1},posData[i]||{});
+  var bk=document.getElementById('bingkai');
+  bk.classList.toggle('hati',i===1);
+  bk.style.aspectRatio=String(NISBAH[i]);
+  [].forEach.call(bk.querySelectorAll('img'),function(im){ im.src=fotoData[i]; });
+  document.getElementById('lrTajuk').textContent=(lang==='ms'?'Laras — ':'Adjust — ')+L[lang].f[i];
+  document.getElementById('lrHint').textContent=lang==='ms'?'Seret untuk gerak · cubit atau slider untuk zum':'Drag to move · pinch or slider to zoom';
+  document.getElementById('lrSemula').textContent=lang==='ms'?'Tengah semula':'Re-centre';
+  document.getElementById('lrTukar').textContent=lang==='ms'?'Tukar gambar':'Change photo';
+  document.getElementById('lrSimpan').textContent=lang==='ms'?'Simpan':'Save';
+  document.getElementById('lrZum').value=Math.round(lrPos.s*100);
+  lukisLaras(); document.getElementById('laras').classList.add('on');
+}
+function lukisLaras(){ klamp(lrPos); var t=transformCSS(lrPos);
+  [].forEach.call(document.querySelectorAll('#bingkai img'),function(im){ im.style.transform=t; }); }
+(function(){
+  var bk=document.getElementById('bingkai'), jari={}, mulaJarak=0, mulaS=1;
+  function jarak(){ var k=Object.keys(jari); if(k.length<2) return 0; var a=jari[k[0]],b=jari[k[1]]; return Math.hypot(a.x-b.x,a.y-b.y); }
+  bk.onpointerdown=function(e){ bk.setPointerCapture(e.pointerId); jari[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(Object.keys(jari).length===2){ mulaJarak=jarak(); mulaS=lrPos.s; } };
+  bk.onpointermove=function(e){ if(!jari[e.pointerId]) return;
+    var k=Object.keys(jari), r=bk.getBoundingClientRect();
+    if(k.length===1){ lrPos.x+=(e.clientX-jari[e.pointerId].x)/r.width*100; lrPos.y+=(e.clientY-jari[e.pointerId].y)/r.height*100; }
+    jari[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(k.length===2&&mulaJarak){ lrPos.s=Math.max(1,Math.min(3,mulaS*jarak()/mulaJarak)); document.getElementById('lrZum').value=Math.round(lrPos.s*100); }
+    lukisLaras(); };
+  bk.onpointerup=bk.onpointercancel=function(e){ delete jari[e.pointerId]; mulaJarak=0; };
+  document.getElementById('lrZum').oninput=function(){ lrPos.s=+this.value/100; lukisLaras(); };
+  document.getElementById('lrSemula').onclick=function(){ lrPos={x:0,y:0,s:1}; document.getElementById('lrZum').value=100; lukisLaras(); };
+  document.getElementById('lrTukar').onclick=function(){ document.getElementById('laras').classList.remove('on'); sasar=lrIdx; document.getElementById('fotoInput').click(); };
+  document.getElementById('lrSimpan').onclick=function(){ posData[lrIdx]={x:+lrPos.x.toFixed(2),y:+lrPos.y.toFixed(2),s:+lrPos.s.toFixed(3)}; document.getElementById('laras').classList.remove('on'); binaFoto(); };
+  document.getElementById('laras').onclick=function(e){ if(e.target===this) this.classList.remove('on'); };
+})();
+document.getElementById('fotoInput').onchange=function(){ var fs=[].slice.call(this.files||[]); if(!fs.length) return;
+  /* urutan isi: kejutan (3) berasingan — pilih banyak dari grid takkan tumpah masuk slot kejutan */
+  var GRID=[0,1,2,4,5,6,7,8,9], turutan=sasar===3?[3]:GRID.slice(GRID.indexOf(sasar));
+  var sisa=Math.min(fs.length,turutan.length);
+  fs.slice(0,turutan.length).forEach(function(f,k){ var idx=turutan[k];
+    kecilkan(f,function(d){ fotoData[idx]=d; if(--sisa<=0) binaFoto(); }); });
+  this.value=''; };
+/* resize 800px q.8 — had baris Supabase ~4.5MB */
+function kecilkan(file,cb){ var r=new FileReader(); r.onload=function(){ var im=new Image(); im.onload=function(){
+  var mx=800,w=im.width,h=im.height; if(w>mx||h>mx){ if(w>h){h=Math.round(h*mx/w);w=mx;}else{w=Math.round(w*mx/h);h=mx;} }
+  var c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h); cb(c.toDataURL('image/jpeg',0.8)); };
+  im.src=r.result; }; r.readAsDataURL(file); }
+
+/* ---- mp3: proses masa upload ---- */
+var mp3Data='';
+document.getElementById('fMp3').onchange=function(){ var f=this.files&&this.files[0]; if(!f) return;
+  if(f.size>3.2*1024*1024){ alert(lang==='ms'?'Fail MP3 terlalu besar (maksimum ~3MB). Guna link YouTube.':'MP3 too large (max ~3MB). Use a YouTube link instead.'); this.value=''; return; }
+  var r=new FileReader(); r.onload=function(){ mp3Data=r.result; document.getElementById('mp3n').textContent=' ✓'; }; r.readAsDataURL(f); };
+document.getElementById('fLetter').oninput=function(){ suratDiubah=true; document.getElementById('kiraSurat').textContent=this.value.length; };
+function val(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
+
+/* ---- collectData — MESTI sync ---- */
+function collectData(){
+  var d={ template:'butterfly' };            /* WAJIB — sama dengan card-butterfly-1.html */
+  d.to=val('fTo'); d.from=val('fFrom');
+  d.letter=document.getElementById('fLetter').value.trim();
+  d.surprise=document.getElementById('fSurprise').value.trim();
+  d.p1=fotoData[0]||''; d.p2=fotoData[1]||''; d.p3=fotoData[2]||''; d.surprise_img=fotoData[3]||'';
+  d.gallery=fotoData.slice(4).filter(Boolean);
+  /* kedudukan laras — viewer guna CSS sama */
+  d.pos={}; [['p1',0],['p2',1],['p3',2],['surprise_img',3]].forEach(function(k){ if(posData[k[1]]) d.pos[k[0]]=posData[k[1]]; });
+  d.song=val('fSong'); d.artist=val('fArtist'); d.yt=val('fYt'); d.mp3=mp3Data||'';
+  d.video=val('fVideo');
+  return d;                                   /* MESTI return, JANGAN callback */
+}
+
+if(window.GKBayar){
+  GKBayar.mount({ el:'gk-bayar', previewEl:'gk-pratonton', viewer:'card-butterfly-1.html',
+    collect:collectData, produk:'Kad Hari Jadi Butterfly', qr:true });
+}else{
+  document.getElementById('gk-bayar').innerHTML='<div class="amaran">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia di root repo, bukan dalam folder api.</div>';
+}
+pasangTeks();
+</script>
+</body>
+</html>
