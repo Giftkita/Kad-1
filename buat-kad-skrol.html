@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Buat Kad Graduasi — Skrol Ijazah | GiftKita</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--navy:#16294d;--emas:#c9a55a}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#F6F0DE;color:#3d3126;line-height:1.5;padding:0 0 40px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+header{background:linear-gradient(180deg,#e9e0cc,#f6f0de);padding:26px 16px 22px;text-align:center;border-bottom:1px solid rgba(150,125,110,.18);margin-bottom:18px;position:relative}
+header h1{font-family:Georgia,serif;font-size:1.4rem;color:#1d3157;margin-bottom:4px}
+header p{font-size:.86rem;color:#8a7767}
+.back{position:absolute;left:14px;top:14px;font-size:.8rem;color:#8a6a3f;text-decoration:none}
+#lang{position:absolute;top:14px;right:14px;background:#fff;border:1px solid rgba(150,125,110,.3);border-radius:999px;padding:6px 12px;font-size:12px;color:#6b5a4c;cursor:pointer}
+.sec{background:#fffdf7;border:1px solid rgba(150,125,110,.18);border-radius:14px;padding:16px;margin-bottom:14px}
+.sec h2{font-family:Georgia,serif;font-size:1.02rem;margin-bottom:3px;color:#1d3157}
+.sec .hint{font-size:.78rem;color:#9a8578;margin-bottom:12px}
+label{display:block;font-size:.8rem;font-weight:600;color:#6b5a4c;margin:10px 0 4px}
+input[type=text],input[type=url],textarea{width:100%;padding:10px 12px;font-size:.92rem;font-family:inherit;border:1px solid rgba(150,125,110,.34);border-radius:10px;background:#fff;color:#3f3129}
+textarea{min-height:90px;resize:vertical;line-height:1.55}
+#fLetter{min-height:200px;font-family:Georgia,serif;font-style:italic}
+#fKursus{min-height:56px}
+input:focus,textarea:focus{outline:2px solid var(--navy);outline-offset:1px}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+.fotoGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.fotoGrid.dua{grid-template-columns:repeat(2,1fr)}
+.fotoSlot{aspect-ratio:1.1;border:1.5px dashed rgba(150,125,110,.45);border-radius:10px;background:#fcf8ee;display:grid;place-items:center;cursor:pointer;overflow:hidden;position:relative}
+.fotoSlot img{width:100%;height:100%;object-fit:cover}
+.fotoSlot span{font-size:.72rem;color:#a8947f;text-align:center;padding:4px;line-height:1.3}
+.fotoSlot .del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;border:0;width:20px;height:20px;border-radius:50%;font-size:13px;cursor:pointer;line-height:1}
+.fotoSlot.emas{border-color:var(--emas);background:#fdf8ea}
+.fotoSlot .klip{position:absolute;inset:0}
+.fotoSlot .klip img{position:absolute;left:50%;top:50%;width:100%;height:100%;object-fit:cover;transform:translate(-50%,-50%)}
+.fotoSlot .laras-tip{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.45);color:#fff;font-size:.62rem;text-align:center;padding:3px;pointer-events:none}
+.kawanRow{display:grid;grid-template-columns:96px 1fr;gap:10px;margin-top:10px;align-items:start}
+.kawanRow .fotoSlot{aspect-ratio:1.2}
+.kawanRow input{margin-bottom:6px}
+.kawanRow textarea{min-height:64px;font-size:.86rem}
+.nota{font-size:.76rem;color:#9a8578;margin-top:8px}
+.sm{font-size:.76rem;color:#9a8578}
+.fileBtn{display:inline-block;margin-top:6px;font-size:.8rem}
+#gk-pratonton,#gk-bayar{margin-top:16px}
+/* ---- popup laras ---- */
+#laras{position:fixed;inset:0;z-index:90;background:rgba(20,28,46,.86);display:none;align-items:center;justify-content:center;padding:18px}
+#laras.on{display:flex}
+#laras .box{width:100%;max-width:420px;background:#f6efe2;border-radius:18px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+#laras h3{font-family:Georgia,serif;font-size:1rem;color:#1d3157;margin-bottom:4px}
+#laras .sm{margin-bottom:10px}
+#bingkai{position:relative;width:100%;margin:0 auto;background:#1a1f2c;border-radius:8px;overflow:hidden;touch-action:none;cursor:grab;user-select:none}
+#bingkai img{position:absolute;left:50%;top:50%;width:100%;height:100%;object-fit:cover;pointer-events:none;-webkit-user-drag:none}
+#bingkai .pudar{opacity:.28}
+#bingkai .terangWrap{position:absolute;inset:0}
+#bingkai .garis{position:absolute;inset:0;border:1.5px dashed rgba(255,255,255,.35);pointer-events:none;border-radius:6px}
+#laras .baris{display:flex;align-items:center;gap:10px;margin-top:12px}
+#laras input[type=range]{flex:1}
+#laras .btns{display:flex;gap:8px;margin-top:12px}
+#laras button{flex:1;padding:11px;border-radius:10px;border:0;font-family:inherit;font-size:.88rem;cursor:pointer}
+#laras .simpan{background:var(--navy);color:#f4e6dc}
+#laras .semula,#laras .tukar{background:#fff;border:1px solid rgba(150,125,110,.34);color:#4a3b33}
+.amaran{padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;font-size:.82rem;color:#c62828}
+</style>
+</head>
+<body>
+<header>
+  <a class="back" href="buat-kad-graduasi.html">‹ Kembali</a>
+  <button id="lang">BM / EN</button>
+  <h1 id="hTajuk">Kad Graduasi — Skrol Ijazah</h1>
+  <p id="hSub">Tarik reben → skrol terbuka → surat, 10 gambar, nota kawan & kejutan bermeterai</p>
+</header>
+
+<div class="wrap">
+  <div class="sec">
+    <h2 id="s1">Graduan</h2><div class="hint" id="s1h">Nama ni keluar besar atas skrol macam sijil</div>
+    <div class="row">
+      <div><label id="lTo">Nama graduan</label><input type="text" id="fTo" maxlength="30" placeholder="Aina binti Rahman"></div>
+      <div><label id="lTahun">Tahun</label><input type="text" id="fTahun" maxlength="6" placeholder="2026"></div>
+    </div>
+    <label id="lKursus">Kursus &amp; universiti (pilihan)</label>
+    <textarea id="fKursus" maxlength="90" placeholder="Ijazah Sarjana Muda Senibina&#10;Universiti Teknologi Malaysia"></textarea>
+    <label id="lFrom">Daripada</label><input type="text" id="fFrom" maxlength="30" placeholder="Kami semua">
+    <div class="nota" id="s1n">"Daripada" boleh nama kau sorang, atau "Kami semua" kalau kad ni dari satu geng.</div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s2">Surat dalam skrol</h2><div class="hint" id="s2h">Ayat dah siap — boleh guna terus, ubah sikit, atau padam dan tulis sendiri. Keluar atas skrol, dan penuh dalam popup.</div>
+    <textarea id="fLetter" maxlength="1500"></textarea>
+    <div class="nota"><span id="kiraSurat">0</span>/1500 &nbsp;·&nbsp; <a href="#" id="pulihSurat" style="color:#1d3157" data-t="pulih">Guna ayat asal semula</a></div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s3">Gambar graduan</h2><div class="hint" id="s3h">4 bingkai emas berukir — gambar konvo, keluarga, detik terbaik</div>
+    <div class="fotoGrid dua" id="fotoGrad"></div>
+    <input type="file" id="fotoInput" accept="image/*" multiple style="display:none">
+    <div class="nota" id="s3n">Tekan kotak untuk pilih. Boleh pilih beberapa sekali gus — diisi ikut urutan. Tekan gambar untuk laras.</div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s4">Kawan-kawan</h2><div class="hint" id="s4h">6 bingkai. Setiap kawan: gambar + nama + nota pendek. Bila dia tekan bingkai, nota tu keluar macam tandatangan buku tahunan.</div>
+    <div id="kawanList"></div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s5">Kejutan — bermeterai</h2><div class="hint" id="s5h">Bingkai ni tertutup dengan meterai lilin emas. Dia tekan, meterai pecah, gambar ni keluar. Nota di bawah pilihan.</div>
+    <div class="fotoGrid" id="fotoKejutan" style="grid-template-columns:1fr 2fr"></div>
+    <label id="lNotaK">Nota kejutan (pilihan)</label>
+    <textarea id="fSurprise" maxlength="300" style="min-height:64px" placeholder="Malam ni kita sambut. Jangan lambat ♡"></textarea>
+  </div>
+
+  <div class="sec">
+    <h2 id="s6">Lagu</h2><div class="hint" id="s6h">Main sendiri bila reben ditarik. Link YouTube atau upload MP3.</div>
+    <div class="row">
+      <div><label id="lSong">Tajuk lagu</label><input type="text" id="fSong" maxlength="40" placeholder="Perfect"></div>
+      <div><label id="lArtist">Penyanyi</label><input type="text" id="fArtist" maxlength="40" placeholder="Ed Sheeran"></div>
+    </div>
+    <label>YouTube</label><input type="url" id="fYt" placeholder="https://www.youtube.com/watch?v=...">
+    <div class="sm" style="margin-top:6px"><span id="atauMp3">atau upload MP3</span> <input class="fileBtn" type="file" accept="audio/*" id="fMp3"><span id="mp3n" class="sm"></span></div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s7">Video YouTube</h2><div class="hint" id="s7h">Pilihan — keluar dalam bingkai emas besar, tekan untuk main</div>
+    <input type="url" id="fVideo" placeholder="https://www.youtube.com/watch?v=...">
+  </div>
+
+  <div id="saizJumlah" class="nota"></div>
+  <div id="gk-pratonton"></div>
+  <div id="gk-bayar"></div>
+</div>
+
+<div id="laras"><div class="box">
+  <h3 id="lrTajuk">Laras gambar</h3>
+  <div class="sm" id="lrHint">Seret untuk gerak · cubit atau slider untuk zum</div>
+  <div id="bingkai"><img class="pudar" alt=""><div class="terangWrap"><img class="terang" alt=""></div><div class="garis"></div></div>
+  <div class="baris"><span class="sm">−</span><input type="range" id="lrZum" min="100" max="300" value="100"><span class="sm">+</span></div>
+  <div class="btns">
+    <button class="semula" id="lrSemula">Tengah semula</button>
+    <button class="tukar" id="lrTukar">Tukar gambar</button>
+    <button class="simpan" id="lrSimpan">Simpan</button>
+  </div>
+</div></div>
+
+<script src="gk-bayar.js"></script>
+<script>
+var lang='ms';
+var SURAT_ASAL={
+ ms:'Empat tahun. Berapa banyak malam tak tidur, berapa kali kau cakap "aku tak boleh dah" — tapi kau tak pernah berhenti.\n\nHari ni semua orang nampak apa yang kami dah lama nampak: kau memang boleh.\n\nTahniah, graduan. Dunia luar tu tunggu kau. Pergi — dan jangan lupa jalan balik.',
+ en:'Four years. So many sleepless nights, so many times you said "I can\'t do this anymore" — but you never stopped.\n\nToday everyone sees what we have always seen: you can.\n\nCongratulations, graduate. The world out there is waiting. Go — and don\'t forget the way back.'
+};
+var suratDiubah=false;
+var L={
+ ms:{hTajuk:'Kad Graduasi — Skrol Ijazah',hSub:'Tarik reben → skrol terbuka → surat, 10 gambar, nota kawan & kejutan bermeterai',
+     s1:'Graduan',s1h:'Nama ni keluar besar atas skrol macam sijil',lTo:'Nama graduan',lTahun:'Tahun',lKursus:'Kursus & universiti (pilihan)',lFrom:'Daripada',
+     s1n:'"Daripada" boleh nama kau sorang, atau "Kami semua" kalau kad ni dari satu geng.',
+     s2:'Surat dalam skrol',s2h:'Ayat dah siap — boleh guna terus, ubah sikit, atau padam dan tulis sendiri. Keluar atas skrol, dan penuh dalam popup.',pulih:'Guna ayat asal semula',
+     s3:'Gambar graduan',s3h:'4 bingkai emas berukir — gambar konvo, keluarga, detik terbaik',s3n:'Tekan kotak untuk pilih. Boleh pilih beberapa sekali gus — diisi ikut urutan. Tekan gambar untuk laras.',
+     s4:'Kawan-kawan',s4h:'6 bingkai. Setiap kawan: gambar + nama + nota pendek. Bila dia tekan bingkai, nota tu keluar macam tandatangan buku tahunan.',
+     s5:'Kejutan — bermeterai',s5h:'Bingkai ni tertutup dengan meterai lilin emas. Dia tekan, meterai pecah, gambar ni keluar. Nota di bawah pilihan.',lNotaK:'Nota kejutan (pilihan)',
+     s6:'Lagu',s6h:'Main sendiri bila reben ditarik. Link YouTube atau upload MP3.',lSong:'Tajuk lagu',lArtist:'Penyanyi',atauMp3:'atau upload MP3',
+     s7:'Video YouTube',s7h:'Pilihan — keluar dalam bingkai emas besar, tekan untuk main',
+     kNama:'Nama kawan',kNota:'Nota dia',kFoto:'Gambar',laras:'tekan untuk laras',
+     f:['Graduan 1','Graduan 2','Graduan 3','Graduan 4','Kawan 1','Kawan 2','Kawan 3','Kawan 4','Kawan 5','Kawan 6','Gambar kejutan ✦'],
+     kejutanNota:'Gambar yang paling dia tak sangka — keluar bila meterai pecah.'},
+ en:{hTajuk:'Graduation Card — Diploma Scroll',hSub:'Pull the ribbon → the scroll unrolls → a letter, 10 photos, friends\' notes & a sealed surprise',
+     s1:'The graduate',s1h:'This name appears large on the scroll, like a certificate',lTo:'Graduate\'s name',lTahun:'Year',lKursus:'Course & university (optional)',lFrom:'From',
+     s1n:'"From" can be just your name, or "All of us" if the card is from the whole group.',
+     s2:'Letter on the scroll',s2h:'The text is ready — use it as is, tweak it, or clear it and write your own. Shows on the scroll, and in full in the popup.',pulih:'Restore the original text',
+     s3:'Graduate photos',s3h:'4 ornate gold frames — convocation, family, the best moments',s3n:'Tap a box to choose. You can pick several at once — they fill in order. Tap a photo to adjust.',
+     s4:'Friends',s4h:'6 frames. Each friend: photo + name + a short note. When they tap a frame, the note appears like a yearbook signature.',
+     s5:'Surprise — sealed',s5h:'This frame is closed with a gold wax seal. They tap it, the seal breaks, this photo appears. The note below is optional.',lNotaK:'Surprise note (optional)',
+     s6:'Song',s6h:'Plays when the ribbon is pulled. YouTube link or upload an MP3.',lSong:'Song title',lArtist:'Artist',atauMp3:'or upload an MP3',
+     s7:'YouTube video',s7h:'Optional — shows in the large gold frame, tap to play',
+     kNama:'Friend\'s name',kNota:'Their note',kFoto:'Photo',laras:'tap to adjust',
+     f:['Graduate 1','Graduate 2','Graduate 3','Graduate 4','Friend 1','Friend 2','Friend 3','Friend 4','Friend 5','Friend 6','Surprise photo ✦'],
+     kejutanNota:'The photo they least expect — revealed when the seal breaks.'}
+};
+function pasangTeks(){ var t=L[lang];
+  ['hTajuk','hSub','s1','s1h','lTo','lTahun','lKursus','lFrom','s1n','s2','s2h','s3','s3h','s3n','s4','s4h','s5','s5h','lNotaK','s6','s6h','lSong','lArtist','atauMp3','s7','s7h','pulihSurat']
+   .forEach(function(k){ var e=document.getElementById(k); if(e) e.textContent=t[e.getAttribute('data-t')||k]; });
+  var fl=document.getElementById('fLetter');
+  if(!suratDiubah||!fl.value.trim()){ fl.value=SURAT_ASAL[lang]; suratDiubah=false; }
+  document.getElementById('kiraSurat').textContent=fl.value.length;
+  binaFoto(); }
+document.getElementById('pulihSurat').onclick=function(e){ e.preventDefault();
+  var fl=document.getElementById('fLetter'); fl.value=SURAT_ASAL[lang]; suratDiubah=false;
+  document.getElementById('kiraSurat').textContent=fl.value.length; };
+document.getElementById('lang').onclick=function(){ lang=(lang==='ms')?'en':'ms'; try{localStorage.setItem('gk_lang',lang);}catch(e){} pasangTeks(); };
+try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }catch(e){}
+
+/* ---- gambar: 0..3=graduan p1-p4, 4..9=kawan k1-k6, 10=kejutan ---- */
+var BIL=11, fotoData=new Array(BIL).fill(''), sasar=0, posData={};
+var kawanNama=['','','','','',''], kawanNota=['','','','','',''];
+/* nisbah bukaan sebenar (lebar/tinggi) — dari auto-detect slot */
+var NISBAH={0:1.09,1:1.09,2:1.09,3:1.09, 4:1.23,5:1.23,6:1.23,7:1.23,8:1.23,9:1.23, 10:1.03};
+function transformCSS(p){ p=p||{x:0,y:0,s:1}; return 'translate(-50%,-50%) translate('+p.x+'%,'+p.y+'%) scale('+p.s+')'; }
+function klamp(p){ var had=(p.s-1)*50; p.x=Math.max(-had,Math.min(had,p.x)); p.y=Math.max(-had,Math.min(had,p.y)); return p; }
+
+function tileHTML(i){ var t=L[lang], kls=i===10?' emas':'';
+  var tip=fotoData[i]?'<div class="laras-tip">'+t.laras+'</div>':'';
+  var st=posData[i]?' style="transform:'+transformCSS(posData[i])+'"':'';
+  var img='<div class="klip"><img src="'+fotoData[i]+'"'+st+'></div>';
+  return '<div class="fotoSlot'+kls+'" data-i="'+i+'">'+(fotoData[i]?img+'<button class="del" data-del="'+i+'">&times;</button>'+tip:'<span>'+t.f[i]+'</span>')+'</div>'; }
+function binaFoto(){ var t=L[lang];
+  document.getElementById('fotoGrad').innerHTML=[0,1,2,3].map(tileHTML).join('');
+  document.getElementById('kawanList').innerHTML=[4,5,6,7,8,9].map(function(i){ var k=i-4;
+    return '<div class="kawanRow">'+tileHTML(i)+'<div>'+
+      '<input type="text" maxlength="24" data-kn="'+k+'" placeholder="'+t.kNama+'" value="'+esc(kawanNama[k])+'">'+
+      '<textarea maxlength="220" data-kt="'+k+'" placeholder="'+t.kNota+'">'+esc(kawanNota[k])+'</textarea></div></div>'; }).join('');
+  document.getElementById('fotoKejutan').innerHTML=tileHTML(10)+'<div class="sm" style="align-self:center">'+t.kejutanNota+'</div>';
+  [].forEach.call(document.querySelectorAll('.fotoSlot'),function(s){ s.onclick=function(e){
+    if(e.target.hasAttribute('data-del')) return;
+    var i=+s.getAttribute('data-i');
+    if(fotoData[i]){ bukaLaras(i); return; }
+    sasar=i; document.getElementById('fotoInput').click(); }; });
+  [].forEach.call(document.querySelectorAll('[data-del]'),function(b){ b.onclick=function(e){ e.stopPropagation(); var i=+b.getAttribute('data-del'); fotoData[i]=''; delete posData[i]; binaFoto(); kiraSaiz(); }; });
+  [].forEach.call(document.querySelectorAll('[data-kn]'),function(el){ el.oninput=function(){ kawanNama[+el.getAttribute('data-kn')]=el.value; }; });
+  [].forEach.call(document.querySelectorAll('[data-kt]'),function(el){ el.oninput=function(){ kawanNota[+el.getAttribute('data-kt')]=el.value; }; });
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+
+/* ---- popup laras ---- */
+var lrIdx=-1, lrPos=null;
+function bukaLaras(i){
+  lrIdx=i; lrPos=Object.assign({x:0,y:0,s:1},posData[i]||{});
+  var bk=document.getElementById('bingkai'); bk.style.aspectRatio=String(NISBAH[i]);
+  [].forEach.call(bk.querySelectorAll('img'),function(im){ im.src=fotoData[i]; });
+  document.getElementById('lrTajuk').textContent=(lang==='ms'?'Laras — ':'Adjust — ')+L[lang].f[i];
+  document.getElementById('lrHint').textContent=lang==='ms'?'Seret untuk gerak · cubit atau slider untuk zum':'Drag to move · pinch or slider to zoom';
+  document.getElementById('lrSemula').textContent=lang==='ms'?'Tengah semula':'Re-centre';
+  document.getElementById('lrTukar').textContent=lang==='ms'?'Tukar gambar':'Change photo';
+  document.getElementById('lrSimpan').textContent=lang==='ms'?'Simpan':'Save';
+  document.getElementById('lrZum').value=Math.round(lrPos.s*100);
+  lukisLaras(); document.getElementById('laras').classList.add('on');
+}
+function lukisLaras(){ klamp(lrPos); var t=transformCSS(lrPos);
+  [].forEach.call(document.querySelectorAll('#bingkai img'),function(im){ im.style.transform=t; }); }
+(function(){
+  var bk=document.getElementById('bingkai'), jari={}, mulaJarak=0, mulaS=1;
+  function jarak(){ var k=Object.keys(jari); if(k.length<2) return 0; var a=jari[k[0]],b=jari[k[1]]; return Math.hypot(a.x-b.x,a.y-b.y); }
+  bk.onpointerdown=function(e){ bk.setPointerCapture(e.pointerId); jari[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(Object.keys(jari).length===2){ mulaJarak=jarak(); mulaS=lrPos.s; } };
+  bk.onpointermove=function(e){ if(!jari[e.pointerId]) return;
+    var k=Object.keys(jari), r=bk.getBoundingClientRect();
+    if(k.length===1){ lrPos.x+=(e.clientX-jari[e.pointerId].x)/r.width*100; lrPos.y+=(e.clientY-jari[e.pointerId].y)/r.height*100; }
+    jari[e.pointerId]={x:e.clientX,y:e.clientY};
+    if(k.length===2&&mulaJarak){ lrPos.s=Math.max(1,Math.min(3,mulaS*jarak()/mulaJarak)); document.getElementById('lrZum').value=Math.round(lrPos.s*100); }
+    lukisLaras(); };
+  bk.onpointerup=bk.onpointercancel=function(e){ delete jari[e.pointerId]; mulaJarak=0; };
+  document.getElementById('lrZum').oninput=function(){ lrPos.s=+this.value/100; lukisLaras(); };
+  document.getElementById('lrSemula').onclick=function(){ lrPos={x:0,y:0,s:1}; document.getElementById('lrZum').value=100; lukisLaras(); };
+  document.getElementById('lrTukar').onclick=function(){ document.getElementById('laras').classList.remove('on'); sasar=lrIdx; document.getElementById('fotoInput').click(); };
+  document.getElementById('lrSimpan').onclick=function(){ posData[lrIdx]={x:+lrPos.x.toFixed(2),y:+lrPos.y.toFixed(2),s:+lrPos.s.toFixed(3)}; document.getElementById('laras').classList.remove('on'); binaFoto(); };
+  document.getElementById('laras').onclick=function(e){ if(e.target===this) this.classList.remove('on'); };
+})();
+document.getElementById('fotoInput').onchange=function(){ var fs=[].slice.call(this.files||[]); if(!fs.length) return;
+  /* urutan isi ikut kumpulan: graduan 0-3, kawan 4-9, kejutan 10 sendiri — tak tumpah antara kumpulan */
+  var kump=sasar<=3?[0,1,2,3]:(sasar<=9?[4,5,6,7,8,9]:[10]), turutan=kump.slice(kump.indexOf(sasar));
+  var sisa=Math.min(fs.length,turutan.length);
+  fs.slice(0,turutan.length).forEach(function(f,k){ var idx=turutan[k];
+    kecilkan(f,function(d){ fotoData[idx]=d; if(--sisa<=0){ binaFoto(); kiraSaiz(); } }); });
+  this.value=''; };
+/* resize 800px q.8 — had baris Supabase ~4.5MB; 11 gambar → guna 760px */
+function kecilkan(file,cb){ var r=new FileReader(); r.onload=function(){ var im=new Image(); im.onload=function(){
+  var mx=760,w=im.width,h=im.height; if(w>mx||h>mx){ if(w>h){h=Math.round(h*mx/w);w=mx;}else{w=Math.round(w*mx/h);h=mx;} }
+  var c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(im,0,0,w,h); cb(c.toDataURL('image/jpeg',0.78)); };
+  im.src=r.result; }; r.readAsDataURL(file); }
+
+var mp3Data='';
+document.getElementById('fMp3').onchange=function(){ var f=this.files&&this.files[0]; if(!f) return;
+  if(f.size>2.6*1024*1024){ alert(lang==='ms'?'Fail MP3 terlalu besar (maksimum ~2.5MB). Guna link YouTube.':'MP3 too large (max ~2.5MB). Use a YouTube link instead.'); this.value=''; return; }
+  var r=new FileReader(); r.onload=function(){ mp3Data=r.result; document.getElementById('mp3n').textContent=' ✓'; kiraSaiz(); }; r.readAsDataURL(f); };
+document.getElementById('fLetter').oninput=function(){ suratDiubah=true; document.getElementById('kiraSurat').textContent=this.value.length; };
+function val(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
+
+/* ================= jaga saiz baris Supabase (had ~4.5MB) ================= */
+function kiraSaiz(){
+  var n=JSON.stringify(collectData()).length, mb=n/1048576, el=document.getElementById('saizJumlah');
+  if(!el) return;
+  var t=(lang==='ms'?'Saiz kad: ':'Card size: ')+mb.toFixed(1)+' MB';
+  if(mb>3.8){ el.className='amaran'; el.textContent=t+(lang==='ms'
+      ? ' — terlalu besar, kad mungkin gagal disimpan. Buang beberapa gambar atau guna link YouTube untuk lagu.'
+      : ' — too large, the card may fail to save. Remove a few photos or use a YouTube link for the song.'); }
+  else { el.className='nota'; el.textContent=t; }
+}
+
+/* ---- collectData — MESTI sync ---- */
+function collectData(){
+  var d={ template:'skrol' };                 /* WAJIB — sama dengan card-skrol-1.html */
+  d.to=val('fTo'); d.from=val('fFrom')||(lang==='ms'?'Kami semua':'All of us'); d.tahun=val('fTahun'); d.kursus=document.getElementById('fKursus').value.trim();
+  d.letter=document.getElementById('fLetter').value.trim();
+  d.surprise=document.getElementById('fSurprise').value.trim();
+  d.p1=fotoData[0]||''; d.p2=fotoData[1]||''; d.p3=fotoData[2]||''; d.p4=fotoData[3]||'';
+  for(var i=0;i<6;i++){ d['k'+(i+1)]=fotoData[4+i]||''; d['kn'+(i+1)]=kawanNama[i].trim(); d['kt'+(i+1)]=kawanNota[i].trim(); }
+  d.surprise_img=fotoData[10]||'';
+  d.pos={}; var KEY=['p1','p2','p3','p4','k1','k2','k3','k4','k5','k6','surprise_img'];
+  KEY.forEach(function(k,i){ if(posData[i]) d.pos[k]=posData[i]; });
+  d.song=val('fSong'); d.artist=val('fArtist'); d.yt=val('fYt'); d.mp3=mp3Data||'';
+  d.video=val('fVideo');
+  return d;                                   /* MESTI return, JANGAN callback */
+}
+
+if(window.GKBayar){
+  GKBayar.mount({ el:'gk-bayar', previewEl:'gk-pratonton', viewer:'card-skrol-1.html',
+    collect:collectData, produk:'Kad Graduasi Skrol Ijazah', qr:true });
+}else{
+  document.getElementById('gk-bayar').innerHTML='<div class="amaran">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia di root repo, bukan dalam folder api.</div>';
+}
+pasangTeks();
+</script>
+</body>
+</html>
