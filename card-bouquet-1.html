@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bouquet Muka — GiftKita</title>
+<meta property="og:title" content="Bouquet Muka untuk anda 🌸">
+<meta property="og:description" content="Satu bouquet istimewa dari GiftKita">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<style>
+  :root{--pink:#f3b8c6;--pink-d:#d98a9f;--ink:#3b2a22;--muted:#8b7a72}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",system-ui,-apple-system,sans-serif;color:var(--ink);
+       background:linear-gradient(180deg,#fde7ee 0%,#fff7f3 45%,#fff 100%);min-height:100vh;
+       display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px}
+  h1{font-size:22px;margin:0 0 4px;text-align:center}
+  h1 span{color:var(--pink-d)}
+  .sub{color:var(--muted);font-size:13px;margin:0 0 18px;text-align:center}
+  .frame{background:#fff;padding:12px;border-radius:20px;box-shadow:0 12px 40px rgba(217,138,159,.25);max-width:460px;width:100%}
+  .frame img{width:100%;display:block;border-radius:12px}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;border:0;
+       cursor:pointer;font-size:14px;font-weight:600;background:var(--pink-d);color:#fff;text-decoration:none}
+  .btn.ghost{background:#fff;border:1.5px solid #e9c3cd;color:var(--pink-d)}
+  .btn.wa{background:#25d366}
+  .msg{margin-top:22px;color:var(--muted);font-size:13px;text-align:center;max-width:420px}
+  .err{background:#fff;border-radius:16px;padding:22px;max-width:420px;text-align:center;box-shadow:0 8px 30px rgba(217,138,159,.15);line-height:1.6}
+  footer{margin-top:30px;color:var(--muted);font-size:11px}
+  .spin{width:28px;height:28px;border:3px solid var(--pink);border-right-color:transparent;border-radius:50%;
+        animation:sp .8s linear infinite;margin:40px auto}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  #badge{position:fixed;top:12px;left:12px;background:#d98a9f;color:#fff;font:700 10px/1 "Segoe UI",sans-serif;
+         letter-spacing:.12em;padding:7px 10px;border-radius:999px;display:none}
+  #lang{position:fixed;top:12px;right:12px;background:#fff;border:1px solid #e9c3cd;border-radius:999px;
+        padding:6px 12px;font-size:12px;color:var(--pink-d);cursor:pointer}
+</style>
+</head>
+<body>
+  <div id="badge">PRATONTON</div>
+  <button id="lang">BM / EN</button>
+  <h1>🌸 Bouquet <span>Muka</span></h1>
+  <p class="sub" id="sub"></p>
+  <div class="spin" id="spin"></div>
+  <div class="frame" id="frame" style="display:none"><img id="img" alt="Bouquet"></div>
+  <div class="btns" id="btns" style="display:none">
+    <a class="btn" id="dl" download="bouquet-muka.jpg"></a>
+  </div>
+  <p class="msg" id="msg" style="display:none"></p>
+  <div class="err" id="err" style="display:none"></div>
+  <footer>GiftKita · www.giftkita.com</footer>
+
+<script>
+/* ============================================================
+   Sambungan database — SAMA dengan semua viewer GiftKita lain
+   (card-butterfly-1.html, card-skrol-1.html, dsb).
+   JANGAN tukar ke /api/... — endpoint tu tak wujud.
+   ============================================================ */
+var SB_URL='https://lejpuajafuenlfvlovfg.supabase.co';
+var SB_KEY='sb_publishable_igFE4w_dz4ZF99wH1LeBKg_JL5kFoZ0';
+var db=null; try{ if(window.supabase&&window.supabase.createClient) db=window.supabase.createClient(SB_URL,SB_KEY);}catch(e){}
+
+var D=null, lang='ms';
+var TXT={
+ ms:{siap:'Bayaran diterima — bouquet anda dah siap!', design:'Design: ', dl:'⬇️ Download gambar', wa:'💬 Kongsi di WhatsApp',
+     copy:'🔗 Salin link', disalin:'✓ Disalin!',
+     msg:'Tekan Download — gambar penuh tanpa tanda air masuk terus ke galeri telefon anda. Simpan link halaman ni kalau nak download semula.',
+     share:'Tengok bouquet ni 🌸 ',
+     tiada:'Bouquet tidak dijumpai atau link telah tamat tempoh.',
+     belum:'Bouquet ini belum diaktifkan. Sila selesaikan pembayaran untuk membukanya.',
+     dbGagal:'Sambungan ke pangkalan data gagal. Sila refresh halaman.',
+     takLengkap:'Data bouquet tidak lengkap. Sila hubungi kami di WhatsApp dengan link ini.',
+     takdePratonton:'Tiada data pratonton. Sila kembali ke halaman bouquet dan tekan Pratonton semula.'},
+ en:{siap:'Payment received — your bouquet is ready!', design:'Design: ', dl:'⬇️ Download image', wa:'💬 Share on WhatsApp',
+     copy:'🔗 Copy link', disalin:'✓ Copied!',
+     msg:'Tap Download — the full image without watermark goes straight to your phone gallery. Keep this page link if you need to download again.',
+     share:'Look at this bouquet 🌸 ',
+     tiada:'This bouquet was not found or the link has expired.',
+     belum:'This bouquet is not active yet. Please complete the payment to open it.',
+     dbGagal:'Database connection failed. Please refresh the page.',
+     takLengkap:'The bouquet data is incomplete. Please WhatsApp us with this link.',
+     takdePratonton:'No preview data. Please go back to the bouquet page and tap Preview again.'}
+};
+function T(k){ return TXT[lang][k]; }
+var $ = function(s){ return document.querySelector(s); };
+var params = new URLSearchParams(location.search);
+var id = params.get('id') || params.get('kad') || location.hash.replace('#','');
+
+function ralat(t){
+  $('#spin').style.display='none'; $('#sub').style.display='none';
+  $('#frame').style.display='none'; $('#btns').style.display='none'; $('#msg').style.display='none';
+  $('#err').style.display=''; $('#err').innerHTML=t;
+}
+function papar(){
+  var src = D && (D.img || D.bouquet);
+  if(!src) return ralat(T('takLengkap'));
+  $('#err').style.display='none';
+  $('#img').src = src;
+  $('#dl').href = src;
+  $('#spin').style.display='none';
+  $('#frame').style.display=''; $('#btns').style.display=''; $('#msg').style.display='';
+  $('#sub').style.display='';
+  $('#sub').textContent = D.design ? T('design')+D.design : T('siap');
+  $('#dl').textContent = T('dl');
+  $('#msg').textContent = T('msg');
+}
+$('#lang').onclick=function(){ lang=(lang==='ms')?'en':'ms'; try{localStorage.setItem('gk_lang',lang);}catch(e){} if(D) papar(); };
+try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }catch(e){}
+
+/* ============ muat data — corak SAMA dengan viewer kad lain ============ */
+(function init(){
+  /* mod pratonton: gk-bayar.js simpan data dalam localStorage */
+  if(params.get('preview')==='1'){
+    try{ D=JSON.parse(localStorage.getItem('gk_preview')); }catch(e){ D=null; }
+    if(!D||!D.img) return ralat(T('takdePratonton'));
+    $('#badge').style.display='block'; papar(); return;
+  }
+  if(!id) return ralat(T('tiada'));
+  if(!db) return ralat(T('dbGagal'));
+  db.from('cards').select('card_data,paid').eq('id',id).single().then(function(r){
+    if(r.error) throw r.error;
+    if(r.data.paid!==true){ ralat(T('belum')); return; }   /* WAJIB — tanpa ni sesiapa boleh tengok tanpa bayar */
+    D=r.data.card_data; papar();
+  }).catch(function(){ ralat(T('tiada')); });
+})();
+</script>
+</body>
+</html>
