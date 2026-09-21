@@ -4,6 +4,11 @@
 //  Lapisan kedua selain callback — mana-mana satu berjaya, kad aktif.
 // ════════════════════════════════════════════════════════════
 
+// SAMA dengan callback.js — produk yang tidak bagi komisen affiliate.
+// verify.js dan callback.js berlumba; mana-mana yang menang rekod jualan, jadi
+// kedua-duanya MESTI ada senarai ini, kalau tak komisen bocor melalui satu laluan.
+const TIADA_KOMISEN = { bouquet: true };
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -44,8 +49,8 @@ module.exports = async (req, res) => {
       });
       const saleId = sale[0] && sale[0].id;
 
-      // 5) komisen affiliate jika ada
-      if (card.ref_code) {
+      // 5) komisen affiliate jika ada — dan produk ni layak komisen
+      if (card.ref_code && !TIADA_KOMISEN[pakej(card)]) {
         const aff = await sbGet(
           `affiliates?code=eq.${encodeURIComponent(card.ref_code)}&active=eq.true&select=code,commission_flat`
         );
