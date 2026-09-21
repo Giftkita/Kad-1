@@ -68,6 +68,9 @@ section{padding:56px 0}
 .price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;max-width:680px;margin:0 auto}
 .plan{border:1.5px solid var(--line);border-radius:22px;padding:28px 24px;text-align:center;background:#fff;transition:.25s}
 .plan.feat{border-color:var(--pink);box-shadow:0 16px 40px rgba(233,30,99,.16);position:relative}
+.plan-bq{border-color:#f8cddd;background:linear-gradient(180deg,#fffafc,#fff)}
+.plan-bq .amt{color:#d98a9f}
+.plan-bq li::before{content:'🌸'}
 .plan.feat::before{content:attr(data-popular);position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--pink),var(--deep));color:#fff;font-size:.6rem;font-weight:700;letter-spacing:.08em;padding:5px 14px;border-radius:50px}
 .plan h3{font-size:1.1rem;margin-bottom:6px}
 .plan .amt{font-size:2.2rem;font-weight:700;color:var(--deep);margin:6px 0}
@@ -168,6 +171,18 @@ footer p{font-size:.82rem;opacity:.7;margin-bottom:18px}
       <p data-i18n="price_p">Bayar sekali, kad kekal hidup. Tukar harga ikut pakej ko sendiri.</p>
     </div>
     <div class="price-grid">
+      <div class="plan plan-bq">
+        <h3 data-i18n="bq_name">Bouquet Muka</h3>
+        <div class="amt">RM3<small data-i18n="per_img">/gambar</small></div>
+        <p class="fee-note" data-i18n="fee_note">+ RM1 jika bayar guna DuitNow QR</p>
+        <ul>
+          <li data-i18n="bq_f1">Muka anda dalam bouquet bunga</li>
+          <li data-i18n="bq_f2">Pilih design, tengok dulu sebelum bayar</li>
+          <li data-i18n="bq_f3">Download gambar penuh tanpa tanda air</li>
+          <li data-i18n="bq_f4">Sesuai untuk hadiah, print & WhatsApp Status</li>
+        </ul>
+        <a href="bouquet-muka.html" class="btn btn-ghost" data-i18n="order_bq">🌸 Buat Bouquet</a>
+      </div>
       <div class="plan">
         <h3 data-i18n="basic_name">Basic</h3>
         <div class="amt">RM6<small data-i18n="per_card">/kad</small></div>
@@ -260,6 +275,8 @@ const CARDS = [
   {emoji:'💌', name:{ms:'Cinta',en:'Love'},              sub:{ms:'Love letter',en:'Love letter'}, url:'buat-kad-cinta.html'},
   {emoji:'💍', name:{ms:'Pernikahan',en:'Wedding'},      sub:{ms:'Wedding',en:'Wedding'},         url:'buat-kad-nikah.html'},
   {emoji:'🎓', name:{ms:'Graduasi & Friends',en:'Graduation & Friends'}, sub:{ms:'Convo',en:'Convo'}, url:'buat-kad-graduasi.html'},
+  /* Bouquet Muka bukan kad — produk gambar RM3, download terus, tiada link kongsi */
+  {emoji:'🌸', name:{ms:'Bouquet Muka',en:'Face Bouquet'}, sub:{ms:'Gambar · RM3',en:'Image · RM3'}, url:'bouquet-muka.html'},
 ];
 
 /* semak sekali sahaja per sesi, disimpan supaya tak lambat bila scroll */
@@ -299,6 +316,10 @@ const I18N = {
     price_kicker:'Harga', price_h2:'Berpatutan, berbaloi',
     price_p:'Bayar sekali, kad kekal hidup. Bayaran FPX tiada caj tambahan; DuitNow QR dikenakan caj RM1 oleh penyedia pembayaran.',
     basic_name:'Basic', premium_name:'Premium', per_card:'/kad', popular:'PALING POPULAR',
+    bq_name:'Bouquet Muka', per_img:'/gambar',
+    bq_f1:'Muka anda dalam bouquet bunga', bq_f2:'Pilih design, tengok dulu sebelum bayar',
+    bq_f3:'Download gambar penuh tanpa tanda air', bq_f4:'Sesuai untuk hadiah, print & WhatsApp Status',
+    order_bq:'🌸 Buat Bouquet',
     fee_note:'+ RM1 jika bayar guna DuitNow QR',
     b_f1:'Semua tema warna', b_f2:'Muzik YouTube', b_f3:'Slide ucapan & gambar', b_f4:'Link kekal',
     p_f1:'Semua dalam Basic', p_f2:'Upload lagu MP3 sendiri', p_f3:'Tema Scrapbook Aesthetic', p_f4:'Countdown + kotak hadiah', p_f5:'Keutamaan siap cepat', p_f6:'Kod QR untuk kad anda', p_f7:'Album PDF boleh simpan',
@@ -316,7 +337,7 @@ const I18N = {
     copy:'© 2026 GiftKita · Dibuat dengan ❤️ di Malaysia',
     m_semak:'🔎 Semak Kad', m_make:'✨ Buat Kad',
     nav_semak:'🔎 Semak Kad',
-    f_aff:'💰 Jadi Affiliate — komisen RM2 setiap kad',
+    f_aff:'💰 Jadi Affiliate — komisen RM2 setiap kad terjual',
     f_semak:'🔎 Dah beli? Semak semula link kad anda',
     badge_live:'TERSEDIA', badge_soon:'AKAN DATANG',
     wa_basic:'Hai GiftKita 💕 saya nak order kad *Basic (RM6)*. Boleh bantu?',
@@ -338,6 +359,10 @@ const I18N = {
     price_kicker:'Pricing', price_h2:'Affordable, worth it',
     price_p:'Pay once, the card stays alive. FPX has no extra fee; DuitNow QR carries a RM1 fee from the payment provider.',
     basic_name:'Basic', premium_name:'Premium', per_card:'/card', popular:'MOST POPULAR',
+    bq_name:'Face Bouquet', per_img:'/image',
+    bq_f1:'Your face inside a flower bouquet', bq_f2:'Pick a design, preview before you pay',
+    bq_f3:'Download the full image without watermark', bq_f4:'Great as a gift, for print & WhatsApp Status',
+    order_bq:'🌸 Make a Bouquet',
     fee_note:'+ RM1 if paying by DuitNow QR',
     b_f1:'All colour themes', b_f2:'YouTube music', b_f3:'Wishes & photo slides', b_f4:'Permanent link',
     p_f1:'Everything in Basic', p_f2:'Upload your own MP3', p_f3:'Scrapbook Aesthetic theme', p_f4:'Countdown + gift box', p_f5:'Priority fast delivery', p_f6:'QR code for your card', p_f7:'Downloadable PDF album',
@@ -355,7 +380,7 @@ const I18N = {
     copy:'© 2026 GiftKita · Made with ❤️ in Malaysia',
     m_semak:'🔎 My Cards', m_make:'✨ Make Card',
     nav_semak:'🔎 My Cards',
-    f_aff:'💰 Become an Affiliate — RM2 commission per card',
+    f_aff:'💰 Become an Affiliate — RM2 commission per card sold',
     f_semak:'🔎 Already bought? Retrieve your card link here',
     badge_live:'AVAILABLE', badge_soon:'COMING SOON',
     wa_basic:'Hi GiftKita 💕 I want to order a *Basic (RM6)* card. Can you help?',
