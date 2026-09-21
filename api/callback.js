@@ -4,6 +4,10 @@
 //  Semua guna SERVICE KEY (bypass RLS). Idempotent (tak double-rekod).
 // ════════════════════════════════════════════════════════════
 
+// Produk yang TIDAK bagi komisen affiliate (jualan tetap direkod dengan ref_code,
+// tapi tiada baris 'commissions'). Bouquet RM3 — komisen flat RM2 tak masuk akal.
+const TIADA_KOMISEN = { bouquet: true };
+
 module.exports = async (req, res) => {
   try {
     const body = req.body || {};
@@ -20,7 +24,7 @@ module.exports = async (req, res) => {
     if (existing.length) { res.status(200).send('already processed'); return; }
 
     // 3) ambil kad (amount, ref_code)
-    const cards = await sbGet(`cards?id=eq.${cardId}&select=id,amount,ref_code`);
+    const cards = await sbGet(`cards?id=eq.${cardId}&select=id,amount,ref_code,plan`);
     const card = cards[0];
     if (!card) { res.status(200).send('no card'); return; }
 
@@ -34,8 +38,8 @@ module.exports = async (req, res) => {
     });
     const saleId = sale[0] && sale[0].id;
 
-    // 6) kira komisen kalau ada kod affiliate yang sah
-    if (card.ref_code) {
+    // 6) kira komisen kalau ada kod affiliate yang sah — dan produk ni layak komisen
+    if (card.ref_code && !TIADA_KOMISEN[card.plan]) {
       const aff = await sbGet(
         `affiliates?code=eq.${encodeURIComponent(card.ref_code)}&active=eq.true&select=code,commission_flat`
       );
