@@ -5,8 +5,10 @@
 
 // Harga dalam SEN (RM8 = 800, RM15 = 1500). Server yang tentukan harga,
 // BUKAN client — supaya tak boleh diubah jadi RM0.
-const PRICES    = { basic: 600,  premium: 800 };
-const PLAN_NAME = { basic: 'GiftKita Basic', premium: 'GiftKita Premium' };
+// Kunci pelan datang dari gk-bayar.js (CFG.plans). Tambah di sini bila ada produk baru.
+const PRICES    = { basic: 600,  premium: 800, bouquet: 300 };
+const PLAN_NAME = { basic: 'GiftKita Basic', premium: 'GiftKita Premium', bouquet: 'GiftKita Bouquet Muka' };
+const PLAN_DESC = { bouquet: 'Bouquet Muka digital GiftKita' };   // lalai: 'Kad ucapan digital GiftKita'
 
 // ── DuitNow QR ──
 // enableDuitNowQR : '1' hidupkan pilihan QR, '0' matikan
@@ -38,7 +40,7 @@ module.exports = async (req, res) => {
       userSecretKey:   process.env.TOYYIBPAY_SECRET,
       categoryCode:    process.env.TOYYIBPAY_CATEGORY,
       billName:        PLAN_NAME[plan],                 // max 30 aksara
-      billDescription: 'Kad ucapan digital GiftKita',
+      billDescription: PLAN_DESC[plan] || 'Kad ucapan digital GiftKita',
       billPriceSetting:'1',                             // 1 = harga tetap
       billPayorInfo:   '1',                             // prefill maklumat pembeli sebenar
       billAmount:      String(amountCents),             // dalam SEN
