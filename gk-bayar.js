@@ -29,8 +29,15 @@ var db=null;
 try{ if(window.supabase&&window.supabase.createClient) db=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ db=null; }
 
 var CFG={};
-var HARGA={ basic:6, premium:8 };
-var NAMA ={ basic:'Basic', premium:'Premium' };
+/* Pelan lalai untuk kad. Borang boleh ganti dengan CFG.plans, contoh produk satu harga:
+     plans:{ bouquet:{ rm:3, nm:'Bouquet Muka', ds:'Gambar penuh tanpa tanda air' } }
+   Kunci pelan (basic/premium/bouquet) dihantar ke /api/create-bill — server MESTI
+   kenal kunci tu dan tetapkan harga yang sama. */
+var PLAN_LALAI={
+  basic:  { rm:6, nm:'Basic',   ds:'Muzik YouTube · link kekal' },
+  premium:{ rm:8, nm:'Premium', ds:'MP3 sendiri · kod QR · album PDF' }
+};
+var PLANS=PLAN_LALAI;
 
 var CSS=''
 +'.gkb{font-family:inherit}'
@@ -56,6 +63,7 @@ var CSS=''
 +'.gkb-plan .tick{position:absolute;top:10px;right:10px;width:17px;height:17px;border-radius:50%;'
 +'border:1.5px solid #ddd0d6;display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#fff}'
 +'.gkb-plan.on .tick{background:var(--gk-accent,#e91e63);border-color:var(--gk-accent,#e91e63)}'
++'.gkb-satu .gkb-plan{cursor:default}.gkb-satu .gkb-plan:hover{border-color:var(--gk-accent,#e91e63)}'
 +'.gkb label{font-weight:600;font-size:.8rem;display:block;margin-top:13px;margin-bottom:4px}'
 +'.gkb .gkb-hint{font-size:.72rem;color:#b3a3ab;display:block;margin-bottom:4px}'
 +'.gkb input{width:100%;padding:11px 13px;border:1.5px solid #e8dfe3;border-radius:10px;font-family:inherit;'
@@ -92,15 +100,14 @@ function shield(){
 
 function build(){
   var qr = CFG.qr===true;
-  var h=''
-  +'<div class="gkb-plans">'
-  +'  <div class="gkb-plan on" data-plan="basic"><div class="tick">✓</div>'
-  +'    <div class="rm">RM6</div><div class="nm">Basic</div>'
-  +'    <div class="ds">Muzik YouTube · link kekal</div></div>'
-  +'  <div class="gkb-plan" data-plan="premium"><div class="tick">✓</div>'
-  +'    <div class="rm">RM8</div><div class="nm">Premium</div>'
-  +'    <div class="ds">MP3 sendiri · kod QR · album PDF</div></div>'
-  +'</div>'
+  var kunci=Object.keys(PLANS), satu=kunci.length===1;
+  var h='<div class="gkb-plans'+(satu?' gkb-satu':'')+'">';
+  kunci.forEach(function(k,i){ var pl=PLANS[k];
+    h+='<div class="gkb-plan'+(i===0?' on':'')+'" data-plan="'+k+'">'+(satu?'':'<div class="tick">✓</div>')
+      +'<div class="rm">RM'+pl.rm+'</div><div class="nm">'+pl.nm+'</div>'
+      +'<div class="ds">'+(pl.ds||'')+'</div></div>'; });
+  h+='</div>';
+  h+=''
 
   +'<div class="gkb-card">'
   +'  <h4>Ringkasan pesanan</h4>'
@@ -129,7 +136,7 @@ function build(){
   +'</div>'
   +'<span class="gkb-hint">Resit dihantar ke email ini. Guna email &amp; telefon yang sama jika anda perlu cari semula link kad nanti.</span>'
 
-  +'<button class="gkb-btn" id="gkb-pay">Bayar &amp; dapatkan link kad</button>'
+  +'<button class="gkb-btn" id="gkb-pay">'+(CFG.btn||'Bayar &amp; dapatkan link kad')+'</button>'
   +'<div class="gkb-safe">'+shield()+'<span>Pembayaran dilindungi &amp; disulitkan melalui ToyyibPay</span></div>'
   +'<div class="gkb-msg" id="gkb-err"></div>'
   +'<div class="gkb-tip">Selepas bayar, jika bank papar &quot;transaction is being processed&quot;, tekan <b>Close</b> sahaja. Anda akan dibawa kembali ke halaman link kad secara automatik.</div>';
@@ -148,9 +155,9 @@ function plan(){
 }
 
 function paintSummary(){
-  var p=plan(), rm=HARGA[p].toFixed(2);
+  var p=plan(), rm=PLANS[p].rm.toFixed(2);
   $('gkb-pnama').textContent = CFG.produk || 'Kad digital';
-  $('gkb-pplan').textContent = NAMA[p];
+  $('gkb-pplan').textContent = PLANS[p].nm;
   $('gkb-pharga').textContent = 'RM'+rm;
   $('gkb-ptotal').textContent = 'RM'+rm;
 }
@@ -250,6 +257,7 @@ function pendingRedirect(){
 window.GKBayar={
   mount:function(cfg){
     CFG=cfg||{};
+    PLANS=(CFG.plans&&Object.keys(CFG.plans).length)?CFG.plans:PLAN_LALAI;
     var host=(typeof CFG.el==='string')?$(CFG.el):CFG.el;
     if(!host) return;
 
@@ -258,6 +266,7 @@ window.GKBayar={
     host.innerHTML=build();
 
     document.querySelectorAll('.gkb-plan').forEach(function(p){
+      if(Object.keys(PLANS).length===1){ p.style.cursor='default'; return; }
       p.onclick=function(){
         document.querySelectorAll('.gkb-plan').forEach(function(x){ x.classList.remove('on'); });
         p.classList.add('on');
