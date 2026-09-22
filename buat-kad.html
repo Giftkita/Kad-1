@@ -25,27 +25,58 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fce4ec,
 .gp-scrap{background:#e3a9bd;background-image:repeating-linear-gradient(45deg,rgba(176,58,91,.25),rgba(176,58,91,.25) 8px,transparent 8px,transparent 16px)}
 .gp-merah{background:linear-gradient(160deg,#8c0d16,#a8121c 55%,#c4262f)}
 .gp-butterfly{background:linear-gradient(160deg,#e8c5c0,#efe4cf 45%,#9bb87a)}
+
+#lang{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.12);
+  border-radius:999px;padding:6px 12px;font-size:12px;color:#5a4a42;cursor:pointer;font-family:inherit;z-index:5}
 </style>
 </head>
 <body>
-<a class="back" href="index.html">‹ Kembali ke Homepage</a>
+<button id="lang">BM / EN</button>
+<a class="back" href="index.html" data-k="back">‹ Kembali ke Homepage</a>
 <div class="g-head">
-  <h2 class="g-title">Pilih Tema Kad 🎂</h2>
-  <p class="g-sub">Setiap tema ada design tersendiri. Pilih satu untuk mula.</p>
+  <h2 class="g-title" data-k="tajuk">Pilih Tema Kad 🎂</h2>
+  <p class="g-sub" data-k="sub">Setiap tema ada design tersendiri. Pilih satu untuk mula.</p>
 </div>
 <div class="g-grid">
   <a class="g-card" href="buat-kad-scrapbook.html">
-    <div class="gp gp-scrap"><span class="g-badge">TERSEDIA</span>📖<div class="g-glow"></div></div>
-    <div class="gm"><h3>Scrapbook</h3><span>Aesthetic</span></div>
+    <div class="gp gp-scrap"><span class="g-badge" data-k="ada">TERSEDIA</span>📖<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n1">Scrapbook</h3><span data-k="d1">Aesthetic</span></div>
   </a>
   <a class="g-card" href="buat-kad-merah.html">
-    <div class="gp gp-merah"><span class="g-badge">TERSEDIA</span>💌<div class="g-glow"></div></div>
-    <div class="gm"><h3>Merah Klasik</h3><span>Elegant</span></div>
+    <div class="gp gp-merah"><span class="g-badge" data-k="ada">TERSEDIA</span>💌<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n2">Merah Klasik</h3><span data-k="d2">Elegant</span></div>
   </a>
   <a class="g-card" href="buat-kad-butterfly.html">
-    <div class="gp gp-butterfly"><span class="g-badge">TERSEDIA</span>🦋<div class="g-glow"></div></div>
-    <div class="gm"><h3>Butterfly</h3><span>Rama-rama &amp; surat</span></div>
+    <div class="gp gp-butterfly"><span class="g-badge" data-k="ada">TERSEDIA</span>🦋<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n3">Butterfly</h3><span data-k="d3">Rama-rama &amp; surat</span></div>
   </a>
 </div>
+
+<script>
+/* dwibahasa — kongsi pilihan dengan halaman lain melalui localStorage 'gk_lang' */
+var L={
+ ms:{title:'Pilih Tema — Kad Hari Jadi 🎂',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Kad 🎂',
+     sub:'Setiap tema ada design tersendiri. Pilih satu untuk mula.',ada:'TERSEDIA',baru:'BARU',
+     n1:'Scrapbook',d1:'Aesthetic',n2:'Merah Klasik',d2:'Elegant',n3:'Butterfly',d3:'Rama-rama &amp; surat'},
+ en:{title:'Choose a Theme — Birthday Card 🎂',back:'‹ Back to Homepage',tajuk:'Choose a Card Theme 🎂',
+     sub:'Each theme has its own design. Pick one to start.',ada:'AVAILABLE',baru:'NEW',
+     n1:'Scrapbook',d1:'Aesthetic',n2:'Classic Red',d2:'Elegant',n3:'Butterfly',d3:'Butterflies &amp; a letter'}
+};
+var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
+function pakai(){
+  document.documentElement.lang=lang;
+  var d=L[lang];
+  [].forEach.call(document.querySelectorAll('[data-k]'),function(el){
+    var v=d[el.getAttribute('data-k')]; if(v!=null) el.innerHTML=v;
+  });
+  if(d.title) document.title=d.title;
+}
+document.getElementById('lang').onclick=function(){
+  lang=(lang==='ms')?'en':'ms';
+  try{localStorage.setItem('gk_lang',lang);}catch(e){}
+  pakai();
+};
+pakai();
+</script>
 </body>
 </html>
