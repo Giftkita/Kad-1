@@ -25,23 +25,56 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f3ecdc,
 .gp-buku{background:#e3a9bd;background-image:repeating-linear-gradient(45deg,rgba(176,58,91,.25),rgba(176,58,91,.25) 8px,transparent 8px,transparent 16px)}
 .gp-navy{background:linear-gradient(145deg,#1b2a4a,#0f1b33)}
 .gp-skrol{background:linear-gradient(160deg,#0f1e38,#1c3157 45%,#e7c877)}
+
+#lang{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.12);
+  border-radius:999px;padding:6px 12px;font-size:12px;color:#5a4a42;cursor:pointer;font-family:inherit;z-index:5}
 </style>
 </head>
 <body>
-<a class="back" href="index.html">‹ Kembali ke Homepage</a>
+<button id="lang">BM / EN</button>
+<a class="back" href="index.html" data-k="back">‹ Kembali ke Homepage</a>
 <div class="g-head">
-  <h2 class="g-title">Pilih Tema Kad 🎓</h2>
-  <p class="g-sub">Dua gaya berbeza. Pilih satu untuk mula.</p>
+  <h2 class="g-title" data-k="tajuk">Pilih Tema Kad 🎓</h2>
+  <p class="g-sub" data-k="sub">Dua gaya berbeza. Pilih satu untuk mula.</p>
 </div>
 <div class="g-grid">
   <a class="g-card" href="buat-kad-skrol.html">
     <div class="gp gp-skrol">📜<div class="g-glow"></div></div>
-    <div class="gm"><h3>Skrol Ijazah</h3><span>Tarik reben, skrol terbuka</span></div>
+    <div class="gm"><h3 data-k="n1">Skrol Ijazah</h3><span data-k="d1">Tarik reben, skrol terbuka</span></div>
   </a>
   <a class="g-card" href="buat-kad-gradnavy.html">
-    <div class="gp gp-navy"><span class="g-badge">BARU</span>🦋<div class="g-glow"></div></div>
-    <div class="gm"><h3>Navy &amp; Emas</h3><span>Rama-rama navy, surat panjang &amp; gambar calar</span></div>
+    <div class="gp gp-navy"><span class="g-badge" data-k="baru">BARU</span>🦋<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n2">Navy &amp; Emas</h3><span data-k="d2">Rama-rama navy, surat panjang &amp; gambar calar</span></div>
   </a>
 </div>
+
+<script>
+/* dwibahasa — kongsi pilihan dengan halaman lain melalui localStorage 'gk_lang' */
+var L={
+ ms:{title:'Pilih Tema — Kad Graduasi 🎓',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Kad 🎓',
+     sub:'Dua gaya berbeza. Pilih satu untuk mula.',ada:'TERSEDIA',baru:'BARU',
+     n1:'Skrol Ijazah',d1:'Tarik reben, skrol terbuka',
+     n2:'Navy &amp; Emas',d2:'Rama-rama navy, surat panjang &amp; gambar calar'},
+ en:{title:'Choose a Theme — Graduation Card 🎓',back:'‹ Back to Homepage',tajuk:'Choose a Card Theme 🎓',
+     sub:'Two different styles. Pick one to start.',ada:'AVAILABLE',baru:'NEW',
+     n1:'Degree Scroll',d1:'Pull the ribbon, the scroll unrolls',
+     n2:'Navy &amp; Gold',d2:'Navy butterflies, a long letter &amp; scratch photos'}
+};
+var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
+function pakai(){
+  document.documentElement.lang=lang;
+  var d=L[lang];
+  [].forEach.call(document.querySelectorAll('[data-k]'),function(el){
+    var v=d[el.getAttribute('data-k')]; if(v!=null) el.innerHTML=v;
+  });
+  if(d.title) document.title=d.title;
+}
+document.getElementById('lang').onclick=function(){
+  lang=(lang==='ms')?'en':'ms';
+  try{localStorage.setItem('gk_lang',lang);}catch(e){}
+  pakai();
+};
+pakai();
+</script>
 </body>
 </html>
