@@ -25,27 +25,62 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 .gp-ourstory{background:linear-gradient(160deg,#8e1224,#c9223c 55%,#f26d8f)}
 .gp-suratcinta{background:linear-gradient(160deg,#0a1a2f,#13294b 55%,#4a6fa5)}
 .gp-fiona{background:linear-gradient(160deg,#4f6042,#8fa07d 52%,#e8c5c0)}
+
+#lang{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.12);
+  border-radius:999px;padding:6px 12px;font-size:12px;color:#5a4a42;cursor:pointer;font-family:inherit;z-index:5}
 </style>
 </head>
 <body>
-<a class="back" href="index.html">‹ Kembali ke Homepage</a>
+<button id="lang">BM / EN</button>
+<a class="back" href="index.html" data-k="back">‹ Kembali ke Homepage</a>
 <div class="g-head">
-  <h2 class="g-title">Pilih Tema Anniversary 💑</h2>
-  <p class="g-sub">Tiga gaya berbeza — pilih yang paling sesuai dengan cerita korang.</p>
+  <h2 class="g-title" data-k="tajuk">Pilih Tema Anniversary 💑</h2>
+  <p class="g-sub" data-k="sub">Tiga gaya berbeza — pilih yang paling sesuai dengan cerita korang.</p>
 </div>
 <div class="g-grid">
   <a class="g-card" href="buat-kad-anniversary-ourstory.html">
-    <div class="gp gp-ourstory"><span class="g-badge">TERSEDIA</span>📔<div class="g-glow"></div></div>
-    <div class="gm"><h3>Our Story</h3><span>Buku diari — selak macam album</span></div>
+    <div class="gp gp-ourstory"><span class="g-badge" data-k="ada">TERSEDIA</span>📔<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n1">Our Story</h3><span data-k="d1">Buku diari — selak macam album</span></div>
   </a>
   <a class="g-card" href="buat-kad-suratcinta.html">
-    <div class="gp gp-suratcinta"><span class="g-badge">TERSEDIA</span>💌<div class="g-glow"></div></div>
-    <div class="gm"><h3>A Special Letter</h3><span>Surat cinta — scroll &amp; buka sampul</span></div>
+    <div class="gp gp-suratcinta"><span class="g-badge" data-k="ada">TERSEDIA</span>💌<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n2">A Special Letter</h3><span data-k="d2">Surat cinta — scroll &amp; buka sampul</span></div>
   </a>
   <a class="g-card" href="buat-kad-fiona.html">
-    <div class="gp gp-fiona"><span class="g-badge">TERSEDIA</span>📼<div class="g-glow"></div></div>
-    <div class="gm"><h3>Fiona</h3><span>Mixtape — sampul, bunga mekar &amp; lagu</span></div>
+    <div class="gp gp-fiona"><span class="g-badge" data-k="ada">TERSEDIA</span>📼<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n3">Fiona</h3><span data-k="d3">Mixtape — sampul, bunga mekar &amp; lagu</span></div>
   </a>
 </div>
+
+<script>
+/* dwibahasa — kongsi pilihan dengan halaman lain melalui localStorage 'gk_lang' */
+var L={
+ ms:{title:'Pilih Tema — Anniversary 💑',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Anniversary 💑',
+     sub:'Tiga gaya berbeza — pilih yang paling sesuai dengan cerita korang.',ada:'TERSEDIA',baru:'BARU',
+     n1:'Our Story',d1:'Buku diari — selak macam album',
+     n2:'A Special Letter',d2:'Surat cinta — scroll &amp; buka sampul',
+     n3:'Fiona',d3:'Mixtape — sampul, bunga mekar &amp; lagu'},
+ en:{title:'Choose a Theme — Anniversary 💑',back:'‹ Back to Homepage',tajuk:'Choose an Anniversary Theme 💑',
+     sub:'Three different styles — pick the one that fits your story.',ada:'AVAILABLE',baru:'NEW',
+     n1:'Our Story',d1:'A diary book — flip it like an album',
+     n2:'A Special Letter',d2:'A love letter — scroll &amp; open the envelope',
+     n3:'Fiona',d3:'Mixtape — envelope, blooming flowers &amp; a song'}
+};
+var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
+function pakai(){
+  document.documentElement.lang=lang;
+  var d=L[lang];
+  [].forEach.call(document.querySelectorAll('[data-k]'),function(el){
+    var v=d[el.getAttribute('data-k')]; if(v!=null) el.innerHTML=v;
+  });
+  if(d.title) document.title=d.title;
+}
+document.getElementById('lang').onclick=function(){
+  lang=(lang==='ms')?'en':'ms';
+  try{localStorage.setItem('gk_lang',lang);}catch(e){}
+  pakai();
+};
+pakai();
+</script>
 </body>
 </html>
