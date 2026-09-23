@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Buat Kad Graduasi — Graduate Memory | GiftKita</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',system-ui,sans-serif;background:#f6f2e8;color:#3f3129;padding:0 0 60px}
+header{position:relative;text-align:center;padding:52px 18px 20px;background:#fffdf7;border-bottom:1px solid #e8dcc6}
+.back{position:absolute;left:14px;top:14px;font-size:.8rem;color:#8a6a3f;text-decoration:none}
+#lang{position:absolute;top:12px;right:14px;background:#fff;border:1px solid rgba(150,125,110,.3);
+  border-radius:999px;padding:6px 12px;font-size:12px;color:#6b5a4c;cursor:pointer;font-family:inherit}
+h1{font-size:1.25rem;font-weight:700}
+header p{font-size:.8rem;color:#9a8578;margin-top:4px}
+.wrap{max-width:620px;margin:18px auto;padding:0 14px}
+.sec{background:#fffdf7;border:1px solid rgba(150,125,110,.18);border-radius:14px;padding:16px;margin-bottom:14px}
+.sec h2{font-size:1rem;margin-bottom:3px}
+.sec .hint{font-size:.78rem;color:#9a8578;margin-bottom:12px}
+label.l{display:block;font-size:.78rem;color:#7d6c5e;margin:10px 0 4px}
+input[type=text],input[type=url],textarea,select{width:100%;padding:10px 12px;border:1px solid #e0d4bd;
+  border-radius:10px;font-family:inherit;font-size:.9rem;background:#fff;color:#3f3129}
+textarea{min-height:140px;resize:vertical;line-height:1.55}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin-top:8px}
+.fotoSlot{aspect-ratio:4/3;border:1.5px dashed rgba(150,125,110,.45);border-radius:10px;background:#fcf8ee;
+  display:grid;place-items:center;cursor:pointer;overflow:hidden;position:relative}
+.fotoSlot img{width:100%;height:100%;object-fit:cover}
+.fotoSlot .no{position:absolute;left:5px;top:4px;font-size:10px;color:#a4917c;background:rgba(255,255,255,.85);
+  border-radius:4px;padding:1px 5px}
+.fotoSlot .x{position:absolute;right:3px;top:3px;background:#c0392b;color:#fff;border:0;border-radius:50%;
+  width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1}
+.fotoSlot .plus{font-size:20px;color:#c3b39c}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 18px;border-radius:11px;border:0;cursor:pointer;
+  font-family:inherit;font-size:.88rem;font-weight:600;background:#7a5c3a;color:#fff}
+.btn.ghost{background:#fff;border:1.5px solid #e0d4bd;color:#7a5c3a}
+.amaran{background:#fff3cd;border:1px solid #e6d4a1;border-radius:10px;padding:12px;font-size:.82rem;color:#7a5c1a}
+.kira{font-size:.75rem;color:#9a8578;text-align:right;margin-top:4px}
+/* pelaras kedudukan */
+.laras{position:fixed;inset:0;background:rgba(30,24,18,.86);z-index:80;display:none;
+  align-items:center;justify-content:center;padding:18px}
+.laras.show{display:flex}
+.larasBox{background:#fffdf7;border-radius:16px;padding:16px;max-width:420px;width:100%}
+.bukaanLaras{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;background:#e7e0d3;
+  border-radius:8px;touch-action:none;cursor:grab}
+.bukaanLaras img{position:absolute;left:50%;top:50%;width:100%;transform-origin:center;pointer-events:none}
+input[type=range]{width:100%;margin-top:10px}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="buat-kad-graduasi.html" data-k="back">‹ Kembali</a>
+  <button id="lang">BM / EN</button>
+  <h1 data-k="h1">Kad Graduasi — Graduate Memory</h1>
+  <p data-k="hs">Buku scrapbook 8 muka · selak macam buku betul · 20 gambar</p>
+</header>
+
+<div class="wrap">
+
+  <div class="sec">
+    <h2 data-k="s1">Untuk siapa</h2><div class="hint" data-k="s1h">Nama ni keluar pada kad ucapan di muka terakhir</div>
+    <label class="l" data-k="lTo">Nama penerima</label><input type="text" id="to" maxlength="40">
+    <label class="l" data-k="lFrom">Daripada</label><input type="text" id="from" maxlength="40">
+    <label class="l" data-k="lTahun">Tahun graduasi (Class of)</label><input type="text" id="tahun" maxlength="4" placeholder="2025">
+  </div>
+
+  <div class="sec">
+    <h2 data-k="s2">Ucapan</h2><div class="hint" data-k="s2h">Ayat dah siap — boleh guna terus, ubah, atau padam dan tulis sendiri. Keluar pada muka terakhir.</div>
+    <textarea id="ucapan" maxlength="1200"></textarea>
+    <div class="kira"><span id="kiraUcap">0</span> / 1200</div>
+    <div style="margin-top:8px"><button class="btn ghost" id="pulih" data-k="pulih">Guna ayat asal semula</button></div>
+  </div>
+
+  <div class="sec">
+    <h2 data-k="s3">Gambar (20 keping)</h2>
+    <div class="hint" data-k="s3h">Tekan kotak untuk pilih. Boleh pilih beberapa sekali gus — diisi ikut urutan. Tekan gambar yang dah ada untuk laras kedudukan &amp; zum.</div>
+    <div class="grid" id="grid"></div>
+    <div class="kira"><span id="kiraFoto">0</span> / 20</div>
+  </div>
+
+  <div class="sec">
+    <h2 data-k="s4">Kejutan</h2><div class="hint" data-k="s4h">Kotak hadiah pada muka terakhir. Tekan → tudung terbuka → gambar &amp; nota ni keluar.</div>
+    <div class="grid" style="grid-template-columns:repeat(2,1fr);max-width:220px"><div class="fotoSlot" id="slotKejut"><span class="plus">+</span></div></div>
+    <label class="l" data-k="lNota">Nota kejutan (pilihan)</label><input type="text" id="surprise" maxlength="120">
+  </div>
+
+  <div class="sec">
+    <h2 data-k="s5">Video YouTube</h2><div class="hint" data-k="s5h">Pilihan — keluar sebagai polaroid video pada muka terakhir</div>
+    <input type="url" id="video" placeholder="https://www.youtube.com/watch?v=...">
+  </div>
+
+  <div class="sec">
+    <h2 data-k="s6">Lagu</h2><div class="hint" data-k="s6h">Main bila buku dibuka. Link YouTube ATAU upload MP3.</div>
+    <label class="l" data-k="lYt">Link YouTube</label><input type="url" id="yt" placeholder="https://www.youtube.com/watch?v=...">
+    <label class="l" data-k="lMp3">atau upload MP3</label>
+    <input type="file" id="mp3f" accept="audio/*">
+    <div class="hint" id="mp3info" style="margin-top:6px"></div>
+    <label class="l" data-k="lSong">Tajuk lagu</label><input type="text" id="song" maxlength="60">
+    <label class="l" data-k="lArtist">Penyanyi</label><input type="text" id="artist" maxlength="60">
+  </div>
+
+  <div class="sec">
+    <h2 data-k="s7">Pratonton &amp; bayar</h2>
+    <div class="hint" data-k="s7h">Tekan pratonton untuk tengok buku dulu. Bayaran selepas anda puas hati.</div>
+    <div id="gk-pratonton" style="margin-bottom:10px"></div>
+    <div id="gk-bayar"></div>
+  </div>
+</div>
+
+<div class="laras" id="laras">
+  <div class="larasBox">
+    <h2 style="font-size:1rem;margin-bottom:4px" data-k="lrTajuk">Laras kedudukan gambar</h2>
+    <div class="hint" data-k="lrHint">Seret gambar untuk alih, guna slider untuk zum.</div>
+    <div class="bukaanLaras" id="lrWrap"><img id="lrImg" alt=""></div>
+    <input type="range" id="lrZoom" min="1" max="3" step="0.01" value="1">
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button class="btn ghost" id="lrBatal" data-k="lrBatal">Batal</button>
+      <button class="btn" id="lrOk" data-k="lrOk">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script src="gk-bayar.js"></script>
+<script>
+/* ============ dwibahasa ============ */
+var L={
+ ms:{title:'Buat Kad Graduasi — Graduate Memory | GiftKita',back:'‹ Kembali',
+   h1:'Kad Graduasi — Graduate Memory',hs:'Buku scrapbook 8 muka · selak macam buku betul · 20 gambar',
+   s1:'Untuk siapa',s1h:'Nama ni keluar pada kad ucapan di muka terakhir',
+   lTo:'Nama penerima',lFrom:'Daripada',lTahun:'Tahun graduasi (Class of)',
+   s2:'Ucapan',s2h:'Ayat dah siap — boleh guna terus, ubah, atau padam dan tulis sendiri. Keluar pada muka terakhir.',
+   pulih:'Guna ayat asal semula',
+   s3:'Gambar (20 keping)',s3h:'Tekan kotak untuk pilih. Boleh pilih beberapa sekali gus — diisi ikut urutan. Tekan gambar yang dah ada untuk laras kedudukan & zum.',
+   s4:'Kejutan',s4h:'Kotak hadiah pada muka terakhir. Tekan → tudung terbuka → gambar & nota ni keluar.',
+   lNota:'Nota kejutan (pilihan)',
+   s5:'Video YouTube',s5h:'Pilihan — keluar sebagai polaroid video pada muka terakhir',
+   s6:'Lagu',s6h:'Main bila buku dibuka. Link YouTube ATAU upload MP3.',
+   lYt:'Link YouTube',lMp3:'atau upload MP3',lSong:'Tajuk lagu',lArtist:'Penyanyi',
+   s7:'Pratonton & bayar',s7h:'Tekan pratonton untuk tengok buku dulu. Bayaran selepas anda puas hati.',
+   lrTajuk:'Laras kedudukan gambar',lrHint:'Seret gambar untuk alih, guna slider untuk zum.',
+   lrBatal:'Batal',lrOk:'Simpan',
+   mp3ok:'MP3 dimuat: ',mp3besar:'MP3 terlalu besar (maksimum 4MB). Guna link YouTube.',
+   perluFoto:'Sila upload sekurang-kurangnya 1 gambar dulu.'},
+ en:{title:'Make a Graduation Card — Graduate Memory | GiftKita',back:'‹ Back',
+   h1:'Graduation Card — Graduate Memory',hs:'An 8-page scrapbook · flips like a real book · 20 photos',
+   s1:'Who it is for',s1h:'These names appear on the note on the last page',
+   lTo:'Their name',lFrom:'From',lTahun:'Graduation year (Class of)',
+   s2:'Message',s2h:'The text is ready — use it as is, tweak it, or clear it and write your own. Shows on the last page.',
+   pulih:'Restore the original text',
+   s3:'Photos (20)',s3h:'Tap a box to choose. You can pick several at once — they fill in order. Tap a filled box to reposition & zoom.',
+   s4:'Surprise',s4h:'A gift box on the last page. Tap it → the lid opens → this photo & note appear.',
+   lNota:'Surprise note (optional)',
+   s5:'YouTube video',s5h:'Optional — shows as a video polaroid on the last page',
+   s6:'Song',s6h:'Plays when the book is opened. A YouTube link OR an MP3 upload.',
+   lYt:'YouTube link',lMp3:'or upload an MP3',lSong:'Song title',lArtist:'Artist',
+   s7:'Preview & pay',s7h:'Tap preview to see the book first. Pay once you are happy with it.',
+   lrTajuk:'Adjust the photo',lrHint:'Drag the photo to move it, use the slider to zoom.',
+   lrBatal:'Cancel',lrOk:'Save',
+   mp3ok:'MP3 loaded: ',mp3besar:'That MP3 is too big (max 4MB). Use a YouTube link instead.',
+   perluFoto:'Please upload at least one photo first.'}
+};
+var AYAT={
+ ms:'Tahniah, graduan.\n\nEmpat tahun tu bukan sekejap. Kami tengok kau bangun awal, tidur lewat, menangis dalam bilik lepas tu keluar senyum macam tak ada apa-apa.\n\nHari ni semua orang nampak jubah tu. Kami nampak semua malam yang kau lalui untuk sampai ke sini.\n\nApa yang kau mula, kau habiskan. Itu yang kami paling bangga.\n\nPergi jauh. Kami ada di sini.',
+ en:'Congratulations, graduate.\n\nFour years is not a short time. We watched you wake up early, sleep late, cry in your room and then walk out smiling like nothing happened.\n\nToday everyone sees the gown. We see every night you went through to get here.\n\nWhat you started, you finished. That is what we are proudest of.\n\nGo far. We are right here.'
+};
+var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
+function T(k){ return (L[lang]&&L[lang][k])||L.ms[k]||''; }
+var ucapDiubah=false;
+function pakai(){
+  document.documentElement.lang=lang; document.title=T('title');
+  [].forEach.call(document.querySelectorAll('[data-k]'),function(el){ var v=T(el.getAttribute('data-k')); if(v) el.textContent=v; });
+  if(!ucapDiubah){ document.getElementById('ucapan').value=AYAT[lang]; kiraUcap(); }
+}
+document.getElementById('lang').onclick=function(){ lang=(lang==='ms')?'en':'ms';
+  try{localStorage.setItem('gk_lang',lang);}catch(e){} pakai(); };
+
+/* ============ gambar ============ */
+var N=20, fotos=new Array(N).fill(null), pos={}, kejut=null;
+var grid=document.getElementById('grid');
+for(var i=0;i<N;i++){
+  var d=document.createElement('div'); d.className='fotoSlot'; d.dataset.i=i;
+  d.innerHTML='<span class="no">'+(i+1)+'</span><span class="plus">+</span>';
+  grid.appendChild(d);
+}
+var pilihFail=document.createElement('input');
+pilihFail.type='file'; pilihFail.accept='image/*'; pilihFail.multiple=true; pilihFail.style.display='none';
+document.body.appendChild(pilihFail);
+var mulaIdx=0, sasarKejut=false;
+grid.onclick=function(e){
+  var s=e.target.closest('.fotoSlot'); if(!s) return;
+  var i=+s.dataset.i;
+  if(e.target.classList.contains('x')){ fotos[i]=null; delete pos['f'+(i+1)]; lukisGrid(); return; }
+  if(fotos[i]) return bukaLaras(i);
+  mulaIdx=i; sasarKejut=false; pilihFail.click();
+};
+document.getElementById('slotKejut').onclick=function(e){
+  if(e.target.classList.contains('x')){ kejut=null; lukisKejut(); return; }
+  sasarKejut=true; pilihFail.click();
+};
+pilihFail.onchange=function(){
+  var fs=[].slice.call(pilihFail.files); if(!fs.length) return;
+  if(sasarKejut){ kecilkan(fs[0],function(u){ kejut=u; lukisKejut(); }); pilihFail.value=''; return; }
+  var idx=mulaIdx;
+  (function seterus(k){
+    if(k>=fs.length||idx>=N){ pilihFail.value=''; lukisGrid(); return; }
+    kecilkan(fs[k],function(u){ while(idx<N&&fotos[idx]) idx++; if(idx<N){ fotos[idx]=u; idx++; } lukisGrid(); seterus(k+1); });
+  })(0);
+};
+function kecilkan(file,cb){
+  var r=new FileReader();
+  r.onload=function(){
+    var im=new Image();
+    im.onload=function(){
+      var mx=1100, k=Math.min(1,mx/Math.max(im.width,im.height));
+      var c=document.createElement('canvas'); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      cb(c.toDataURL('image/jpeg',0.82));
+    };
+    im.src=r.result;
+  };
+  r.readAsDataURL(file);
+}
+function lukisGrid(){
+  var n=0;
+  [].forEach.call(grid.children,function(s,i){
+    if(fotos[i]){ n++; s.innerHTML='<span class="no">'+(i+1)+'</span><img src="'+fotos[i]+'"><button class="x">&times;</button>'; }
+    else s.innerHTML='<span class="no">'+(i+1)+'</span><span class="plus">+</span>';
+  });
+  document.getElementById('kiraFoto').textContent=n;
+}
+function lukisKejut(){
+  var s=document.getElementById('slotKejut');
+  s.innerHTML = kejut ? '<img src="'+kejut+'"><button class="x">&times;</button>' : '<span class="plus">+</span>';
+}
+
+/* ---- pelaras kedudukan ---- */
+var lrI=-1, lrS={x:0,y:0,s:1}, lrDrag=null;
+function bukaLaras(i){
+  lrI=i; var p=pos['f'+(i+1)]||{x:0,y:0,s:1}; lrS={x:p.x||0,y:p.y||0,s:p.s||1};
+  document.getElementById('lrImg').src=fotos[i];
+  document.getElementById('lrZoom').value=lrS.s;
+  kemasLaras(); document.getElementById('laras').classList.add('show');
+}
+function kemasLaras(){
+  var im=document.getElementById('lrImg');
+  im.style.transform='translate(-50%,-50%) translate('+lrS.x+'%,'+lrS.y+'%) scale('+lrS.s+')';
+}
+var lw=document.getElementById('lrWrap');
+lw.addEventListener('pointerdown',function(e){ lrDrag={x:e.clientX,y:e.clientY,ox:lrS.x,oy:lrS.y}; lw.setPointerCapture(e.pointerId); });
+lw.addEventListener('pointermove',function(e){ if(!lrDrag) return;
+  var r=lw.getBoundingClientRect();
+  lrS.x=lrDrag.ox+(e.clientX-lrDrag.x)/r.width*100; lrS.y=lrDrag.oy+(e.clientY-lrDrag.y)/r.height*100; kemasLaras(); });
+['pointerup','pointercancel'].forEach(function(ev){ lw.addEventListener(ev,function(){ lrDrag=null; }); });
+document.getElementById('lrZoom').oninput=function(){ lrS.s=+this.value; kemasLaras(); };
+document.getElementById('lrBatal').onclick=function(){ document.getElementById('laras').classList.remove('show'); };
+document.getElementById('lrOk').onclick=function(){ pos['f'+(lrI+1)]={x:+lrS.x.toFixed(1),y:+lrS.y.toFixed(1),s:+lrS.s.toFixed(2)};
+  document.getElementById('laras').classList.remove('show'); };
+
+/* ---- ucapan ---- */
+var ta=document.getElementById('ucapan');
+function kiraUcap(){ document.getElementById('kiraUcap').textContent=ta.value.length; }
+ta.oninput=function(){ ucapDiubah=true; kiraUcap(); };
+document.getElementById('pulih').onclick=function(){ ta.value=AYAT[lang]; ucapDiubah=false; kiraUcap(); };
+
+/* ---- MP3 ---- */
+var mp3='';
+document.getElementById('mp3f').onchange=function(){
+  var f=this.files[0]; if(!f) return;
+  if(f.size>4*1024*1024){ document.getElementById('mp3info').textContent=T('mp3besar'); this.value=''; return; }
+  var r=new FileReader(); r.onload=function(){ mp3=r.result;
+    document.getElementById('mp3info').textContent=T('mp3ok')+f.name; };
+  r.readAsDataURL(f);
+};
+
+/* ============ collect + bayar ============ */
+function collectData(){
+  var d={ template:'gradmemory' };          /* WAJIB — sama dengan card-gradmemory-1.html */
+  d.to=document.getElementById('to').value.trim();
+  d.from=document.getElementById('from').value.trim();
+  d.tahun=document.getElementById('tahun').value.trim();
+  d.ucapan=ta.value.trim();
+  for(var i=0;i<N;i++){ if(fotos[i]) d['f'+(i+1)]=fotos[i]; }
+  d.pos=pos;
+  if(kejut) d.surprise_img=kejut;
+  d.surprise=document.getElementById('surprise').value.trim();
+  d.video=document.getElementById('video').value.trim();
+  d.yt=document.getElementById('yt').value.trim();
+  d.mp3=mp3;
+  d.song=document.getElementById('song').value.trim();
+  d.artist=document.getElementById('artist').value.trim();
+  return d;                                  /* MESTI sync, MESTI objek */
+}
+function mountBayar(){
+  if(typeof GKBayar==='undefined'){
+    document.getElementById('gk-bayar').innerHTML='<div class="amaran">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia ada di root repo.</div>';
+    return;
+  }
+  GKBayar.mount({ el:'gk-bayar', previewEl:'gk-pratonton', viewer:'card-gradmemory-1.html',
+    collect:collectData, produk:'Kad Graduasi Graduate Memory', qr:true });
+}
+lukisGrid(); lukisKejut(); pakai(); mountBayar();
+</script>
+</body>
+</html>
