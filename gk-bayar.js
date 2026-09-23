@@ -2,7 +2,7 @@
    GiftKita — Enjin Bayaran Bersama
    Satu file untuk SEMUA borang kad.
 
-   Cara guna:
+   Cara guna (TIADA perubahan untuk borang sedia ada):
      <div id="gk-bayar"></div>
      <script src="gk-bayar.js"></script>
      <script>
@@ -15,11 +15,29 @@
        });
      </script>
 
+   DUA MATA WANG (Sep 2026):
+     • Malaysia  → RM, FPX / DuitNow QR melalui ToyyibPay   (/api/create-bill)
+     • Luar negara → USD, kad / Apple Pay / Google Pay melalui Stripe (/api/create-checkout)
+   Dikesan ikut zon masa telefon. Customer boleh tukar sendiri dengan link kecil.
+   Harga USD lalai: basic $8, premium $10, bouquet $3 (SERVER yang tentukan harga sebenar).
+   Pelan boleh ada usd / nm_en / ds_en sendiri:
+     plans:{ bouquet:{ rm:3, usd:3, nm:'Bouquet Muka', ds:'…', nm_en:'Photo Bouquet', ds_en:'…' } }
+
+   Test mod USD sebelum STRIPE_ON=true:  buka borang dengan  ?cur=usd
+   Balik ke RM:                          ?cur=myr
+
+   Bahasa ikut localStorage 'gk_lang' (ms/en) — sama dengan borang. Bertukar sendiri
+   bila customer tekan BM/EN.
+
    Warna ikut tema borang melalui CSS variable:
      --gk-accent  dan  --gk-accent-2
    ══════════════════════════════════════════════════════════════ */
 (function(){
 'use strict';
+
+/* ▼▼▼ Tukar ke true bila Stripe dah test & kunci live dah dimasukkan dalam Vercel ▼▼▼ */
+var STRIPE_ON = false;
+/* ▲▲▲ Selagi false: semua customer nampak RM. Mod USD hanya untuk test (?cur=usd). ▲▲▲ */
 
 var SB_URL='https://lejpuajafuenlfvlovfg.supabase.co';
 var SB_KEY='sb_publishable_igFE4w_dz4ZF99wH1LeBKg_JL5kFoZ0';
@@ -29,15 +47,94 @@ var db=null;
 try{ if(window.supabase&&window.supabase.createClient) db=window.supabase.createClient(SB_URL,SB_KEY); }catch(e){ db=null; }
 
 var CFG={};
-/* Pelan lalai untuk kad. Borang boleh ganti dengan CFG.plans, contoh produk satu harga:
-     plans:{ bouquet:{ rm:3, nm:'Bouquet Muka', ds:'Gambar penuh tanpa tanda air' } }
-   Kunci pelan (basic/premium/bouquet) dihantar ke /api/create-bill — server MESTI
-   kenal kunci tu dan tetapkan harga yang sama. */
+/* Pelan lalai untuk kad. Borang boleh ganti dengan CFG.plans.
+   Kunci pelan (basic/premium/bouquet) dihantar ke server — server MESTI kenal kunci
+   tu dan tetapkan harga yang sama (create-bill.js untuk RM, create-checkout.js untuk USD). */
 var PLAN_LALAI={
-  basic:  { rm:6, nm:'Basic',   ds:'Muzik YouTube · link kekal' },
-  premium:{ rm:8, nm:'Premium', ds:'MP3 sendiri · kod QR · album PDF' }
+  basic:  { rm:6, usd:8,  nm:'Basic',   ds:'Muzik YouTube · link kekal',       ds_en:'YouTube music · permanent link' },
+  premium:{ rm:8, usd:10, nm:'Premium', ds:'MP3 sendiri · kod QR · album PDF', ds_en:'Your own MP3 · QR code · PDF album' }
+};
+var USD_LALAI={ basic:8, premium:10, bouquet:3 };
+var EN_LALAI={
+  basic:  { nm:'Basic',   ds:'YouTube music · permanent link' },
+  premium:{ nm:'Premium', ds:'Your own MP3 · QR code · PDF album' },
+  bouquet:{ nm:'Photo Bouquet', ds:'Full image without watermark · instant download' }
 };
 var PLANS=PLAN_LALAI;
+
+/* ───────── teks dwibahasa ───────── */
+var T={
+  ms:{
+    ringkasan:'Ringkasan pesanan', kad:'Kad digital', kuantiti:'Kuantiti', harga:'Harga', jumlah:'Jumlah dibayar',
+    cara:'Cara bayaran diterima', fpx:'Perbankan Internet', qr:'DuitNow QR', kadkredit:'Kad kredit / debit',
+    fee:'Bayaran melalui <b>DuitNow QR</b> dikenakan caj pemprosesan <b>RM1.00</b> oleh penyedia pembayaran, ditambah pada jumlah anda. Bayaran melalui <b>FPX</b> tiada caj tambahan.',
+    feeUsd:'Harga dalam <b>dolar AS (USD)</b>. Bank anda mungkin menukar ke mata wang tempatan.',
+    nama:'Nama anda', namaPh:'cth: Aina Sofea', tel:'No. telefon (WhatsApp)', telOpt:'WhatsApp (pilihan)', telPh:'cth: 0123456789',
+    email:'Email', emailPh:'cth: aina@gmail.com',
+    hint:'Resit dihantar ke email ini. Guna email &amp; telefon yang sama jika anda perlu cari semula link kad nanti.',
+    hintUsd:'Resit dan link kad dihantar ke email ini. Guna email yang sama jika anda perlu cari semula link kad nanti.',
+    btn:'Bayar &amp; dapatkan link kad', btnUsd:'Bayar {harga} dengan kad',
+    safe:'Pembayaran dilindungi &amp; disulitkan melalui ToyyibPay', safeUsd:'Pembayaran kad dilindungi &amp; disulitkan melalui Stripe',
+    tip:'Selepas bayar, jika bank papar &quot;transaction is being processed&quot;, tekan <b>Close</b> sahaja. Anda akan dibawa kembali ke halaman link kad secara automatik.',
+    tipUsd:'Selepas bayar, anda akan dibawa terus ke halaman link kad anda.',
+    keUsd:'Di luar Malaysia? <b>Bayar dengan kad (USD)</b>', keRm:'Di Malaysia? <b>Bayar dalam RM (FPX / DuitNow)</b>',
+    prev:'Lihat kad dulu — percuma', prevS:'Tengok rupa sebenar kad anda. Tiada bayaran, tiada maklumat diperlukan.',
+    eDb:'Sambungan ke pangkalan data gagal. Refresh halaman dan cuba lagi.',
+    eIsi:'Isi nama, email dan no. telefon dahulu.', eIsiUsd:'Isi nama dan email dahulu.',
+    eEmail:'Email tidak sah. Semak semula.', eBesar:'Data terlalu besar (~{kb}KB). Guna gambar atau MP3 yang lebih kecil.',
+    eBil:'Gagal cipta bil pembayaran. Cuba lagi.',
+    sedia:'Menyediakan pembayaran...', bawa:'Membawa ke pembayaran...',
+    pvMp3:'Pratonton dipaparkan tanpa muzik kerana fail terlalu besar. Muzik tetap ada dalam kad sebenar.',
+    pvBesar:'Gambar terlalu besar untuk pratonton. Cuba guna gambar yang lebih kecil.',
+    tq:'Terima kasih', tqS:'Kami sedang menyemak pembayaran dan menyediakan link kad anda.', bukan:'Bukan saya — kembali ke borang'
+  },
+  en:{
+    ringkasan:'Order summary', kad:'Digital card', kuantiti:'Quantity', harga:'Price', jumlah:'Total',
+    cara:'Accepted payment methods', fpx:'Online banking', qr:'DuitNow QR', kadkredit:'Credit / debit card',
+    fee:'Payments via <b>DuitNow QR</b> carry a <b>RM1.00</b> processing fee from the payment provider, added to your total. <b>FPX</b> has no extra fee.',
+    feeUsd:'Prices are in <b>US dollars (USD)</b>. Your bank may convert to your local currency.',
+    nama:'Your name', namaPh:'e.g. Sarah Lee', tel:'Phone (WhatsApp)', telOpt:'WhatsApp (optional)', telPh:'e.g. +1 555 123 4567',
+    email:'Email', emailPh:'e.g. sarah@gmail.com',
+    hint:'Your receipt is sent to this email. Use the same email &amp; phone if you need to find your card link later.',
+    hintUsd:'Your receipt and card link are sent to this email. Use the same email if you need to find your card link later.',
+    btn:'Pay &amp; get your card link', btnUsd:'Pay {harga} by card',
+    safe:'Payments protected &amp; encrypted by ToyyibPay', safeUsd:'Card payments protected &amp; encrypted by Stripe',
+    tip:'After paying, if your bank shows &quot;transaction is being processed&quot;, just tap <b>Close</b>. You will be taken back to your card link automatically.',
+    tipUsd:'After paying, you will be taken straight to your card link.',
+    keUsd:'Outside Malaysia? <b>Pay by card (USD)</b>', keRm:'In Malaysia? <b>Pay in RM (FPX / DuitNow)</b>',
+    prev:'Preview your card — free', prevS:'See exactly how your card looks. No payment, no details needed.',
+    eDb:'Could not connect to the database. Refresh the page and try again.',
+    eIsi:'Please fill in your name, email and phone number first.', eIsiUsd:'Please fill in your name and email first.',
+    eEmail:'That email doesn\'t look right. Please check it.', eBesar:'Your data is too large (~{kb}KB). Use smaller photos or MP3.',
+    eBil:'Could not create the payment. Please try again.',
+    sedia:'Preparing payment...', bawa:'Taking you to payment...',
+    pvMp3:'Preview is shown without music because the file is too large. Music is still included in the real card.',
+    pvBesar:'Photos are too large to preview. Try smaller photos.',
+    tq:'Thank you', tqS:'We are confirming your payment and preparing your card link.', bukan:'Not me — back to the form'
+  }
+};
+function L(){ var l='ms'; try{ l=localStorage.getItem('gk_lang')||'ms'; }catch(e){} return l==='en'?'en':'ms'; }
+function t(k){ var d=T[L()]; return (d&&d[k]!=null)?d[k]:T.ms[k]; }
+
+/* ───────── mata wang ───────── */
+function diMalaysia(){
+  try{ var z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';
+       return z==='Asia/Kuala_Lumpur'||z==='Asia/Kuching'||z===''; }catch(e){ return true; }
+}
+var CUR='myr';
+function mulaMatawang(){
+  var q=null; try{ q=(new URLSearchParams(location.search).get('cur')||'').toLowerCase(); }catch(e){}
+  if(q==='usd'||q==='myr'){ try{ localStorage.setItem('gk_cur',q); }catch(e){} return q; }
+  var s=null; try{ s=localStorage.getItem('gk_cur'); }catch(e){}
+  if(s==='usd'||s==='myr') return (s==='usd'&&!STRIPE_ON&&!ujian())?'myr':s;
+  return (STRIPE_ON&&!diMalaysia())?'usd':'myr';
+}
+function ujian(){ try{ return localStorage.getItem('gk_cur_test')==='1'; }catch(e){ return false; } }
+function usd(){ return CUR==='usd'; }
+function hargaPlan(k){ var p=PLANS[k]; return usd() ? (p.usd!=null?p.usd:(USD_LALAI[k]!=null?USD_LALAI[k]:p.rm)) : p.rm; }
+function fmt(n,panjang){ return usd() ? (panjang?'USD '+Number(n).toFixed(2):'$'+n) : (panjang?'RM'+Number(n).toFixed(2):'RM'+n); }
+function namaPlan(k){ var p=PLANS[k]; if(L()!=='en') return p.nm; return p.nm_en||(EN_LALAI[k]&&EN_LALAI[k].nm)||p.nm; }
+function descPlan(k){ var p=PLANS[k]; if(L()!=='en') return p.ds||''; return p.ds_en||(EN_LALAI[k]&&EN_LALAI[k].ds)||p.ds||''; }
 
 var CSS=''
 +'.gkb{font-family:inherit}'
@@ -67,7 +164,7 @@ var CSS=''
 +'.gkb label{font-weight:600;font-size:.8rem;display:block;margin-top:13px;margin-bottom:4px}'
 +'.gkb .gkb-hint{font-size:.72rem;color:#b3a3ab;display:block;margin-bottom:4px}'
 +'.gkb input{width:100%;padding:11px 13px;border:1.5px solid #e8dfe3;border-radius:10px;font-family:inherit;'
-+'font-size:.85rem;outline:none;transition:.2s;background:#fff}'
++'font-size:.85rem;outline:none;transition:.2s;background:#fff;box-sizing:border-box}'
 +'.gkb input:focus{border-color:var(--gk-accent,#e91e63);box-shadow:0 0 0 3px rgba(0,0,0,.05)}'
 +'.gkb .gkb-row{display:flex;gap:12px;flex-wrap:wrap}.gkb .gkb-row>div{flex:1;min-width:170px}'
 +'.gkb-ways{display:flex;gap:8px;flex-wrap:wrap;padding:13px 16px}'
@@ -76,8 +173,13 @@ var CSS=''
 +'.gkb-way i{font-style:normal;font-size:.62rem;letter-spacing:.06em;color:#fff;background:#1a4fa0;'
 +'padding:3px 6px;border-radius:4px}'
 +'.gkb-way.qr i{background:#c8102e}'
++'.gkb-way.kd i{background:#635bff}'
++'.gkb-way.ap i{background:#111}'
 +'.gkb-fee{padding:0 16px 14px;font-size:.74rem;color:#8a7b82;line-height:1.6}'
 +'.gkb-fee b{color:#5d4a53}'
++'.gkb-tukar{display:block;text-align:center;margin-top:10px;font-size:.76rem;color:#8a7b82;cursor:pointer;'
++'text-decoration:underline;text-underline-offset:3px;background:none;border:0;width:100%;font-family:inherit}'
++'.gkb-tukar b{color:var(--gk-accent-2,#c2185b)}'
 +'.gkb-btn{width:100%;padding:16px;border:none;border-radius:12px;font-family:inherit;font-size:.95rem;'
 +'font-weight:700;cursor:pointer;margin-top:14px;transition:.2s;color:#fff;'
 +'background:linear-gradient(135deg,var(--gk-accent,#e91e63),var(--gk-accent-2,#c2185b))}'
@@ -90,7 +192,8 @@ var CSS=''
 +'.gkb-msg{margin-top:14px;padding:13px 15px;border-radius:12px;font-size:.8rem;line-height:1.6;display:none;'
 +'background:#ffebee;border:1.5px solid #ef9a9a;color:#c62828}'
 +'.gkb-tip{margin-top:12px;padding:12px 14px;background:#fff8e1;border:1.5px solid #ffe0a3;border-radius:12px;'
-+'font-size:.75rem;color:#8a6d00;line-height:1.6}';
++'font-size:.75rem;color:#8a6d00;line-height:1.6}'
++'.gkb [hidden]{display:none!important}';
 
 function $(id){ return document.getElementById(id); }
 
@@ -98,49 +201,91 @@ function shield(){
   return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1 3 5v6c0 5.5 3.8 10.7 9 12 5.2-1.3 9-6.5 9-12V5l-9-4zm-1.2 16-4-4 1.4-1.4 2.6 2.6 5.6-5.6L17.8 10l-7 7z"/></svg>';
 }
 
+/* Struktur dibina SEKALI sahaja — borang ada yang pegang #gkb-pay (disable/enable),
+   jadi bila bahasa / mata wang bertukar kita cuma kemas kini teks, bukan bina semula. */
 function build(){
   var qr = CFG.qr===true;
   var kunci=Object.keys(PLANS), satu=kunci.length===1;
   var h='<div class="gkb-plans'+(satu?' gkb-satu':'')+'">';
-  kunci.forEach(function(k,i){ var pl=PLANS[k];
+  kunci.forEach(function(k,i){
     h+='<div class="gkb-plan'+(i===0?' on':'')+'" data-plan="'+k+'">'+(satu?'':'<div class="tick">✓</div>')
-      +'<div class="rm">RM'+pl.rm+'</div><div class="nm">'+pl.nm+'</div>'
-      +'<div class="ds">'+(pl.ds||'')+'</div></div>'; });
-  h+='</div>';
-  h+=''
+      +'<div class="rm"></div><div class="nm"></div><div class="ds"></div></div>'; });
+  h+='</div>'
 
   +'<div class="gkb-card">'
-  +'  <h4>Ringkasan pesanan</h4>'
-  +'  <div class="gkb-line"><span class="k" id="gkb-pnama">Kad digital</span><span class="v" id="gkb-pplan">Basic</span></div>'
-  +'  <div class="gkb-line"><span class="k">Kuantiti</span><span class="v">1</span></div>'
-  +'  <div class="gkb-line"><span class="k">Harga</span><span class="v" id="gkb-pharga">RM6.00</span></div>'
-  +'  <div class="gkb-total"><span class="k">Jumlah dibayar</span><span class="v" id="gkb-ptotal">RM6.00</span></div>'
+  +'  <h4 data-t="ringkasan"></h4>'
+  +'  <div class="gkb-line"><span class="k" id="gkb-pnama"></span><span class="v" id="gkb-pplan"></span></div>'
+  +'  <div class="gkb-line"><span class="k" data-t="kuantiti"></span><span class="v">1</span></div>'
+  +'  <div class="gkb-line"><span class="k" data-t="harga"></span><span class="v" id="gkb-pharga"></span></div>'
+  +'  <div class="gkb-total"><span class="k" data-t="jumlah"></span><span class="v" id="gkb-ptotal"></span></div>'
   +'</div>'
 
   +'<div class="gkb-card">'
-  +'  <h4>Cara bayaran diterima</h4>'
-  +'  <div class="gkb-ways">'
-  +'    <div class="gkb-way"><i>FPX</i> Perbankan Internet</div>'
-  + (qr?'    <div class="gkb-way qr"><i>QR</i> DuitNow QR</div>':'')
+  +'  <h4 data-t="cara"></h4>'
+  +'  <div class="gkb-ways" data-cur="myr">'
+  +'    <div class="gkb-way"><i>FPX</i> <span data-t="fpx"></span></div>'
+  + (qr?'    <div class="gkb-way qr"><i>QR</i> <span data-t="qr"></span></div>':'')
   +'  </div>'
-  + (qr?'  <div class="gkb-fee">Bayaran melalui <b>DuitNow QR</b> dikenakan caj pemprosesan '
-        +'<b>RM1.00</b> oleh penyedia pembayaran, ditambah pada jumlah anda. '
-        +'Bayaran melalui <b>FPX</b> tiada caj tambahan.</div>':'')
+  +'  <div class="gkb-ways" data-cur="usd">'
+  +'    <div class="gkb-way kd"><i>CARD</i> <span data-t="kadkredit"></span></div>'
+  +'    <div class="gkb-way ap"><i>PAY</i> Apple Pay · Google Pay</div>'
+  +'  </div>'
+  + (qr?'  <div class="gkb-fee" data-cur="myr" data-t="fee"></div>':'')
+  +'  <div class="gkb-fee" data-cur="usd" data-t="feeUsd"></div>'
   +'</div>'
 
-  +'<label>Nama anda</label>'
-  +'<input type="text" id="gkb-name" placeholder="cth: Aina Sofea">'
+  +'<label data-t="nama"></label>'
+  +'<input type="text" id="gkb-name" data-ph="namaPh" autocomplete="name">'
   +'<div class="gkb-row">'
-  +'  <div><label>No. telefon (WhatsApp)</label><input type="text" id="gkb-phone" placeholder="cth: 0123456789"></div>'
-  +'  <div><label>Email</label><input type="text" id="gkb-email" placeholder="cth: aina@gmail.com"></div>'
+  +'  <div><label id="gkb-tel-l"></label><input type="tel" id="gkb-phone" data-ph="telPh" autocomplete="tel"></div>'
+  +'  <div><label data-t="email"></label><input type="email" id="gkb-email" data-ph="emailPh" autocomplete="email"></div>'
   +'</div>'
-  +'<span class="gkb-hint">Resit dihantar ke email ini. Guna email &amp; telefon yang sama jika anda perlu cari semula link kad nanti.</span>'
+  +'<span class="gkb-hint" id="gkb-hint"></span>'
 
-  +'<button class="gkb-btn" id="gkb-pay">'+(CFG.btn||'Bayar &amp; dapatkan link kad')+'</button>'
-  +'<div class="gkb-safe">'+shield()+'<span>Pembayaran dilindungi &amp; disulitkan melalui ToyyibPay</span></div>'
+  +'<button class="gkb-btn" id="gkb-pay"></button>'
+  +'<div class="gkb-safe">'+shield()+'<span id="gkb-safe-t"></span></div>'
   +'<div class="gkb-msg" id="gkb-err"></div>'
-  +'<div class="gkb-tip">Selepas bayar, jika bank papar &quot;transaction is being processed&quot;, tekan <b>Close</b> sahaja. Anda akan dibawa kembali ke halaman link kad secara automatik.</div>';
+  +'<div class="gkb-tip" id="gkb-tip"></div>'
+  +'<button type="button" class="gkb-tukar" id="gkb-tukar" hidden></button>';
   return h;
+}
+
+/* kemas kini semua teks ikut bahasa + mata wang semasa */
+function terapkan(){
+  var host=CFG._host; if(!host) return;
+  var u=usd();
+  host.querySelectorAll('[data-t]').forEach(function(e){ e.innerHTML=t(e.getAttribute('data-t')); });
+  host.querySelectorAll('[data-ph]').forEach(function(e){ e.placeholder=t(e.getAttribute('data-ph')).replace(/&amp;/g,'&'); });
+  host.querySelectorAll('[data-cur]').forEach(function(e){ e.hidden = e.getAttribute('data-cur')!==(u?'usd':'myr'); });
+  host.querySelectorAll('.gkb-plan').forEach(function(p){
+    var k=p.getAttribute('data-plan');
+    p.querySelector('.rm').textContent=fmt(hargaPlan(k));
+    p.querySelector('.nm').textContent=namaPlan(k);
+    p.querySelector('.ds').textContent=descPlan(k);
+  });
+  $('gkb-tel-l').textContent = u ? t('telOpt') : t('tel');
+  $('gkb-hint').innerHTML = u ? t('hintUsd') : t('hint');
+  $('gkb-safe-t').innerHTML = u ? t('safeUsd') : t('safe');
+  $('gkb-tip').innerHTML = u ? t('tipUsd') : t('tip');
+  var tk=$('gkb-tukar');
+  tk.hidden = !(STRIPE_ON || ujian() || u);
+  tk.innerHTML = u ? t('keRm') : t('keUsd');
+  var btn=$('gkb-pay'); if(!btn.getAttribute('data-sibuk')) btn.innerHTML=teksButang();
+  var pv=$('gkb-prev'); if(pv){ pv.textContent=t('prev'); var ps=$('gkb-prev-s'); if(ps) ps.textContent=t('prevS'); }
+  paintSummary();
+}
+
+/* teks butang bayar. CFG.btn (cth 'Bayar RM3 &amp; download') dihormati untuk BM + RM;
+   untuk USD / English kita jana versi setara. CFG.btn_en boleh ganti versi English. */
+function teksButang(){
+  var h=fmt(hargaPlan(plan())), en=L()==='en', b=CFG.btn;
+  if(b){
+    if(!usd() && !en) return b;
+    var dl=/download/i.test(b);
+    if(en) return CFG.btn_en ? CFG.btn_en.replace(/RM\s?\d+(\.\d+)?/,h) : (dl?'Pay '+h+' &amp; download':(usd()?t('btnUsd').replace('{harga}',h):t('btn')));
+    return b.replace(/RM\s?\d+(\.\d+)?/,h);
+  }
+  return usd() ? t('btnUsd').replace('{harga}',h) : t('btn');
 }
 
 function showErr(msg){
@@ -151,15 +296,17 @@ function hideErr(){ var e=$('gkb-err'); if(e) e.style.display='none'; }
 
 function plan(){
   var el=document.querySelector('.gkb-plan.on');
-  return el?el.getAttribute('data-plan'):'basic';
+  return el?el.getAttribute('data-plan'):Object.keys(PLANS)[0];
 }
 
 function paintSummary(){
-  var p=plan(), rm=PLANS[p].rm.toFixed(2);
-  $('gkb-pnama').textContent = CFG.produk || 'Kad digital';
-  $('gkb-pplan').textContent = PLANS[p].nm;
-  $('gkb-pharga').textContent = 'RM'+rm;
-  $('gkb-ptotal').textContent = 'RM'+rm;
+  var p=plan(), n=hargaPlan(p);
+  var prod=CFG.produk || t('kad');
+  if(L()==='en' && CFG.produk_en) prod=CFG.produk_en;
+  $('gkb-pnama').textContent = prod;
+  $('gkb-pplan').textContent = namaPlan(p);
+  $('gkb-pharga').textContent = fmt(n,true);
+  $('gkb-ptotal').textContent = fmt(n,true);
 }
 
 function preview(){
@@ -170,9 +317,9 @@ function preview(){
     try{
       var lite=JSON.parse(JSON.stringify(d)); lite.mp3='';
       localStorage.setItem('gk_preview',JSON.stringify(lite));
-      alert('Pratonton dipaparkan tanpa muzik kerana fail terlalu besar. Muzik tetap ada dalam kad sebenar.');
+      alert(t('pvMp3'));
     }catch(e2){
-      alert('Gambar terlalu besar untuk pratonton. Cuba guna gambar yang lebih kecil.');
+      alert(t('pvBesar'));
       return;
     }
   }
@@ -185,23 +332,27 @@ function pay(){
   var btn=$('gkb-pay');
   hideErr();
 
-  if(!db){ showErr('Sambungan ke pangkalan data gagal. Refresh halaman dan cuba lagi.'); return; }
+  if(!db){ showErr(t('eDb')); return; }
 
+  var u=usd();
   var name=$('gkb-name').value.trim();
   var email=$('gkb-email').value.trim();
   var phone=$('gkb-phone').value.trim();
-  if(!name||!email||!phone){ showErr('Isi nama, email dan no. telefon dahulu.'); return; }
-  if(!/^\S+@\S+\.\S+$/.test(email)){ showErr('Email tidak sah. Semak semula.'); return; }
+  if(!name||!email||(!u&&!phone)){ showErr(u?t('eIsiUsd'):t('eIsi')); return; }
+  if(!/^\S+@\S+\.\S+$/.test(email)){ showErr(t('eEmail')); return; }
 
   var d=CFG.collect();
   var kb=Math.round(JSON.stringify(d).length/1024);
-  if(kb>4500){ showErr('Data terlalu besar (~'+kb+'KB). Guna gambar atau MP3 yang lebih kecil.'); return; }
+  if(kb>4500){ showErr(t('eBesar').replace('{kb}',kb)); return; }
 
-  var label=btn.textContent;
-  btn.disabled=true; btn.textContent='Menyediakan pembayaran...';
+  var label=btn.innerHTML;
+  btn.disabled=true; btn.setAttribute('data-sibuk','1'); btn.textContent=t('sedia');
 
   var ref=null;
   try{ ref=new URLSearchParams(location.search).get('ref')||localStorage.getItem('gk_ref')||null; }catch(e){}
+
+  var laluan = u ? '/api/create-checkout' : '/api/create-bill';
+  var kembali = location.href.split('#')[0].replace(/([?&])gk_batal=1&?/,'$1').replace(/[?&]$/,'');
 
   db.from('cards').insert([{
     card_data:d, paid:false, ref_code:ref,
@@ -209,39 +360,44 @@ function pay(){
   }]).select().then(function(res){
     if(res.error) throw res.error;
     var id=res.data[0].id;
-    return fetch(API_BASE+'/api/create-bill',{
+    return fetch(API_BASE+laluan,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({cardId:id, plan:plan(), buyerName:name, buyerEmail:email, buyerPhone:phone})
+      body:JSON.stringify({cardId:id, plan:plan(), buyerName:name, buyerEmail:email, buyerPhone:phone,
+                           currency:u?'usd':'myr', returnUrl:kembali})
     }).then(function(r){ return r.json(); }).then(function(out){
-      if(!out.paymentUrl) throw new Error(out.error||'Gagal cipta bil pembayaran. Cuba lagi.');
+      if(!out.paymentUrl) throw new Error(out.error||t('eBil'));
       try{ localStorage.setItem('gk_pending',id); }catch(e){}
-      btn.textContent='Membawa ke pembayaran...';
+      btn.textContent=t('bawa');
       location.href=out.paymentUrl;
     });
   }).catch(function(e){
     showErr(e.message||String(e));
-    btn.disabled=false; btn.textContent=label;
+    btn.disabled=false; btn.removeAttribute('data-sibuk'); btn.innerHTML=label;
   });
 }
 
 function pendingRedirect(){
+  /* customer tekan "kembali" di halaman Stripe → jangan hantar ke bayar.html */
+  var batal=false; try{ batal=new URLSearchParams(location.search).get('gk_batal')==='1'; }catch(e){}
+  if(batal){ try{ localStorage.removeItem('gk_pending'); }catch(e){} return; }
+
   var id=null; try{ id=localStorage.getItem('gk_pending'); }catch(e){}
   if(!id) return;
   var b=document.createElement('div');
   b.style.cssText='position:fixed;inset:0;z-index:99999;background:#fff;display:flex;flex-direction:column;'
     +'align-items:center;justify-content:center;font-family:inherit;text-align:center;padding:26px;gap:10px';
   b.innerHTML='<div style="font-size:2.4rem">💌</div>'
-    +'<div style="font-size:1.1rem;font-weight:700">Terima kasih</div>'
-    +'<div style="font-size:.88rem;color:#7a5666;max-width:320px;line-height:1.6">Kami sedang menyemak pembayaran dan menyediakan link kad anda.</div>'
+    +'<div style="font-size:1.1rem;font-weight:700">'+t('tq')+'</div>'
+    +'<div style="font-size:.88rem;color:#7a5666;max-width:320px;line-height:1.6">'+t('tqS')+'</div>'
     +'<div style="width:36px;height:36px;border:4px solid #eee;border-top-color:var(--gk-accent,#e91e63);'
     +'border-radius:50%;margin-top:12px;animation:gkspin 1s linear infinite"></div>'
     +'<style>@keyframes gkspin{to{transform:rotate(360deg)}}</style>'
-    +'<div id="gkb-cancel" style="margin-top:16px;font-size:.78rem;color:#a89;text-decoration:underline;cursor:pointer">Bukan saya — kembali ke borang</div>';
+    +'<div id="gkb-cancel" style="margin-top:16px;font-size:.78rem;color:#a89;text-decoration:underline;cursor:pointer">'+t('bukan')+'</div>';
   document.body.appendChild(b);
-  var t=setTimeout(function(){ location.href='bayar.html?id='+id; },1400);
+  var tm=setTimeout(function(){ location.href='bayar.html?id='+id; },1400);
   b.querySelector('#gkb-cancel').onclick=function(){
-    clearTimeout(t);
+    clearTimeout(tm);
     try{ localStorage.removeItem('gk_pending'); }catch(e){}
     b.remove();
   };
@@ -252,46 +408,59 @@ function pendingRedirect(){
     var ref=new URLSearchParams(location.search).get('ref');
     if(ref) localStorage.setItem('gk_ref',ref.toUpperCase());
   }catch(e){}
+  try{ var c=new URLSearchParams(location.search).get('cur'); if(c) localStorage.setItem('gk_cur_test','1'); }catch(e){}
 })();
 
 window.GKBayar={
   mount:function(cfg){
     CFG=cfg||{};
     PLANS=(CFG.plans&&Object.keys(CFG.plans).length)?CFG.plans:PLAN_LALAI;
+    CUR=mulaMatawang();
     var host=(typeof CFG.el==='string')?$(CFG.el):CFG.el;
     if(!host) return;
+    CFG._host=host;
 
     var st=document.createElement('style'); st.textContent=CSS; document.head.appendChild(st);
     host.className=(host.className+' gkb').trim();
     host.innerHTML=build();
 
-    document.querySelectorAll('.gkb-plan').forEach(function(p){
+    host.querySelectorAll('.gkb-plan').forEach(function(p){
       if(Object.keys(PLANS).length===1){ p.style.cursor='default'; return; }
       p.onclick=function(){
-        document.querySelectorAll('.gkb-plan').forEach(function(x){ x.classList.remove('on'); });
+        host.querySelectorAll('.gkb-plan').forEach(function(x){ x.classList.remove('on'); });
         p.classList.add('on');
         paintSummary();
+        var btn=$('gkb-pay'); if(!btn.getAttribute('data-sibuk')) btn.innerHTML=teksButang();
       };
     });
     $('gkb-pay').onclick=pay;
+    $('gkb-tukar').onclick=function(){
+      CUR = usd() ? 'myr' : 'usd';
+      try{ localStorage.setItem('gk_cur',CUR); }catch(e){}
+      hideErr(); terapkan();
+    };
 
     /* butang pratonton berasingan — diletak lebih awal dalam borang */
     var pv=(typeof CFG.previewEl==='string')?$(CFG.previewEl):CFG.previewEl;
     if(pv){
       pv.className=(pv.className+' gkb').trim();
-      pv.innerHTML='<button class="gkb-btn ghost" id="gkb-prev" style="margin-top:6px">'
-        +'Lihat kad dulu — percuma</button>'
-        +'<p style="text-align:center;font-size:.74rem;color:#a2909a;margin-top:8px">'
-        +'Tengok rupa sebenar kad anda. Tiada bayaran, tiada maklumat diperlukan.</p>';
+      pv.innerHTML='<button class="gkb-btn ghost" id="gkb-prev" style="margin-top:6px"></button>'
+        +'<p id="gkb-prev-s" style="text-align:center;font-size:.74rem;color:#a2909a;margin-top:8px"></p>';
       $('gkb-prev').onclick=preview;
     }
 
-    paintSummary();
+    terapkan();
     pendingRedirect();
+
+    /* ikut bahasa borang: bila customer tekan BM/EN, borang tulis 'gk_lang' */
+    var lepas=L();
+    setInterval(function(){ var k=L(); if(k!==lepas){ lepas=k; terapkan(); } },600);
   },
+  lang:function(){ terapkan(); },
+  currency:function(){ return CUR; },
   buyer:function(){
     return { name:$('gkb-name').value.trim(), email:$('gkb-email').value.trim(),
-             phone:$('gkb-phone').value.trim(), plan:plan() };
+             phone:$('gkb-phone').value.trim(), plan:plan(), currency:CUR };
   }
 };
 })();
