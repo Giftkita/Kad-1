@@ -1,6 +1,7 @@
 // ════════════════════════════════════════════════════════════
 //  /api/verify.js — semak terus ke ToyyibPay & tanda kad paid.
 //  Dipanggil oleh bayar.html selepas customer kembali dari bayaran.
+//  Sokong DUA gateway: ToyyibPay (RM) dan Stripe (USD, bill_code 'cs_…').
 //  Lapisan kedua selain callback — mana-mana satu berjaya, kad aktif.
 // ════════════════════════════════════════════════════════════
 
@@ -33,19 +34,27 @@ module.exports = async (req, res) => {
     if (card.paid === true) { res.status(200).json({ paid: true, plan: pakej(card) }); return; }
     if (!card.bill_code) { res.status(200).json({ paid: false, error: 'no bill yet' }); return; }
 
-    // 2) tanya ToyyibPay: bill ni dah dibayar?
-    const isPaid = await verifyPaid(card.bill_code);
-    if (!isPaid) { res.status(200).json({ paid: false }); return; }
+    // 2) bayaran USD (Stripe) — bill_code ialah id sesi 'cs_…'
+    let myr = null;
+    if (/^cs_/.test(card.bill_code)) {
+      const s = await sesiStripe(card.bill_code);
+      if (!s || s.payment_status !== 'paid') { res.status(200).json({ paid: false }); return; }
+      myr = rmSebenar(s);
+    } else {
+      // 2b) bayaran RM — tanya ToyyibPay: bill ni dah dibayar?
+      const isPaid = await verifyPaid(card.bill_code);
+      if (!isPaid) { res.status(200).json({ paid: false }); return; }
+    }
 
-    // 3) tanda paid
-    await sbPatch(`cards?id=eq.${cardId}`, { paid: true });
+    // 3) tanda paid (USD: tulis juga nilai RM sebenar yang diterima)
+    await sbPatch(`cards?id=eq.${cardId}`, myr ? { paid: true, amount: myr } : { paid: true });
 
     // 4) rekod jualan (idempotent — skip kalau dah ada)
     const existing = await sbGet(`sales?bill_code=eq.${encodeURIComponent(card.bill_code)}&select=id`);
     if (!existing.length) {
       const sale = await sbInsert('sales', {
         card_id: cardId, ref_code: card.ref_code,
-        amount: card.amount, bill_code: card.bill_code, status: 'paid'
+        amount: myr || card.amount, bill_code: card.bill_code, status: 'paid'
       });
       const saleId = sale[0] && sale[0].id;
 
@@ -87,6 +96,23 @@ async function verifyPaid(billCode) {
   });
   const data = await r.json();
   return Array.isArray(data) && data.some(t => String(t.billpaymentStatus) === '1');
+}
+
+// ── Stripe: ambil sesi + nilai RM sebenar (sama seperti stripe-webhook.js) ──
+async function sesiStripe(id) {
+  if (!process.env.STRIPE_SECRET_KEY) return null;
+  const q = 'expand[]=payment_intent.latest_charge.balance_transaction';
+  const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(id)}?${q}`, {
+    headers: { Authorization: 'Bearer ' + process.env.STRIPE_SECRET_KEY }
+  });
+  return r.json();
+}
+function rmSebenar(s) {
+  try {
+    const bt = s.payment_intent.latest_charge.balance_transaction;
+    if (bt && bt.currency === 'myr') return Math.round(bt.amount) / 100;
+  } catch (e) {}
+  return null;
 }
 
 // ── helper Supabase REST (service key) ──
