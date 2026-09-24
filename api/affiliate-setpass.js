@@ -3,6 +3,9 @@
 //  tetapkan password sendiri, disahkan dengan no. WhatsApp masa daftar.
 //  POST {code, phone, password} → {ok:true}
 //
+//  TUKAR password (affiliate yang dah log masuk):
+//  POST {code, oldPassword, password} → {ok:true}
+//
 //  Hanya jalan kalau akaun BELUM ada password. Kalau dah ada dan lupa,
 //  affiliate kena WhatsApp admin → admin reset di admin.html (api/admin.js, action reset_pass).
 // ════════════════════════════════════════════════════════════
@@ -17,8 +20,23 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST sahaja' }); return; }
   try {
-    let { code, phone, password } = req.body || {};
+    let { code, phone, password, oldPassword } = req.body || {};
     code = String(code || '').trim().toUpperCase();
+
+    // ── mod TUKAR password: sahkan password semasa ──
+    if (oldPassword != null) {
+      if (!code) { res.status(200).json({ ok: false, error: 'Kod affiliate tiada.' }); return; }
+      if (!password || String(password).length < 6) { res.status(200).json({ ok: false, error: 'Password baru mesti sekurang-kurangnya 6 aksara.' }); return; }
+      const r0 = await sbGet(`affiliates?code=eq.${encodeURIComponent(code)}&select=code,pass_hash`);
+      const a0 = Array.isArray(r0) ? r0[0] : null;
+      if (!a0 || !a0.pass_hash || hashPass(String(oldPassword)) !== a0.pass_hash) {
+        await new Promise(r => setTimeout(r, 800));
+        res.status(200).json({ ok: false, error: 'Password semasa salah.' }); return;
+      }
+      await sbPatch(`affiliates?code=eq.${encodeURIComponent(code)}`, { pass_hash: hashPass(String(password)) });
+      res.status(200).json({ ok: true }); return;
+    }
+
     if (!code || hujung(phone).length < 7) { res.status(200).json({ ok: false, error: 'Isi kod affiliate dan no. WhatsApp.' }); return; }
     if (!password || String(password).length < 6) { res.status(200).json({ ok: false, error: 'Password mesti sekurang-kurangnya 6 aksara.' }); return; }
 
