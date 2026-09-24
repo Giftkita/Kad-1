@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Diagnostik GiftKita</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<style>
+body{font-family:system-ui,sans-serif;background:#0f0f14;color:#e8e8ef;padding:16px;line-height:1.5;font-size:14px}
+h1{font-size:1.2rem;margin-bottom:4px;color:#ff6ba8}
+.sub{color:#8a8a9a;font-size:.8rem;margin-bottom:16px}
+.t{background:#1a1a24;border:1px solid #2a2a38;border-radius:10px;padding:12px;margin-bottom:10px}
+.t b{display:block;margin-bottom:6px;color:#9fd0ff}
+.ok{color:#4ade80;font-weight:700}
+.bad{color:#ff6b6b;font-weight:700}
+.wait{color:#fbbf24}
+pre{white-space:pre-wrap;word-break:break-all;background:#0a0a10;padding:8px;border-radius:6px;margin-top:6px;font-size:12px;color:#c8c8d8}
+button{width:100%;padding:14px;border:none;border-radius:10px;background:#ff2e74;color:#fff;font-weight:700;font-size:1rem;margin:10px 0;cursor:pointer}
+</style>
+</head>
+<body>
+<h1>🔧 Diagnostik GiftKita</h1>
+<div class="sub" id="host"></div>
+<button onclick="runAll()">▶ Jalankan Ujian</button>
+<div id="out"></div>
+
+<script>
+const SB_URL='https://lejpuajafuenlfvlovfg.supabase.co';
+const SB_KEY='sb_publishable_igFE4w_dz4ZF99wH1LeBKg_JL5kFoZ0';
+const API_BASE=(location.hostname.indexOf('github.io')>-1)?'https://giftkita.com':'';
+
+document.getElementById('host').textContent='Domain: '+location.origin;
+
+function box(title){
+  const d=document.createElement('div');d.className='t';
+  d.innerHTML='<b>'+title+'</b><span class="wait">⏳ menguji...</span>';
+  document.getElementById('out').appendChild(d);
+  return d;
+}
+function done(d,ok,msg,extra){
+  d.innerHTML='<b>'+d.querySelector('b').textContent+'</b>'+
+    '<span class="'+(ok?'ok':'bad')+'">'+(ok?'✅ OK':'❌ GAGAL')+'</span>'+
+    '<pre>'+msg+(extra?('\n\n'+extra):'')+'</pre>';
+}
+
+async function runAll(){
+  document.getElementById('out').innerHTML='';
+
+  // 1 — Library Supabase
+  let d1=box('1. Library Supabase dimuatkan?');
+  const hasLib=!!(window.supabase&&window.supabase.createClient);
+  done(d1,hasLib,hasLib?'window.supabase wujud':'window.supabase TIADA (CDN tersekat)');
+
+  // 2 — Supabase REST langsung
+  let d2=box('2. Sambung ke Supabase (baca data)');
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/cards?select=id&limit=1',{headers:{apikey:SB_KEY,Authorization:'Bearer '+SB_KEY}});
+    const txt=await r.text();
+    done(d2,r.ok,'HTTP '+r.status,txt.slice(0,200));
+  }catch(e){ done(d2,false,'ERROR: '+e.name+' — '+e.message); }
+
+  // 3 — API sendiri (POST)
+  let d3=box('3. Hantar POST ke /api/recover');
+  try{
+    const r=await fetch(API_BASE+'/api/recover',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:'test@test.com',phone:'0000000000'})});
+    const txt=await r.text();
+    done(d3,r.ok,'HTTP '+r.status,txt.slice(0,300));
+  }catch(e){ done(d3,false,'ERROR: '+e.name+' — '+e.message); }
+
+  // 4 — API create-bill (POST)
+  let d4=box('4. Hantar POST ke /api/create-bill');
+  try{
+    const r=await fetch(API_BASE+'/api/create-bill',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})});
+    const txt=await r.text();
+    done(d4,r.status<500,'HTTP '+r.status,txt.slice(0,300));
+  }catch(e){ done(d4,false,'ERROR: '+e.name+' — '+e.message); }
+
+  // 5 — Internet umum
+  let d5=box('5. Internet umum (github.com)');
+  try{
+    const r=await fetch('https://api.github.com/zen',{cache:'no-store'});
+    const txt=await r.text();
+    done(d5,r.ok,'HTTP '+r.status,txt.slice(0,120));
+  }catch(e){ done(d5,false,'ERROR: '+e.name+' — '+e.message); }
+}
+</script>
+</body>
+</html>
