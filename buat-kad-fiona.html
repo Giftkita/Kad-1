@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Buat Kad Anniversary — Fiona | GiftKita</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:#F6F0DE;color:#4a3b33;
+  line-height:1.5;padding:0 0 40px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+header{background:linear-gradient(180deg,#f3e3df,#f6f0de);padding:26px 16px 22px;text-align:center;
+  border-bottom:1px solid rgba(150,125,110,.18);margin-bottom:18px}
+header h1{font-family:Georgia,serif;font-size:1.4rem;color:#3f3129;margin-bottom:4px}
+header p{font-size:.86rem;color:#8a7767}
+#lang{position:absolute;top:14px;right:14px;background:#fff;border:1px solid rgba(150,125,110,.3);
+  border-radius:999px;padding:6px 12px;font-size:12px;color:#6b5a4c;cursor:pointer}
+.sec{background:#fffdf7;border:1px solid rgba(150,125,110,.18);border-radius:14px;
+  padding:16px;margin-bottom:14px}
+.sec h2{font-family:Georgia,serif;font-size:1.02rem;margin-bottom:3px;color:#3f3129}
+.sec .hint{font-size:.78rem;color:#9a8578;margin-bottom:12px}
+label{display:block;font-size:.8rem;font-weight:600;color:#6b5a4c;margin:10px 0 4px}
+input[type=text],input[type=url],textarea,select{width:100%;padding:10px 12px;font-size:.92rem;
+  font-family:inherit;border:1px solid rgba(150,125,110,.34);border-radius:10px;background:#fff;color:#3f3129}
+textarea{min-height:110px;resize:vertical;line-height:1.55}
+input:focus,textarea:focus{outline:2px solid #2f5245;outline-offset:1px}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+.trkBox{border:1px dashed rgba(150,125,110,.4);border-radius:12px;padding:12px;margin-top:10px;background:#fcf8ee}
+.trkBox h3{font-size:.84rem;color:#6b5a4c;margin-bottom:2px}
+.trkBox .sm{font-size:.74rem;color:#9a8578}
+.fileBtn{display:block;margin-top:6px;font-size:.8rem}
+.fotoGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}
+.fotoSlot{aspect-ratio:1;border:1.5px dashed rgba(150,125,110,.45);border-radius:10px;
+  background:#fcf8ee;display:grid;place-items:center;cursor:pointer;overflow:hidden;position:relative}
+.fotoSlot img{width:100%;height:100%;object-fit:cover}
+.fotoSlot span{font-size:.72rem;color:#a8947f;text-align:center;padding:4px}
+.fotoSlot .del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;border:0;
+  width:20px;height:20px;border-radius:50%;font-size:13px;cursor:pointer;line-height:1}
+.utama{border-color:#c4737b;background:#fdf3f2}
+.nota{font-size:.76rem;color:#9a8578;margin-top:8px}
+#gk-pratonton,#gk-bayar{margin-top:16px}
+.amaran{padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;
+  font-size:.82rem;color:#c62828}
+</style>
+</head>
+<body>
+<button id="lang">BM / EN</button>
+<header>
+  <h1 id="hTajuk">Kad Anniversary — Fiona</h1>
+  <p id="hSub">Mixtape digital: sampul surat, bunga mekar, lagu dan surat untuk dia</p>
+</header>
+
+<div class="wrap">
+
+  <div class="sec">
+    <h2 id="s1">Untuk siapa</h2>
+    <div class="hint" id="s1h">Nama ni keluar di atas kad</div>
+    <div class="row">
+      <div><label id="lTo">Nama penerima</label><input type="text" id="fTo" maxlength="24" placeholder="Sam"></div>
+      <div><label id="lFrom">Daripada</label><input type="text" id="fFrom" maxlength="24" placeholder="Alex"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s2">Lagu</h2>
+    <div class="hint" id="s2h">Lagu pertama main sendiri bila kad dibuka. Guna link YouTube atau upload MP3.</div>
+    <div id="trkWrap"></div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s3">Surat</h2>
+    <div class="hint" id="s3h">Keluar dalam nota kuning di sebelah kaset</div>
+    <textarea id="fLetter" maxlength="700" placeholder="Hey sayang,&#10;&#10;Aku buatkan kau mixtape ni..."></textarea>
+    <div class="nota"><span id="kiraSurat">0</span>/700</div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s4">Gambar</h2>
+    <div class="hint" id="s4h">Gambar 1 masuk dalam bingkai polaroid atas kad. Yang lain masuk galeri &amp; album PDF.</div>
+    <div class="fotoGrid" id="fotoGrid"></div>
+    <input type="file" id="fotoInput" accept="image/*" multiple style="display:none">
+    <div class="nota" id="s4n">Tekan mana-mana kotak untuk pilih gambar. Boleh pilih beberapa sekali gus.</div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s5">Video YouTube</h2>
+    <div class="hint" id="s5h">Pilihan — keluar sebagai butang Video dalam kad</div>
+    <input type="url" id="fVideo" placeholder="https://www.youtube.com/watch?v=...">
+  </div>
+
+  <div class="sec">
+    <h2 id="s6">Kejutan</h2>
+    <div class="hint" id="s6h">Tersembunyi sampai dia tekan butang &laquo;Tamatkan mixtape&raquo;</div>
+    <textarea id="fSurprise" maxlength="300" placeholder="Selamat ulang tahun, sayang..."></textarea>
+  </div>
+
+  <div id="gk-pratonton"></div>
+  <div id="gk-bayar"></div>
+</div>
+
+<script src="gk-bayar.js"></script>
+<script>
+/* ================= bahasa ================= */
+var lang='ms';
+var L={
+ ms:{hTajuk:'Kad Anniversary — Fiona',hSub:'Mixtape digital: sampul surat, bunga mekar, lagu dan surat untuk dia',
+     s1:'Untuk siapa',s1h:'Nama ni keluar di atas kad',lTo:'Nama penerima',lFrom:'Daripada',
+     s2:'Lagu',s2h:'Lagu pertama main sendiri bila kad dibuka. Guna link YouTube atau upload MP3.',
+     s3:'Surat',s3h:'Keluar dalam nota kuning di sebelah kaset',
+     s4:'Gambar',s4h:'Gambar 1 masuk dalam bingkai polaroid atas kad. Yang lain masuk galeri & album PDF.',
+     s4n:'Tekan mana-mana kotak untuk pilih gambar. Boleh pilih beberapa sekali gus.',
+     s5:'Video YouTube',s5h:'Pilihan — keluar sebagai butang Video dalam kad',
+     s6:'Kejutan',s6h:'Tersembunyi sampai dia tekan butang «Tamatkan mixtape»',
+     lagu:'Lagu',tajukLagu:'Tajuk lagu',artis:'Penyanyi',atauMp3:'atau upload MP3',
+     utama:'Gambar 1 (polaroid)',gbr:'Gambar'},
+ en:{hTajuk:'Anniversary Card — Fiona',hSub:'A digital mixtape: envelope, blooming flowers, songs and a letter',
+     s1:'Who it is for',s1h:'These names appear at the top of the card',lTo:'Their name',lFrom:'From',
+     s2:'Songs',s2h:'The first song plays by itself when the card opens. Use a YouTube link or upload an MP3.',
+     s3:'Letter',s3h:'Appears on the yellow note beside the cassette',
+     s4:'Photos',s4h:'Photo 1 goes in the polaroid frame on the card. The rest go to the gallery & PDF album.',
+     s4n:'Tap any box to choose photos. You can pick several at once.',
+     s5:'YouTube video',s5h:'Optional — appears as a Video button inside the card',
+     s6:'Surprise',s6h:'Hidden until they tap the «Finish mixtape» button',
+     lagu:'Song',tajukLagu:'Song title',artis:'Artist',atauMp3:'or upload an MP3',
+     utama:'Photo 1 (polaroid)',gbr:'Photo'}
+};
+function pasangTeks(){
+  var t=L[lang];
+  ['hTajuk','hSub','s1','s1h','lTo','lFrom','s2','s2h','s3','s3h','s4','s4h','s4n','s5','s5h','s6','s6h']
+   .forEach(function(k){ var e=document.getElementById(k); if(e) e.textContent=t[k]; });
+  binaTrek(); binaFoto();
+}
+document.getElementById('lang').onclick=function(){
+  lang=(lang==='ms')?'en':'ms';
+  try{ localStorage.setItem('gk_lang',lang);}catch(e){}
+  pasangTeks();
+};
+try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }catch(e){}
+
+/* ================= lagu ================= */
+var BIL_LAGU=3;
+var mp3Data=['','',''];          /* diproses masa upload, bukan masa collectData */
+function binaTrek(){
+  var t=L[lang], w=document.getElementById('trkWrap'), simpan=[];
+  for(var i=0;i<BIL_LAGU;i++){
+    simpan.push({t:val('tT'+i),a:val('tA'+i),y:val('tY'+i)});
+  }
+  var h='';
+  for(var i=0;i<BIL_LAGU;i++){
+    h+='<div class="trkBox"><h3>'+t.lagu+' '+(i+1)+(i===0?' ★':'')+'</h3>'+
+       '<div class="sm">'+(i===0?(lang==='ms'?'Main sendiri bila kad dibuka':'Plays when the card opens'):'')+'</div>'+
+       '<div class="row"><div><label>'+t.tajukLagu+'</label><input type="text" id="tT'+i+'" maxlength="40"></div>'+
+       '<div><label>'+t.artis+'</label><input type="text" id="tA'+i+'" maxlength="40"></div></div>'+
+       '<label>YouTube</label><input type="url" id="tY'+i+'" placeholder="https://www.youtube.com/watch?v=...">'+
+       '<div class="sm" style="margin-top:6px">'+t.atauMp3+
+       ' <input class="fileBtn" type="file" accept="audio/*" data-mp3="'+i+'">'+
+       '<span id="mp3n'+i+'" class="sm"></span></div></div>';
+  }
+  w.innerHTML=h;
+  for(var i=0;i<BIL_LAGU;i++){
+    setVal('tT'+i,simpan[i].t); setVal('tA'+i,simpan[i].a); setVal('tY'+i,simpan[i].y);
+    if(mp3Data[i]) document.getElementById('mp3n'+i).textContent=' ✓';
+  }
+  [].forEach.call(w.querySelectorAll('[data-mp3]'),function(inp){
+    inp.onchange=function(){
+      var i=+inp.getAttribute('data-mp3'), f=inp.files&&inp.files[0];
+      if(!f) return;
+      if(f.size>3.2*1024*1024){
+        alert(lang==='ms'?'Fail MP3 terlalu besar (maksimum ~3MB). Guna link YouTube.':'MP3 too large (max ~3MB). Use a YouTube link instead.');
+        inp.value=''; return;
+      }
+      var r=new FileReader();
+      r.onload=function(){ mp3Data[i]=r.result; document.getElementById('mp3n'+i).textContent=' ✓'; };
+      r.readAsDataURL(f);
+    };
+  });
+}
+function val(id){ var e=document.getElementById(id); return e?e.value.trim():''; }
+function setVal(id,v){ var e=document.getElementById(id); if(e) e.value=v||''; }
+
+/* ================= gambar ================= */
+var BIL_FOTO=6, fotoData=new Array(BIL_FOTO).fill('');
+var sasarSlot=0;
+function binaFoto(){
+  var t=L[lang], g=document.getElementById('fotoGrid'), h='';
+  for(var i=0;i<BIL_FOTO;i++){
+    h+='<div class="fotoSlot'+(i===0?' utama':'')+'" data-i="'+i+'">'+
+       (fotoData[i]?'<img src="'+fotoData[i]+'"><button class="del" data-del="'+i+'">&times;</button>'
+                   :'<span>'+(i===0?t.utama:t.gbr+' '+(i+1))+'</span>')+'</div>';
+  }
+  g.innerHTML=h;
+  [].forEach.call(g.querySelectorAll('.fotoSlot'),function(s){
+    s.onclick=function(e){
+      if(e.target.hasAttribute('data-del')) return;
+      sasarSlot=+s.getAttribute('data-i');
+      document.getElementById('fotoInput').click();
+    };
+  });
+  [].forEach.call(g.querySelectorAll('[data-del]'),function(b){
+    b.onclick=function(e){ e.stopPropagation(); fotoData[+b.getAttribute('data-del')]=''; binaFoto(); };
+  });
+}
+document.getElementById('fotoInput').onchange=function(){
+  var fs=[].slice.call(this.files||[]); if(!fs.length) return;
+  var slot=sasarSlot, sisa=fs.length;
+  fs.forEach(function(f,k){
+    var idx=slot+k; if(idx>=BIL_FOTO){ sisa--; return; }
+    kecilkan(f,function(dataUrl){
+      fotoData[idx]=dataUrl; sisa--;
+      if(sisa<=0) binaFoto();
+    });
+  });
+  this.value='';
+};
+/* resize 800px, quality .8 — had baris Supabase ~4.5MB */
+function kecilkan(file,cb){
+  var r=new FileReader();
+  r.onload=function(){
+    var im=new Image();
+    im.onload=function(){
+      var mx=800, w=im.width, h=im.height;
+      if(w>mx||h>mx){ if(w>h){ h=Math.round(h*mx/w); w=mx; } else { w=Math.round(w*mx/h); h=mx; } }
+      var c=document.createElement('canvas'); c.width=w; c.height=h;
+      c.getContext('2d').drawImage(im,0,0,w,h);
+      cb(c.toDataURL('image/jpeg',0.8));
+    };
+    im.src=r.result;
+  };
+  r.readAsDataURL(file);
+}
+
+document.getElementById('fLetter').oninput=function(){
+  document.getElementById('kiraSurat').textContent=this.value.length;
+};
+
+/* ================= collectData — MESTI sync, return terus ================= */
+function collectData(){
+  var d={ template:'fiona' };            /* WAJIB — sama dengan card-fiona-1.html */
+  d.to=val('fTo');
+  d.from=val('fFrom');
+  d.letter=document.getElementById('fLetter').value.trim();
+  d.surprise=document.getElementById('fSurprise').value.trim();
+  d.video=val('fVideo');
+
+  var tr=[];
+  for(var i=0;i<BIL_LAGU;i++){
+    var t=val('tT'+i), a=val('tA'+i), y=val('tY'+i);
+    if(t||y||mp3Data[i]) tr.push({t:t||('Lagu '+(i+1)),a:a,yt:y,mp3:mp3Data[i]||''});
+  }
+  d.tracks=tr;
+
+  d.photo=fotoData[0]||'';
+  d.photos=fotoData.slice(1).filter(function(p){return !!p;});
+  return d;                               /* MESTI return, JANGAN callback */
+}
+
+/* ================= mount ================= */
+if(window.GKBayar){
+  GKBayar.mount({
+    el:'gk-bayar',
+    previewEl:'gk-pratonton',
+    viewer:'card-fiona-1.html',
+    collect:collectData,
+    produk:'Kad Anniversary Fiona',
+    qr:true
+  });
+}else{
+  document.getElementById('gk-bayar').innerHTML=
+    '<div class="amaran">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia di root repo, bukan dalam folder api.</div>';
+}
+
+pasangTeks();
+</script>
+<script src="gk-notis.js" defer></script>
+</body>
+</html>
