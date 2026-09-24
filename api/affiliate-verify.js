@@ -1,10 +1,20 @@
 // ════════════════════════════════════════════════════════════
 //  /api/affiliate-verify.js — sahkan bayaran RM10 & pulangkan statistik
-//  POST {code} → {active, stats:{clicks, sales, total, unpaid}}
+//  POST {code, password} → {active, name, stats, sales, withdrawals}
+//
+//  Sep 2026:
+//   • Password WAJIB. Affiliate lama yang belum ada password dapat
+//     {needPass:true} dan kena tetapkan password dulu (affiliate-setpass.js,
+//     disahkan dengan no. WhatsApp masa daftar).
+//   • Komisen DITAHAN HARI_TAHAN hari sebelum boleh dituntut (tempoh refund).
+//     stats.unpaid = boleh dituntut sekarang, stats.held = masih ditahan.
+//   • sales = senarai 30 jualan terakhir (tarikh, template, RM, status).
 // ════════════════════════════════════════════════════════════
 
 const crypto = require('crypto');
 function hashPass(pw){ return crypto.createHash('sha256').update('gk::'+pw).digest('hex'); }
+
+const HARI_TAHAN = 7;   // MESTI sama dengan withdraw-request.js
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -19,14 +29,16 @@ module.exports = async (req, res) => {
     if (!code) { res.status(400).json({ active: false, error: 'no code' }); return; }
 
     const affs = await sbGet(`affiliates?code=eq.${encodeURIComponent(code)}&select=code,name,active,bill_code,commission_flat,pass_hash`);
-    const aff = affs[0];
+    const aff = Array.isArray(affs) ? affs[0] : null;
     if (!aff) { res.status(200).json({ active: false, error: 'Kod tidak dijumpai.' }); return; }
 
-    // sahkan password (affiliate lama tanpa password dibenarkan masuk & digalak set)
-    if (aff.pass_hash) {
-      if (!password || hashPass(String(password)) !== aff.pass_hash) {
-        res.status(200).json({ active: false, error: 'Password salah.' }); return;
-      }
+    // password wajib. Affiliate lama tanpa password → minta tetapkan dulu.
+    if (!aff.pass_hash) {
+      res.status(200).json({ active: false, needPass: true,
+        error: 'Akaun anda belum ada password. Sila tetapkan password dahulu.' }); return;
+    }
+    if (!password || hashPass(String(password)) !== aff.pass_hash) {
+      res.status(200).json({ active: false, error: 'Password salah.' }); return;
     }
 
     // belum aktif? cuba sahkan bayaran RM10 dengan ToyyibPay
@@ -38,36 +50,76 @@ module.exports = async (req, res) => {
       aff.active = true;
     }
 
-    // statistik
+    // ── statistik ──
     const clicks = await sbGet(`affiliate_clicks?code=eq.${encodeURIComponent(code)}&select=id`);
-    const comms  = await sbGet(`commissions?affiliate_code=eq.${encodeURIComponent(code)}&select=amount,paid_out`);
-    let total = 0, unpaid = 0;
+    let comms = await sbGet(`commissions?affiliate_code=eq.${encodeURIComponent(code)}&select=amount,paid_out,created_at,sale_id&order=created_at.desc`);
+    if (!Array.isArray(comms)) {   // jaga-jaga kalau lajur created_at tiada
+      comms = await sbGet(`commissions?affiliate_code=eq.${encodeURIComponent(code)}&select=amount,paid_out,sale_id`);
+      if (!Array.isArray(comms)) comms = [];
+    }
+    const had = Date.now() - HARI_TAHAN * 864e5;
+    let total = 0, unpaid = 0, held = 0;
     comms.forEach(c => {
       const a = Number(c.amount) || 0;
       total += a;
-      if (!c.paid_out) unpaid += a;
+      if (c.paid_out) return;
+      const t = c.created_at ? Date.parse(c.created_at) : 0;
+      if (t && t > had) held += a; else unpaid += a;
     });
 
-    // sejarah tuntutan
-    const wds = await sbGet(`withdrawals?affiliate_code=eq.${encodeURIComponent(code)}&select=amount,status,created_at,paid_at&order=created_at.desc&limit=10`);
+    // ── senarai jualan (30 terakhir): tarikh, template, status ──
+    const baru = comms.slice(0, 30);
+    const saleIds = baru.map(c => c.sale_id).filter(Boolean);
+    let saleMap = {}, cardMap = {};
+    if (saleIds.length) {
+      const sales = await sbGet(`sales?id=in.(${saleIds.map(encodeURIComponent).join(',')})&select=id,card_id,created_at`);
+      if (Array.isArray(sales)) sales.forEach(s => { saleMap[s.id] = s; });
+      const cardIds = Object.values(saleMap).map(s => s.card_id).filter(Boolean);
+      if (cardIds.length) {
+        const cards = await sbGet(`cards?id=in.(${cardIds.map(encodeURIComponent).join(',')})&select=id,plan,template:card_data->>template`);
+        if (Array.isArray(cards)) cards.forEach(c => { cardMap[c.id] = c; });
+      }
+    }
+    const senarai = baru.map(c => {
+      const s = saleMap[c.sale_id] || {};
+      const k = cardMap[s.card_id] || {};
+      const bila = c.created_at || s.created_at || null;
+      const t = bila ? Date.parse(bila) : 0;
+      return {
+        date: bila,
+        template: k.template || null,
+        plan: k.plan || null,
+        amount: Number(c.amount) || 0,
+        status: c.paid_out ? 'paid' : (t && t > had ? 'held' : 'ready'),
+        ready_on: (!c.paid_out && t && t > had) ? new Date(t + HARI_TAHAN * 864e5).toISOString() : null
+      };
+    });
+
+    // ── sejarah tuntutan ──
+    let wds = await sbGet(`withdrawals?affiliate_code=eq.${encodeURIComponent(code)}&select=amount,status,created_at,paid_at&order=created_at.desc&limit=10`);
+    if (!Array.isArray(wds)) wds = [];
     let pending = 0, paidOut = 0;
     wds.forEach(w => {
       const a = Number(w.amount) || 0;
       if (w.status === 'paid') paidOut += a; else pending += a;
     });
 
+    const r2 = n => Math.round(n * 100) / 100;
     res.status(200).json({
       active: true,
       name: aff.name || '',
       commission_flat: Number(aff.commission_flat) || 2,
+      hold_days: HARI_TAHAN,
       stats: {
-        clicks: clicks.length,
+        clicks: Array.isArray(clicks) ? clicks.length : 0,
         sales: comms.length,
-        total: Math.round(total * 100) / 100,
-        unpaid: Math.round(unpaid * 100) / 100,
-        pending: Math.round(pending * 100) / 100,
-        paid: Math.round(paidOut * 100) / 100
+        total: r2(total),
+        unpaid: r2(unpaid),     // boleh dituntut sekarang
+        held: r2(held),         // masih dalam tempoh tahan
+        pending: r2(pending),
+        paid: r2(paidOut)
       },
+      sales: senarai,
       withdrawals: wds
     });
 
