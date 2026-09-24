@@ -167,6 +167,20 @@ footer{text-align:center;padding:26px;color:#b07d92;font-size:.72rem}
       </div>
 
       <p style="margin-top:12px;font-size:.72rem;color:#7a9">Tuntutan diproses & ditransfer ke bank anda dalam 1-3 hari bekerja.</p>
+
+      <!-- tukar password -->
+      <button class="linkbtn" id="cp-open" onclick="bukaTukar()">🔐 Tukar Password</button>
+      <div id="cp-form" style="display:none;margin-top:10px;padding:14px;background:#fff;border:1.5px solid var(--line);border-radius:14px">
+        <p style="font-size:.8rem;font-weight:700;color:var(--deep)">🔐 Tukar Password</p>
+        <label>Password semasa</label>
+        <input type="password" id="cp-old" placeholder="••••••" style="width:100%;padding:11px 13px;border:1.5px solid #eee;border-radius:10px;font-family:inherit;font-size:.85rem;outline:none">
+        <label>Password baru</label>
+        <input type="password" id="cp-new" placeholder="••••••" style="width:100%;padding:11px 13px;border:1.5px solid #eee;border-radius:10px;font-family:inherit;font-size:.85rem;outline:none">
+        <label>Ulang password baru</label>
+        <input type="password" id="cp-new2" placeholder="••••••" style="width:100%;padding:11px 13px;border:1.5px solid #eee;border-radius:10px;font-family:inherit;font-size:.85rem;outline:none">
+        <button class="btn" id="cp-btn" onclick="tukarPass()">✅ Simpan Password Baru</button>
+        <div class="err" id="cp-err"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -206,6 +220,31 @@ async function setPass(){
     document.getElementById('d-pass').value=password;
     semak(code);
   }catch(e){showErr('sp-err',e.message)}
+  btn.disabled=false;
+}
+function bukaTukar(){
+  const f=document.getElementById('cp-form');const buka=f.style.display!=='block';
+  f.style.display=buka?'block':'none';
+  if(buka){document.getElementById('cp-old').value=document.getElementById('d-pass').value;document.getElementById('cp-new').focus();}
+}
+async function tukarPass(){
+  hideErr('cp-err');
+  const code=document.getElementById('d-code').value.trim().toUpperCase();
+  const oldPassword=document.getElementById('cp-old').value;
+  const p1=document.getElementById('cp-new').value,p2=document.getElementById('cp-new2').value;
+  if(!oldPassword||!p1){showErr('cp-err',EN()?'Fill in your current and new password.':'Isi password semasa dan password baru.');return}
+  if(p1.length<6){showErr('cp-err',EN()?'New password must be at least 6 characters.':'Password baru mesti sekurang-kurangnya 6 aksara.');return}
+  if(p1!==p2){showErr('cp-err',EN()?'The new passwords do not match.':'Password baru tak sama. Taip semula.');return}
+  const btn=document.getElementById('cp-btn');btn.disabled=true;
+  try{
+    const r=await fetch(API_BASE+'/api/affiliate-setpass',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({code,oldPassword,password:p1})});
+    const out=await r.json();
+    if(!out.ok)throw new Error(out.error||'Gagal');
+    document.getElementById('d-pass').value=p1;
+    ['cp-old','cp-new','cp-new2'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('cp-form').style.display='none';
+    alert(EN()?'✅ Password changed. Use the new password next time you log in.':'✅ Password dah ditukar. Guna password baru bila log masuk lepas ni.');
+  }catch(e){showErr('cp-err',e.message)}
   btn.disabled=false;
 }
 function showErr(id,msg){const e=document.getElementById(id);e.textContent='❌ '+msg;e.style.display='block'}
@@ -415,7 +454,8 @@ var GK_DICT={
 "📜 Sejarah Tuntutan":"📜 Claim History",
 "Tuntutan diproses & ditransfer ke bank anda dalam 1-3 hari bekerja.":"Claims are processed & transferred to your bank within 1-3 working days.",
 "GiftKita Affiliate Program · Komisen RM2 setiap kad terjual 💝":"GiftKita Affiliate Program · RM2 commission per card sold 💝",
-"⏳ Dibayar":"⏳ Processing","✅ Dibayar":"✅ Paid"
+"⏳ Dibayar":"⏳ Processing","✅ Dibayar":"✅ Paid",
+"🔐 Tukar Password":"🔐 Change Password","Password semasa":"Current password","Ulang password baru":"Repeat new password","✅ Simpan Password Baru":"✅ Save New Password"
 };
 var GK_HTML={
 'Jana duit dengan <span class="em">GiftKita</span> 💰':'Make money with <span class="em">GiftKita</span> 💰',
