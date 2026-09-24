@@ -1,6 +1,6 @@
 // ════════════════════════════════════════════════════════════
 //  /api/affiliate-verify.js — sahkan bayaran RM10 & pulangkan statistik
-//  POST {code, password} → {active, name, stats, sales, withdrawals}
+//  POST {code, password} → {active, name, stats, sales, withdrawals, series}
 //
 //  Sep 2026:
 //   • Password WAJIB. Affiliate lama yang belum ada password dapat
@@ -105,7 +105,29 @@ module.exports = async (req, res) => {
     });
 
     const r2 = n => Math.round(n * 100) / 100;
+
+    // ── siri untuk carta: 30 hari & 6 bulan terakhir (waktu Malaysia) ──
+    const MYT = 8 * 36e5;
+    const hariKey = t => new Date(t + MYT).toISOString().slice(0, 10);
+    const bulanKey = t => new Date(t + MYT).toISOString().slice(0, 7);
+    const daily = [], monthly = [], dIdx = {}, mIdx = {};
+    for (let i = 29; i >= 0; i--) { const k = hariKey(Date.now() - i * 864e5); dIdx[k] = daily.length; daily.push({ d: k, rm: 0, n: 0 }); }
+    const kini = new Date(Date.now() + MYT);
+    for (let i = 5; i >= 0; i--) {
+      const k = new Date(Date.UTC(kini.getUTCFullYear(), kini.getUTCMonth() - i, 1)).toISOString().slice(0, 7);
+      mIdx[k] = monthly.length; monthly.push({ m: k, rm: 0, n: 0 });
+    }
+    comms.forEach(c => {
+      if (!c.created_at) return;
+      const t = Date.parse(c.created_at), a = Number(c.amount) || 0;
+      const di = dIdx[hariKey(t)], mi = mIdx[bulanKey(t)];
+      if (di != null) { daily[di].rm += a; daily[di].n++; }
+      if (mi != null) { monthly[mi].rm += a; monthly[mi].n++; }
+    });
+    daily.forEach(x => x.rm = r2(x.rm)); monthly.forEach(x => x.rm = r2(x.rm));
+
     res.status(200).json({
+      series: { daily, monthly },
       active: true,
       name: aff.name || '',
       commission_flat: Number(aff.commission_flat) || 2,
