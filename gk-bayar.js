@@ -25,6 +25,7 @@
 
    Test mod USD sebelum STRIPE_ON=true:  buka borang dengan  ?cur=usd
    Balik ke RM:                          ?cur=myr
+   Keluar mod test (padam pilihan, ikut lokasi semula): ?cur=reset
 
    Bahasa ikut localStorage 'gk_lang' (ms/en) — sama dengan borang. Bertukar sendiri
    bila customer tekan BM/EN.
@@ -124,6 +125,7 @@ function diMalaysia(){
 var CUR='myr';
 function mulaMatawang(){
   var q=null; try{ q=(new URLSearchParams(location.search).get('cur')||'').toLowerCase(); }catch(e){}
+  if(q==='reset'||q==='auto'){ try{ localStorage.removeItem('gk_cur'); localStorage.removeItem('gk_cur_test'); }catch(e){} q=null; }
   if(q==='usd'||q==='myr'){ try{ localStorage.setItem('gk_cur',q); }catch(e){} return q; }
   var s=null; try{ s=localStorage.getItem('gk_cur'); }catch(e){}
   if(s==='usd'||s==='myr') return (s==='usd'&&!STRIPE_ON&&!ujian())?'myr':s;
@@ -434,7 +436,7 @@ function refAktif(){
     if(ref){ ref=ref.toUpperCase(); localStorage.setItem('gk_ref',ref); localStorage.setItem('gk_ref_t',String(Date.now())); localStorage.setItem('gk_ref_c',ref); }
     refAktif();
   }catch(e){}
-  try{ var c=new URLSearchParams(location.search).get('cur'); if(c) localStorage.setItem('gk_cur_test','1'); }catch(e){}
+  try{ var c=new URLSearchParams(location.search).get('cur'); if(c==='usd'||c==='myr') localStorage.setItem('gk_cur_test','1'); }catch(e){}
 })();
 
 window.GKBayar={
