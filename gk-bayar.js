@@ -38,6 +38,7 @@
 
 /* ▼▼▼ Tukar ke true bila Stripe dah test & kunci live dah dimasukkan dalam Vercel ▼▼▼ */
 var STRIPE_ON = true;
+var TUNJUK_TUKAR = false;   /* true = tunjuk link kecil "Bukan di Malaysia? Bayar dalam USD" */
 /* ▲▲▲ Selagi false: semua customer nampak RM. Mod USD hanya untuk test (?cur=usd). ▲▲▲ */
 
 var SB_URL='https://lejpuajafuenlfvlovfg.supabase.co';
@@ -87,7 +88,8 @@ var T={
     sedia:'Menyediakan pembayaran...', bawa:'Membawa ke pembayaran...',
     pvMp3:'Pratonton dipaparkan tanpa muzik kerana fail terlalu besar. Muzik tetap ada dalam kad sebenar.',
     pvBesar:'Gambar terlalu besar untuk pratonton. Cuba guna gambar yang lebih kecil.',
-    tq:'Terima kasih', tqS:'Kami sedang menyemak pembayaran dan menyediakan link kad anda.', bukan:'Bukan saya — kembali ke borang'
+    tq:'Terima kasih', tqS:'Kami sedang menyemak pembayaran dan menyediakan link kad anda.', bukan:'Bukan saya — kembali ke borang',
+    keUsd:'Bukan di Malaysia? <b>Bayar dalam USD dengan kad ›</b>', keRm:'Di Malaysia? <b>Bayar dalam RM (FPX / DuitNow) ›</b>'
   },
   en:{
     ringkasan:'Order summary', kad:'Digital card', kuantiti:'Quantity', harga:'Price', jumlah:'Total',
@@ -111,7 +113,8 @@ var T={
     sedia:'Preparing payment...', bawa:'Taking you to payment...',
     pvMp3:'Preview is shown without music because the file is too large. Music is still included in the real card.',
     pvBesar:'Photos are too large to preview. Try smaller photos.',
-    tq:'Thank you', tqS:'We are confirming your payment and preparing your card link.', bukan:'Not me — back to the form'
+    tq:'Thank you', tqS:'We are confirming your payment and preparing your card link.', bukan:'Not me — back to the form',
+    keUsd:'Outside Malaysia? <b>Pay in USD by card ›</b>', keRm:'In Malaysia? <b>Pay in RM (FPX / DuitNow) ›</b>'
   }
 };
 function L(){ var l='ms'; try{ l=localStorage.getItem('gk_lang')||'ms'; }catch(e){} return l==='en'?'en':'ms'; }
@@ -185,9 +188,9 @@ var CSS=''
 +'.gkb-mw button small{display:block;font-size:.66rem;font-weight:500;opacity:.8;margin-top:2px}'
 +'.gkb-mw button.on{background:#fff;color:var(--gk-accent-2,#c2185b);box-shadow:0 2px 8px rgba(0,0,0,.08)}'
 +'.gkb-mw-t{font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#8a7b82;margin:2px 2px 6px}'
-+'gkb-tukar-lama{display:block;text-align:center;margin-top:10px;font-size:.76rem;color:#8a7b82;cursor:pointer;'
-+'text-decoration:underline;text-underline-offset:3px;background:none;border:0;width:100%;font-family:inherit}'
-+'.gkb-tukar b{color:var(--gk-accent-2,#c2185b)}'
++'.gkb-tukar{display:block;text-align:center;margin:10px 0 2px;padding:6px;font-size:.76rem;color:#8a7b82;cursor:pointer;'
++'background:none;border:0;width:100%;font-family:inherit}'
++'.gkb-tukar b{font-weight:600;color:#6f5a64;text-decoration:underline;text-underline-offset:3px}'
 +'.gkb-btn{width:100%;padding:16px;border:none;border-radius:12px;font-family:inherit;font-size:.95rem;'
 +'font-weight:700;cursor:pointer;margin-top:14px;transition:.2s;color:#fff;'
 +'background:linear-gradient(135deg,var(--gk-accent,#e91e63),var(--gk-accent-2,#c2185b))}'
@@ -223,6 +226,7 @@ function build(){
     h+='<div class="gkb-plan'+(i===0?' on':'')+'" data-plan="'+k+'">'+(satu?'':'<div class="tick">✓</div>')
       +'<div class="rm"></div><div class="nm"></div><div class="ds"></div></div>'; });
   h+='</div>'
+  +'<button type="button" class="gkb-tukar" id="gkb-tukar" hidden></button>'
 
   +'<div class="gkb-card">'
   +'  <h4 data-t="ringkasan"></h4>'
@@ -278,7 +282,12 @@ function terapkan(){
   $('gkb-hint').innerHTML = u ? t('hintUsd') : t('hint');
   $('gkb-safe-t').innerHTML = u ? t('safeUsd') : t('safe');
   $('gkb-tip').innerHTML = u ? t('tipUsd') : t('tip');
-  $('gkb-mw-w').hidden = !(STRIPE_ON || ujian() || u);
+  /* Mata wang ikut lokasi SAHAJA — customer tak boleh tukar (keputusan pemilik, 25 Sep 2026).
+     Di Malaysia → RM. Luar negara (termasuk orang Malaysia yang berada di luar) → USD.
+     Butang Malaysia/Luar negara hanya muncul dalam mod test (?cur=usd / ?cur=myr).
+     Nak buka semula link tukar kecil: set TUNJUK_TUKAR = true. */
+  $('gkb-mw-w').hidden = !ujian();
+  var tk=$('gkb-tukar'); tk.hidden = !(TUNJUK_TUKAR && STRIPE_ON && !ujian()); tk.innerHTML = u ? t('keRm') : t('keUsd');
   host.querySelectorAll('[data-mw]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-mw')===(u?'usd':'myr')); });
   var btn=$('gkb-pay'); if(!btn.getAttribute('data-sibuk')) btn.innerHTML=teksButang();
   var pv=$('gkb-prev'); if(pv){ pv.textContent=t('prev'); var ps=$('gkb-prev-s'); if(ps) ps.textContent=t('prevS'); }
@@ -462,6 +471,11 @@ window.GKBayar={
       };
     });
     $('gkb-pay').onclick=pay;
+    $('gkb-tukar').onclick=function(){
+      CUR = usd() ? 'myr' : 'usd';
+      try{ localStorage.setItem('gk_cur',CUR); }catch(e){}
+      hideErr(); terapkan();
+    };
     host.querySelectorAll('[data-mw]').forEach(function(b){
       b.onclick=function(){
         CUR = b.getAttribute('data-mw');
