@@ -147,7 +147,7 @@ input:focus,textarea:focus{outline:2px solid var(--maroon);outline-offset:1px}
   </div>
 
   <div class="sec">
-    <h2 id="s6">Video YouTube</h2><div class="hint" id="s6h">Pilihan — keluar dalam polaroid cyan, tekan untuk main</div>
+    <h2 id="s6">Video YouTube / TikTok</h2><div class="hint" id="s6h">Pilihan — keluar dalam polaroid cyan, tekan untuk main</div>
     <input type="url" id="fVideo" placeholder="https://www.youtube.com/watch?v=...">
   </div>
 
@@ -227,7 +227,7 @@ var L={
      s4:'Kejutan — gambar dalam kotak hadiah',s4h:'Dia tekan kotak hadiah, tudung terbuka, gambar ni keluar. Nota di bawah pilihan — keluar bila gambar ditekan.',
      lNotaK:'Nota kejutan (pilihan)',
      s5:'Lagu',s5h:'Main sendiri bila sampul dibuka. Link YouTube atau upload MP3.',lSong:'Tajuk lagu',lArtist:'Penyanyi',atauMp3:'atau upload MP3',
-     s6:'Video YouTube',s6h:'Pilihan — keluar dalam polaroid cyan, tekan untuk main',
+     s6:'Video YouTube / TikTok',s6h:'Pilihan — keluar dalam polaroid cyan, tekan untuk main',
      s7:'Peta kenangan',s7h:'Pilihan — upload screenshot peta (dari Google Maps), lepas tu tekan atas peta untuk letak pin gambar',
      petaPilihTxt:'Upload gambar peta',petaTip:'Buka Google Maps → zum ke kawasan kenangan korang → screenshot → upload sini.',
      petaNota:'Tekan atas peta untuk tambah pin. Tekan pin untuk edit.',petaBuang:'Buang peta',
@@ -245,7 +245,7 @@ var L={
      s4:'Surprise — a photo inside a gift box',s4h:'They tap the gift box, the lid opens, this photo appears. The note below is optional — shows when the photo is tapped.',
      lNotaK:'Surprise note (optional)',
      s5:'Song',s5h:'Plays when the envelope opens. YouTube link or upload an MP3.',lSong:'Song title',lArtist:'Artist',atauMp3:'or upload an MP3',
-     s6:'YouTube video',s6h:'Optional — shows in the cyan polaroid, tap to play',
+     s6:'YouTube / TikTok video',s6h:'Optional — shows in the cyan polaroid, tap to play',
      s7:'Memory map',s7h:'Optional — upload a map screenshot (from Google Maps), then tap the map to drop photo pins',
      petaPilihTxt:'Upload a map image',petaTip:'Open Google Maps → zoom to where your memories are → screenshot → upload it here.',
      petaNota:'Tap the map to add a pin. Tap a pin to edit it.',petaBuang:'Remove map',
@@ -492,5 +492,7 @@ if(window.GKBayar){
 pasangTeks();
 </script>
 <script src="gk-notis.js" defer></script>
+<script src="gk-video.js"></script>
+<script>GKVideo.medan('fVideo');</script>
 </body>
 </html>
