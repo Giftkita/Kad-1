@@ -37,7 +37,7 @@
 'use strict';
 
 /* ▼▼▼ Tukar ke true bila Stripe dah test & kunci live dah dimasukkan dalam Vercel ▼▼▼ */
-var STRIPE_ON = false;
+var STRIPE_ON = true;
 /* ▲▲▲ Selagi false: semua customer nampak RM. Mod USD hanya untuk test (?cur=usd). ▲▲▲ */
 
 var SB_URL='https://lejpuajafuenlfvlovfg.supabase.co';
