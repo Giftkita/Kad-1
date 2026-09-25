@@ -6,6 +6,7 @@
 //  POST {token, action:'dashboard'}           → data untuk dashboard admin.html
 //  POST {token, action:'get_notice' | 'set_notice', notice} → notis & penyelenggaraan
 //  GET  /api/admin?notis=1                    → AWAM: notis semasa (untuk gk-notis.js)
+//  GET  /api/admin?tt=<link pendek TikTok>    → AWAM: link penuh video TikTok (untuk gk-video.js)
 //
 //  Sep 2026: token dibanding secara timing-safe, id dienkod, dan reset
 //  password affiliate kini di sini (tak perlu ADMIN_KEY / affiliate-reset.js).
@@ -28,6 +29,16 @@ module.exports = async (req, res) => {
   // ── AWAM: GET /api/admin?notis=1 → notis semasa untuk gk-notis.js ──
   // (dikongsi dalam fail ni supaya tak tambah fungsi Vercel baru — had pelan Hobby 12 fungsi)
   if (req.method === 'GET') {
+    // ── AWAM: GET /api/admin?tt=<link pendek TikTok> → {url, id} (untuk gk-video.js di borang) ──
+    const q = req.query || Object.fromEntries(new URL(req.url, 'http://x').searchParams);
+    if (q.tt) {
+      try {
+        const penuh = await bukaTikTok(String(q.tt));
+        res.setHeader('Cache-Control', 'public, s-maxage=86400');
+        res.status(200).json(penuh);
+      } catch (e) { res.status(200).json({ error: 'Tak dapat baca link TikTok.' }); }
+      return;
+    }
     res.setHeader('Cache-Control', 'public, s-maxage=30, stale-while-revalidate=60');
     try { res.status(200).json(awam(await bacaNotis())); } catch (e) { res.status(200).json({}); }
     return;
@@ -168,6 +179,26 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
+
+// ── TikTok: ikut redirect link pendek (vt./vm.tiktok.com, tiktok.com/t/) sampai jumpa /video/<id> ──
+async function bukaTikTok(u) {
+  u = u.trim(); if (!/^https?:\/\//.test(u)) u = 'https://' + u;
+  let url = new URL(u);
+  const pendek = h => /^(vt|vm)\.tiktok\.com$/.test(h) || (/(^|\.)tiktok\.com$/.test(h) && /^\/t\//.test(url.pathname));
+  if (!pendek(url.hostname)) throw new Error('bukan link pendek TikTok');
+  for (let i = 0; i < 5; i++) {
+    const m = url.href.match(/tiktok\.com\/@([^\/?#]+)\/video\/(\d{8,25})/);
+    if (m) return { url: `https://www.tiktok.com/@${m[1]}/video/${m[2]}`, id: m[2] };
+    if (!/(^|\.)tiktok\.com$/.test(url.hostname)) throw new Error('keluar dari tiktok');
+    const r = await fetch(url.href, { method: 'GET', redirect: 'manual', headers: { 'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1' } });
+    const loc = r.headers.get('location');
+    if (!loc) break;
+    url = new URL(loc, url.href);
+  }
+  const m = url.href.match(/tiktok\.com\/@([^\/?#]+)\/video\/(\d{8,25})/);
+  if (m) return { url: `https://www.tiktok.com/@${m[1]}/video/${m[2]}`, id: m[2] };
+  throw new Error('tiada id video');
+}
 
 // ── notis: bersihkan input admin & versi awam ──
 const JADUAL_TIADA = 'Jadual "settings" belum ada dalam Supabase. Jalankan SQL dalam BACA-SAYA (bahagian Notis) sekali sahaja.';
