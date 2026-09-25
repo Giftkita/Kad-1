@@ -130,8 +130,11 @@ function mulaMatawang(){
   var q=null; try{ q=(new URLSearchParams(location.search).get('cur')||'').toLowerCase(); }catch(e){}
   if(q==='reset'||q==='auto'){ try{ localStorage.removeItem('gk_cur'); localStorage.removeItem('gk_cur_test'); }catch(e){} q=null; }
   if(q==='usd'||q==='myr'){ try{ localStorage.setItem('gk_cur',q); }catch(e){} return q; }
-  var s=null; try{ s=localStorage.getItem('gk_cur'); }catch(e){}
-  if(s==='usd'||s==='myr') return (s==='usd'&&!STRIPE_ON&&!ujian())?'myr':s;
+  /* pilihan tersimpan (gk_cur) hanya dipakai dalam MOD TEST. Customer biasa sentiasa ikut lokasi,
+     jadi pilihan lama dari versi dulu (butang Malaysia/Luar negara) tak lagi mengatasi lokasi. */
+  if(ujian()){ var s=null; try{ s=localStorage.getItem('gk_cur'); }catch(e){}
+    if(s==='usd'||s==='myr') return s; }
+  else if(!TUNJUK_TUKAR){ try{ localStorage.removeItem('gk_cur'); }catch(e){} }
   return (STRIPE_ON&&!diMalaysia())?'usd':'myr';
 }
 function ujian(){ try{ return localStorage.getItem('gk_cur_test')==='1'; }catch(e){ return false; } }
