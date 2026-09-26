@@ -58,12 +58,14 @@ textarea{min-height:140px;resize:vertical;line-height:1.55}
 .plan{border:1.5px solid #f5dde0;border-radius:12px;padding:10px 12px;margin-top:10px;background:#fbf8f2}
 .plan b{font-size:.78rem;color:#b8333c}
 .nt{display:grid;gap:6px;margin-top:6px}
+.banyak{position:relative;overflow:hidden;display:block;width:100%;text-align:center;padding:13px;margin-top:10px;background:linear-gradient(135deg,#f6b8c0,#e8818a);color:#fff;border:0;font-size:.85rem;box-shadow:0 6px 16px rgba(232,129,138,.3)}
+.banyak input{position:absolute;inset:0;opacity:0;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="langtoggle"><button id="bMS" class="on" onclick="setLang('ms')">BM</button><button id="bEN" onclick="setLang('en')">EN</button></div>
 <div class="wrap">
-  <a class="back" href="buat-kad-cinta.html" data-i="back">‹ Kembali</a>
+  <a class="back" href="buat-kad-anniversary.html" data-i="back">‹ Kembali</a>
   <h1>Made Just for You 💌</h1>
   <div class="sub" data-i="sub"></div>
   <div class="aliran"><span data-i="a1"></span><span data-i="a2"></span><span data-i="a3"></span><span data-i="a4"></span><span data-i="a5"></span></div>
@@ -86,16 +88,26 @@ textarea{min-height:140px;resize:vertical;line-height:1.55}
 
   <div class="sect"><h2 data-i="hFoto"></h2>
     <div class="hint" data-i="hintFoto"></div>
+    <label class="btn2 banyak"><span data-i="bBanyak"></span><input type="file" id="fBanyak" accept="image/*" multiple></label>
+    <div id="proses" class="hint"></div>
     <div class="grid" id="gFoto"></div>
     <label data-i="lJalur"></label>
     <div class="hint" data-i="hintJalur"></div>
     <div class="grid jalur" id="gJalur"></div>
   </div>
 
+  <div class="sect"><h2 data-i="hVideo"></h2>
+    <label data-i="lVideo"></label><input type="url" id="fVideo" placeholder="https://youtube.com/watch?v=...">
+    <div class="hint" data-i="hintVideo"></div>
+  </div>
+
   <div class="sect"><h2 data-i="hKunci"></h2>
     <div class="hint" data-i="hintKunci"></div>
     <label data-i="lKunci"></label><input type="text" id="fKunci" maxlength="40" data-ph="phKunci">
     <label data-i="lPetunjuk"></label><input type="text" id="fPetunjuk" maxlength="60" data-ph="phPetunjuk">
+    <label data-i="lKjFoto"></label>
+    <div class="grid" id="gKejut" style="grid-template-columns:1fr;max-width:180px;margin:8px auto 0"></div>
+    <label data-i="lKjMsg"></label><input type="text" id="fKejut" maxlength="80" data-ph="phKjMsg">
   </div>
 
   <div class="sect"><h2 data-i="hPlan"></h2>
@@ -127,10 +139,10 @@ var TX={
   hNama:'Nama',lFrom:'Daripada (nama kamu)',phFrom:'Contoh: Danial',lFor:'Untuk (nama penerima)',phFor:'Contoh: Aina',
   hNota:'Nota di sekeliling jambak 💐',hintNota:'6 nota kecil keluar satu-satu di tepi jambak mawar. Dah diisi contoh — ubah atau kosongkan mana yang tak nak.',nota:'Nota',
   hSurat:'Surat cinta 💌',lSapa:'Sapaan pembuka',phSapa:'Sayangku,',lSurat:'Isi surat',hintSurat:'Keluar atas kertas dengan bunga cat air bila penerima ketik sampul. Sapaan kosong = "Sayangku," / "My Love,".',
-  hFoto:'Galeri "Captured memories" 📸',hintFoto:'4 cetakan foto berselerak. Ketik gambar yang dah ada untuk laraskan kedudukan.',foto:'Foto',
+  hFoto:'Galeri "Captured memories" 📸',hintFoto:'Pilih banyak gambar sekali gus (sehingga 12) — gambar isi petak kosong ikut turutan: 4 cetakan foto dulu, lepas tu jalur photobooth. Ketik gambar yang dah ada untuk laraskan kedudukan.',bBanyak:'📷 Pilih banyak gambar sekali gus',proses:'Memproses gambar',penuhSlot:'Semua 12 petak dah penuh — buang gambar dulu untuk tukar.',lebih:' gambar tak masuk sebab petak dah penuh.',hVideo:'Video (pilihan) 🎬',lVideo:'Pautan YouTube',hintVideo:'Keluar sebagai kad video dalam galeri "Captured memories". Ketik untuk main — lagu berhenti sekejap masa video main.',foto:'Foto',
   lJalur:'Jalur photobooth (pilihan, sehingga 8)',hintJalur:'Dua jalur photobooth, 4 gambar satu jalur. Kalau kosong, jalur guna 4 foto di atas.',jalur:'Jalur',
-  hKunci:'Kejutan terakhir berkunci 🎀',hintKunci:'Penerima kena taip nama untuk buka "Rancangan Masa Depan Kita". Kosong = guna nama penerima (nama pertama pun boleh).',
-  lKunci:'Jawapan kunci (pilihan)',phKunci:'Contoh: nama timangan dia',lPetunjuk:'Petunjuk kalau salah 2 kali (pilihan)',phPetunjuk:'Contoh: panggilan manja aku untuk kamu',
+  hKunci:'Kejutan terakhir berkunci 🎀',hintKunci:'Penerima kena taip nama untuk buka "Rancangan Masa Depan Kita" — gambar kejutan keluar di situ. Kosong = guna nama penerima (nama pertama pun boleh).',
+  lKjFoto:'Gambar kejutan (pilihan)',lKjMsg:'Ayat bawah gambar (pilihan)',phKjMsg:'Contoh: Tiket kita dah siap tempah ✈️',fKejut:'Gambar kejutan',lKunci:'Jawapan kunci (pilihan)',phKunci:'Contoh: nama timangan dia',lPetunjuk:'Petunjuk kalau salah 2 kali (pilihan)',phPetunjuk:'Contoh: panggilan manja aku untuk kamu',
   hPlan:'Rancangan masa depan (3 kad) 🏡',hintPlan:'Setiap kad: ayat teka-teki di depan, tajuk + 2 baris bila diterbalikkan. Dah diisi contoh.',plan:'Kad',teka:'Depan (teka-teki)',tajuk:'Tajuk belakang',isi:'Isi belakang',
   hLagu:'Lagu',bYT:'Pautan YouTube',bMP3:'Upload MP3',lYT:'Pautan YouTube lagu',lMP3:'Fail MP3 (Premium)',hintLagu:'Lagu main bila penerima tekan "Nak!". Butang ♪ di atas untuk henti/main.',
   bPrev:'👀 Pratonton Kad',hBayar:'Bayaran',adj:'Seret gambar untuk laraskan kedudukan',selesai:'Selesai',
@@ -140,10 +152,10 @@ var TX={
   hNama:'Names',lFrom:'From (your name)',phFrom:'e.g. Danial',lFor:'For (recipient)',phFor:'e.g. Aina',
   hNota:'Notes around the bouquet 💐',hintNota:'6 little notes appear one by one beside the rose bouquet. Prefilled — edit or clear any you do not want.',nota:'Note',
   hSurat:'Love letter 💌',lSapa:'Greeting',phSapa:'My Love,',lSurat:'Letter',hintSurat:'Shown on paper with watercolour flowers when the envelope is tapped. Empty greeting = "My Love,".',
-  hFoto:'"Captured memories" gallery 📸',hintFoto:'4 scattered photo prints. Tap a photo to adjust its position.',foto:'Photo',
+  hFoto:'"Captured memories" gallery 📸',hintFoto:'Pick many photos at once (up to 12) — they fill the empty slots in order: the 4 photo prints first, then the photobooth strips. Tap a photo to adjust its position.',bBanyak:'📷 Pick many photos at once',proses:'Processing photos',penuhSlot:'All 12 slots are full — remove a photo first to change it.',lebih:' photo(s) not added because the slots are full.',hVideo:'Video (optional) 🎬',lVideo:'YouTube link',hintVideo:'Shown as a video card in the "Captured memories" gallery. Tap to play — the song pauses while the video plays.',foto:'Photo',
   lJalur:'Photobooth strips (optional, up to 8)',hintJalur:'Two photobooth strips, 4 photos each. If empty, the strip uses the 4 photos above.',jalur:'Strip',
-  hKunci:'Name-locked final surprise 🎀',hintKunci:'The recipient types a name to unlock "Our Future Plans". Empty = the recipient\'s name (first name works too).',
-  lKunci:'Unlock answer (optional)',phKunci:'e.g. their nickname',lPetunjuk:'Hint after 2 wrong tries (optional)',phPetunjuk:'e.g. what I always call you',
+  hKunci:'Name-locked final surprise 🎀',hintKunci:'The recipient types a name to unlock "Our Future Plans" — the surprise photo appears there. Empty = the recipient\'s name (first name works too).',
+  lKjFoto:'Surprise photo (optional)',lKjMsg:'Caption under the photo (optional)',phKjMsg:'e.g. Our tickets are booked ✈️',fKejut:'Surprise photo',lKunci:'Unlock answer (optional)',phKunci:'e.g. their nickname',lPetunjuk:'Hint after 2 wrong tries (optional)',phPetunjuk:'e.g. what I always call you',
   hPlan:'Future plans (3 cards) 🏡',hintPlan:'Each card: a teaser on the front, a title + 2 lines when flipped. Prefilled.',plan:'Card',teka:'Front (teaser)',tajuk:'Back title',isi:'Back text',
   hLagu:'Song',bYT:'YouTube Link',bMP3:'Upload MP3',lYT:'Song YouTube link',lMP3:'MP3 file (Premium)',hintLagu:'The song plays when "Yes please" is tapped. The ♪ button pauses/plays.',
   bPrev:'👀 Preview Card',hBayar:'Payment',adj:'Drag the photo to adjust its position',selesai:'Done',
@@ -178,17 +190,27 @@ function tandaUbah(e){if(e.target.matches('#gNota input,#fSurat,#gPlan input,#gP
 document.addEventListener('input',tandaUbah);
 
 /* ── gambar ── */
-var RATIO={p1:.8,p2:.8,p3:.8,p4:.8,s1:.94,s2:.94,s3:.94,s4:.94,s5:.94,s6:.94,s7:.94,s8:.94};
+var RATIO={surprise_img:.8,p1:.8,p2:.8,p3:.8,p4:.8,s1:.94,s2:.94,s3:.94,s4:.94,s5:.94,s6:.94,s7:.94,s8:.94};
 var F={},POS={};
+var SLOT=['p1','p2','p3','p4','s1','s2','s3','s4','s5','s6','s7','s8'];
+/* isi petak kosong ikut turutan, bermula dari petak 'mula' (atau yang pertama kosong); proses satu-satu supaya tak tersekat */
+function isiBanyak(files,mula){var kosong=SLOT.slice(mula?SLOT.indexOf(mula):0).concat(mula?SLOT.slice(0,SLOT.indexOf(mula)):[]).filter(function(k){return !F[k];});
+  if(!kosong.length){alert(t('penuhSlot'));return;}
+  var lebih=Math.max(0,files.length-kosong.length);files=files.slice(0,kosong.length);var n=0,p=$('proses');
+  (function satu(){if(n>=files.length){p.textContent='';renderFoto();if(lebih)alert(lebih+t('lebih'));return;}
+    p.textContent=t('proses')+' '+(n+1)+'/'+files.length+'…';var k=kosong[n];
+    resize(files[n],k[0]==='s'?520:760,.8,function(d){F[k]=d;n++;if(n%3===0)renderFoto();satu();});})();}
 function resize(file,maxW,q,cb){var r=new FileReader();r.onload=function(ev){var im=new Image();im.onload=function(){var s=Math.min(1,maxW/Math.max(im.width,im.height)),w=Math.round(im.width*s),h=Math.round(im.height*s);
   var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);cb(c.toDataURL('image/jpeg',q));};im.src=ev.target.result;};r.readAsDataURL(file);}
 function kotak(k,label,num){var el=document.createElement('div');el.className='th';el.style.aspectRatio=RATIO[k];
   if(F[k]){var p=POS[k]||{x:50,y:50};el.innerHTML='<img src="'+F[k]+'" style="object-position:'+p.x+'% '+p.y+'%"><div class="num">'+num+'</div><button type="button" class="del">✕</button>';
     el.querySelector('.del').onclick=function(e){e.stopPropagation();delete F[k];delete POS[k];renderFoto();};el.querySelector('img').onclick=function(){bukaAdj(k);};}
-  else{el.textContent='📷 '+label;var i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=function(){if(i.files[0])resize(i.files[0],k[0]==='s'?520:760,.8,function(d){F[k]=d;renderFoto();});};el.appendChild(i);}
+  else{el.textContent='📷 '+label;var i=document.createElement('input');i.type='file';i.accept='image/*';if(SLOT.indexOf(k)>=0)i.multiple=true;
+    i.onchange=function(){if(!i.files.length)return;if(SLOT.indexOf(k)>=0)isiBanyak([].slice.call(i.files),k);else resize(i.files[0],760,.8,function(d){F[k]=d;renderFoto();});};el.appendChild(i);}
   return el;}
 function renderFoto(){var g=$('gFoto');g.innerHTML='';['p1','p2','p3','p4'].forEach(function(k,i){g.appendChild(kotak(k,t('foto')+' '+(i+1),i+1));});
-  var j=$('gJalur');j.innerHTML='';['s1','s2','s3','s4','s5','s6','s7','s8'].forEach(function(k,i){j.appendChild(kotak(k,t('jalur')+' '+(i+1),'J'+(i+1)));});kiraSaiz();}
+  var j=$('gJalur');j.innerHTML='';['s1','s2','s3','s4','s5','s6','s7','s8'].forEach(function(k,i){j.appendChild(kotak(k,t('jalur')+' '+(i+1),'J'+(i+1)));});
+  var gk=$('gKejut');gk.innerHTML='';gk.appendChild(kotak('surprise_img',t('fKejut'),'🎁'));kiraSaiz();}
 var adj=null;
 function bukaAdj(k){var box=$('adjBox'),im=$('adjImg'),bw=Math.min(280,innerWidth-40),bh=bw/RATIO[k];box.style.width=bw+'px';box.style.height=bh+'px';im.src=F[k];$('adj').classList.add('on');
   im.onload=function(){var s=Math.max(bw/im.naturalWidth,bh/im.naturalHeight),dw=im.naturalWidth*s,dh=im.naturalHeight*s,p=POS[k]||{x:50,y:50};im.style.width=dw+'px';im.style.height=dh+'px';
@@ -207,15 +229,16 @@ $('fMP3').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new Fi
 /* ── kumpul data (SYNC, return terus) ── */
 function collect(){
   var D={template:'justforyou',pengirim:$('fFrom').value.trim(),nama:$('fFor').value.trim(),sapaan:$('fSapa').value.trim(),surat:$('fSurat').value,
-    kunci:$('fKunci').value.trim(),petunjuk:$('fPetunjuk').value.trim(),lang:LANG};
+    kunci:$('fKunci').value.trim(),video:$('fVideo').value.trim(),surprise:$('fKejut').value.trim(),petunjuk:$('fPetunjuk').value.trim(),lang:LANG};
   for(var i=0;i<6;i++)D['nota'+(i+1)]=$('fNota'+i).value.trim();
   for(var j=0;j<3;j++){D['plan'+(j+1)+'_teka']=$('fPT'+j).value.trim();D['plan'+(j+1)+'_tajuk']=$('fPJ'+j).value.trim();D['plan'+(j+1)+'_isi']=$('fPI'+j).value.trim();}
-  ['p1','p2','p3','p4','s1','s2','s3','s4','s5','s6','s7','s8'].forEach(function(k){if(F[k]){D[k]=F[k];if(POS[k])D[k+'_pos']=POS[k].x+'% '+POS[k].y+'%';}});
+  ['p1','p2','p3','p4','s1','s2','s3','s4','s5','s6','s7','s8','surprise_img'].forEach(function(k){if(F[k]){D[k]=F[k];if(POS[k])D[k+'_pos']=POS[k].x+'% '+POS[k].y+'%';}});
   if($('tMP3').classList.contains('on')){if(MP3)D.mp3=MP3;}else D.yt=$('fYT').value.trim();
   return D;
 }
 function kiraSaiz(){if(!$('fNota0'))return;var kb=JSON.stringify(collect()).length/1024,el=$('saiz');el.textContent=t('saiz')+(kb/1024).toFixed(2)+' MB'+(kb>3800?t('berat'):'');el.classList.toggle('berat',kb>3800);}
-['fFrom','fFor','fSapa','fSurat','fKunci','fPetunjuk','fYT'].forEach(function(i){$(i).addEventListener('input',kiraSaiz);});
+['fFrom','fFor','fSapa','fSurat','fKunci','fPetunjuk','fYT','fVideo','fKejut'].forEach(function(i){$(i).addEventListener('input',kiraSaiz);});
+$('fBanyak').onchange=function(e){var fs=[].slice.call(e.target.files);e.target.value='';if(fs.length)isiBanyak(fs,null);};
 $('btnPreview').onclick=function(){try{localStorage.setItem('gk_preview',JSON.stringify(collect()));}catch(e){alert(t('penuh'));return;}window.open('card-justforyou-1.html?preview=1','_blank');};
 
 if(window.GKBayar){GKBayar.mount({el:'gk-bayar',previewEl:'gk-pratonton',viewer:'card-justforyou-1.html',collect:collect,produk:'Made Just for You',qr:true});}

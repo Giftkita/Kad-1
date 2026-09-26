@@ -15,7 +15,7 @@
   Aliran: pembuka (kucing malu, YES PLEASE / NO THANKS lari) → menu 2×2 (kamera, sampul, reben, jambak) →
           jambak + 6 nota | Captured memories (4 foto + 2 jalur photobooth) | surat "My Love," |
           reben: "One last surprise..." taip nama → Our Future Plans (3 kad terbalik). Butang rumah → menu.
-  card_data: template, nama, pengirim, nota1..nota6, sapaan, surat, p1..p4 (+_pos), s1..s8 (+_pos),
+  card_data: template, nama, pengirim, video, surprise_img (+_pos), surprise, nota1..nota6, sapaan, surat, p1..p4 (+_pos), s1..s8 (+_pos),
              kunci, petunjuk, plan1_teka/_tajuk/_isi .. plan3_*, yt|mp3, song, artist, lang
 -->
 <style>
@@ -84,6 +84,15 @@ button{font-family:inherit}
 #doodle svg{display:block;width:100%;height:auto}
 #glTjk{position:absolute;left:0;right:0;text-align:center;font:700 clamp(1.5rem,7vw,2.3rem) 'Dancing Script',cursive;color:#c0394a;opacity:0}
 #sk4.on #glTjk{animation:masuk .8s ease .9s forwards}
+.fk.vid{padding:5% 5% 13%}
+.fk.vid .th{position:relative;aspect-ratio:16/9;background:#222 center/cover no-repeat;overflow:hidden}
+.fk.vid .th::after{content:"";position:absolute;left:50%;top:50%;width:22%;aspect-ratio:1.42;transform:translate(-50%,-50%);border-radius:22%/30%;background:#e62117 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10'%3E%3Cpath d='M3.6 2.6v4.8L7.6 5z' fill='%23fff'/%3E%3C/svg%3E") center/60% no-repeat;box-shadow:0 3px 8px rgba(0,0,0,.3)}
+.fk.vid .lb{position:absolute;left:0;right:0;bottom:2%;text-align:center;font:600 clamp(.72rem,3.2vw,1rem) 'Dancing Script',cursive;color:#8a6f73}
+#vidLap{z-index:900;background:rgba(40,20,25,.9);flex-direction:column;padding:16px}
+#vidKotak{position:relative;width:min(94vw,calc((100vh - 120px)*16/9),900px);aspect-ratio:16/9;background:#000;border-radius:12px;overflow:hidden;box-shadow:0 18px 40px rgba(0,0,0,.45)}
+#vidKotak iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#vidLap .tt{margin-top:14px;font:italic 12px Poppins,sans-serif;color:rgba(255,255,255,.65)}
+#vidLap .x{position:fixed;right:14px;top:14px;width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.9);color:var(--merah);font-size:14px;cursor:pointer}
 
 /* 5 — surat */
 .bngA,.bngB{position:absolute;left:50%;transform:translateX(-50%);width:112%;pointer-events:none;opacity:0}
@@ -108,12 +117,18 @@ button{font-family:inherit}
 @keyframes gegar{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 
 /* 7 — future plans */
-#plBox{position:relative;width:min(94vw,580px)}
+#plBox{position:relative;width:min(94vw,580px,calc((100vh - 150px)*.85))}
 #plBox .bngA{bottom:calc(100% - 30px)}#plBox .bngB{top:calc(100% - 34px)}
 #plKad{position:relative;z-index:2;background:#e6f1f0;border-radius:16px;box-shadow:0 14px 34px rgba(80,110,110,.18);padding:6% 5% 7%;text-align:center;opacity:0}
 #sk7.on #plKad{animation:naik 1s cubic-bezier(.2,.8,.3,1) .3s forwards}
 #plKad h2{font:700 clamp(1.6rem,7.4vw,2.3rem) 'Dancing Script',cursive;color:#c0394a}
 #plKad .sub{font-style:italic;font-family:'Libre Baskerville',serif;margin-top:0;color:#8a9a98}
+#kjFoto{display:none;margin:5% auto 0;width:min(46%,calc(24vh * .8 + 20px));background:#fff;padding:5% 5% 4%;rotate:-3deg;box-shadow:0 8px 20px rgba(80,50,60,.16);cursor:zoom-in}
+#kjFoto.ada{display:block}
+#kjFoto .sl{aspect-ratio:.8;background:#fbe3e6 center/cover no-repeat}
+#kjFoto .cp{margin-top:6%;font:600 clamp(.72rem,3.2vw,.95rem)/1.25 'Dancing Script',cursive;color:#8a3a44}
+#sk7.on #kjFoto.ada{animation:kjMasuk 1s cubic-bezier(.2,.9,.3,1.2) .9s both}
+@keyframes kjMasuk{from{opacity:0;scale:.4;rotate:-20deg}}
 #plGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:3.5%;margin-top:6%}
 .pk{aspect-ratio:.72;perspective:900px;cursor:pointer}
 .pk .d{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .8s cubic-bezier(.3,.7,.3,1)}
@@ -195,11 +210,12 @@ button{font-family:inherit}
 </section>
 <!-- 7 future plans -->
 <section class="sk" id="sk7">
-  <div id="plBox"><img class="bngA" alt=""><div id="plKad"><h2 id="t7"></h2><div class="sub" id="t7s"></div><div id="plGrid"></div></div><img class="bngB" alt=""></div>
+  <div id="plBox"><img class="bngA" alt=""><div id="plKad"><h2 id="t7"></h2><div class="sub" id="t7s"></div><div id="kjFoto"><div class="sl" id="kjSl"></div><div class="cp" id="kjCp"></div></div><div id="plGrid"></div></div><img class="bngB" alt=""></div>
 </section>
 
 <button id="rumah" aria-label="Menu"><svg viewBox="0 0 24 24" fill="#fff"><path d="M12 3.2 2.5 11.1c-.5.4-.2 1.2.4 1.2H5v7.2c0 .6.4 1 1 1h4v-5.2h4v5.2h4c.6 0 1-.4 1-1v-7.2h2.1c.6 0 .9-.8.4-1.2z"/></svg></button>
 <div id="tabir"></div>
+<div class="lap" id="vidLap" onclick="if(event.target===this)tutupVideo()"><button class="x" onclick="tutupVideo()">✕</button><div id="vidKotak"></div><div class="tt" id="vidTt"></div></div>
 <div class="lap" id="lb"><button class="x" onclick="tutupLap('lb')">✕</button><img id="lbimg" alt=""><div class="tt" id="lbTt"></div></div>
 <audio id="mp3" loop></audio>
 <div id="yt-root" style="position:fixed;bottom:-300px;left:-300px;width:1px;height:1px;overflow:hidden"></div>
@@ -210,7 +226,7 @@ var DEMO_IMG={"p1": "data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAkG
 var D=null,LANG='ms';
 var TXT={
  ms:{soalan:'Nak tengok hadiah kamu?',ya:'Nak!',tidak:'Tak nak',lari:['Betul ke? 🥺','Tekan NAK la 😝','Tak boleh lari 😆','Cuba lagi 💗'],
-  menu:'Khas untuk kamu',menuS:'Ketik satu kad untuk buka kejutan kamu ✨',jambak:'Sejambak Untuk Kamu',kenangan:'Kenangan kita',doodle:'kita ♡',
+  menu:'Khas untuk kamu',menuS:'Ketik satu kad untuk buka kejutan kamu ✨',jambak:'Sejambak Untuk Kamu',kenangan:'Kenangan kita',doodle:'kita ♡',video:'video kita ▶',vidTt:'ketik di luar untuk tutup',
   sapa:'Sayangku,',ttd:'Dengan sepenuh cinta,',kejut:'Satu kejutan terakhir...',kejutS:'Taip nama kamu untuk buka kejutan terakhir',ph:'Taip nama kamu',unlock:'Buka',
   salah:'Hmm, bukan tu 🙈 Cuba lagi',petunjuk:'Petunjuk: ',hintDef:'nama kamu sendiri 😉',plan:'Rancangan Masa Depan Kita',planS:'Ketik untuk tengok apa yang menanti',
   lbTt:'cubit untuk zum · ketik dua kali · ketik untuk tutup',
@@ -218,7 +234,7 @@ var TXT={
   planDef:[['Satu hari nanti...','Pelukan Pertama','Tiada lagi skrin,\nhanya kita berdua'],['Kamu akan tengok.','Rumah Kecil Kita','Pagi yang tenang,\nborak sampai lewat malam'],['Percayalah.','Bersama Selalu','Tempat baru,\ncinta yang sama']],
   g1:'Sambungan ke pangkalan data gagal. Sila refresh halaman.',g2:'Kad ini belum diaktifkan. Sila selesaikan pembayaran untuk membukanya.',g3:'Kad tidak dijumpai atau telah tamat tempoh.'},
  en:{soalan:'Do you want to see your gift?',ya:'Yes please',tidak:'No thanks',lari:['Are you sure? 🥺','Press YES 😝',"You can't escape 😆",'Try again 💗'],
-  menu:'Made just for you',menuS:'Tap a card to open your surprise ✨',jambak:'A Bouquet Just for You',kenangan:'Captured memories',doodle:'us ♡',
+  menu:'Made just for you',menuS:'Tap a card to open your surprise ✨',jambak:'A Bouquet Just for You',kenangan:'Captured memories',doodle:'us ♡',video:'our video ▶',vidTt:'tap outside to close',
   sapa:'My Love,',ttd:'With all my love,',kejut:'One last surprise...',kejutS:'Type your name to unlock the final surprise',ph:'Enter your name',unlock:'Unlock',
   salah:"Hmm, that's not it 🙈 Try again",petunjuk:'Hint: ',hintDef:'your own name 😉',plan:'Our Future Plans',planS:"Tap to see what's waiting",
   lbTt:'pinch to zoom · double tap · tap to close',
@@ -232,7 +248,7 @@ function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return
 function rnd(a,b){return a+Math.random()*(b-a);}
 function ytId(u){var m=(u||'').match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([a-zA-Z0-9_-]{11})/);return m?m[1]:null;}
 
-var DEMO={template:'justforyou',nama:'Aina',pengirim:'Danial',p1:DEMO_IMG.p1,p2:DEMO_IMG.p2,p3:DEMO_IMG.p3,p4:DEMO_IMG.p4,s1:DEMO_IMG.pin,s2:DEMO_IMG.p2,s3:DEMO_IMG.p3,s4:DEMO_IMG.p1,s5:DEMO_IMG.p4,s6:DEMO_IMG.pin,s7:DEMO_IMG.p1,s8:DEMO_IMG.p2,
+var DEMO={template:'justforyou',nama:'Aina',pengirim:'Danial',p1:DEMO_IMG.p1,p2:DEMO_IMG.p2,p3:DEMO_IMG.p3,p4:DEMO_IMG.p4,s1:DEMO_IMG.pin,s2:DEMO_IMG.p2,s3:DEMO_IMG.p3,s4:DEMO_IMG.p1,s5:DEMO_IMG.p4,s6:DEMO_IMG.pin,s7:DEMO_IMG.p1,s8:DEMO_IMG.p2,video:'',surprise_img:DEMO_IMG.pin,surprise:'Tiket kita dah siap tempah ✈️',
   sapaan:'',surat:'Aku rasa bertuah sangat dapat jalan hidup ni dengan kamu di sisi.\nMomen paling kecil pun jadi istimewa bila dengan kamu.\nKamu buat hari biasa rasa bermakna.\n\nSemoga tahun ni bawa kamu tenang, gembira, dan semua yang hati kamu doakan diam-diam.\nKamu layak dapat jauh lebih banyak dari yang kamu sangka.',
   kunci:'',petunjuk:'',yt:'',mp3:'',plan:'basic'};
 
@@ -255,9 +271,11 @@ function teks(){
   $('t2').textContent=T('menu');$('t2s').textContent=T('menuS');$('t3').textContent=T('jambak');
   $('t6').textContent=T('kejut');$('t6s').textContent=T('kejutS');$('inNama').placeholder=T('ph');$('bUnlock').textContent=T('unlock');
   $('t7').textContent=T('plan');$('t7s').textContent=T('planS');
+  var kf=$('kjFoto');if(D.surprise_img){kf.classList.add('ada');$('kjSl').style.backgroundImage='url('+D.surprise_img+')';$('kjSl').style.backgroundPosition=D.surprise_img_pos||'50% 50%';kf.onclick=function(){lbBuka(D.surprise_img);};}
+  $('kjCp').textContent=D.surprise||'';$('kjCp').style.display=D.surprise?'':'none';
   $('srSapa').textContent=D.sapaan||T('sapa');$('srIsi').textContent=D.surat||'';
   $('srTtd').innerHTML=esc(T('ttd'))+(D.pengirim?'<br>— '+esc(D.pengirim):'');
-  var g=$('glTjk');if(g)g.textContent=T('kenangan');var dd=$('ddTx');if(dd)dd.textContent=T('doodle');
+  var g=$('glTjk');if(g)g.textContent=T('kenangan');var vl=$('vidLb');if(vl)vl.textContent=T('video');$('vidTt').textContent=T('vidTt');var dd=$('ddTx');if(dd)dd.textContent=T('doodle');
   $('lbTt').textContent=T('lbTt');binaNota();binaPlan();
 }
 function setBhs(l){LANG=l;try{localStorage.setItem('gk_lang',l);}catch(e){}teks();}
@@ -289,12 +307,16 @@ function binaGaleri(){var b=$('glBox');b.innerHTML='';ganti=0;
     else{if(!D[g[1]]&&ADA.length)return;e.innerHTML=fotoSl(g[1]);}  /* kad tunggal kosong disorok */
     b.appendChild(e);});
   if(!adaB){var a=b.querySelector('.jalur');if(a){a.style.left='40%';}}
-  b.insertAdjacentHTML('beforeend','<div id="doodle" style="left:5%;top:70%;width:24%"><div id="ddTx" style="padding-left:6%"></div><svg viewBox="0 0 120 80" fill="none" stroke="#8a6f73" stroke-width="2.4" stroke-linecap="round"><path d="M14 70c10-2 22-10 18-22-3-9-16-6-13 3 4 12 30 10 44-2 12-10 22-24 30-38"/><path d="M84 8l9 3-3 9"/></svg></div><div id="glTjk" style="top:80%"></div>');
-  $('glTjk').textContent=T('kenangan');$('ddTx').textContent=T('doodle');
+  var vid=ytId(D.video),H=vid?1.62:1.45;b.dataset.h=H;
+  if(vid){var v=document.createElement('div');v.className='fk vid';v.style.left='48%';v.style.top='65%';v.style.width='48%';v.style.setProperty('--r','3deg');v.style.animationDelay='.8s';
+    v.innerHTML='<div class="th" style="background-image:url(https://img.youtube.com/vi/'+vid+'/hqdefault.jpg)"></div><div class="lb" id="vidLb"></div>';v.onclick=bukaVideo;b.appendChild(v);}
+  b.insertAdjacentHTML('beforeend','<div id="doodle" style="left:5%;top:'+(70/H*1.45)+'%;width:24%"><div id="ddTx" style="padding-left:6%"></div><svg viewBox="0 0 120 80" fill="none" stroke="#8a6f73" stroke-width="2.4" stroke-linecap="round"><path d="M14 70c10-2 22-10 18-22-3-9-16-6-13 3 4 12 30 10 44-2 12-10 22-24 30-38"/><path d="M84 8l9 3-3 9"/></svg></div><div id="glTjk" style="top:'+(vid?91:80)+'%"></div>');
+  $('glTjk').textContent=T('kenangan');$('ddTx').textContent=T('doodle');if(vid)$('vidLb').textContent=T('video');
+  if(vid)[].forEach.call(b.querySelectorAll('.fk:not(.vid)'),function(e){e.style.top=(parseFloat(e.style.top)*1.45/H)+'%';});
   [].forEach.call(b.querySelectorAll('.sl[data-src]'),function(s){s.onclick=function(){lbBuka(s.dataset.src);};});
   saizGaleri();}
-function saizGaleri(){var b=$('glBox');var w=Math.min(innerWidth*.94,(innerHeight-150)/1.45,560);b.style.width=w+'px';b.style.height=(w*1.45)+'px';
-  [].forEach.call(b.querySelectorAll('.fk'),function(k){var w=k.offsetWidth;  /* padding bingkai ikut lebar kad sendiri (ukur dari Canva) */
+function saizGaleri(){var b=$('glBox'),H=+b.dataset.h||1.45;var w=Math.min(innerWidth*.94,(innerHeight-150)/H,560);b.style.width=w+'px';b.style.height=(w*H)+'px';
+  [].forEach.call(b.querySelectorAll('.fk:not(.vid)'),function(k){var w=k.offsetWidth;  /* padding bingkai ikut lebar kad sendiri (ukur dari Canva) */
     if(k.classList.contains('jalur')){k.style.padding=(w*.124)+'px '+(w*.122)+'px '+(w*.406)+'px';k.style.gap=(w*.076)+'px';}
     else k.style.padding=(w*.086)+'px '+(w*.075)+'px '+(w*.275)+'px';});}
 addEventListener('resize',saizGaleri);
@@ -318,7 +340,7 @@ function ke(n){if(n===skNow)return;var t=$('tabir');t.classList.add('on');
     if(n===4)saizGaleri();
     if(n===6){$('kjMsg').textContent='';}
     if(n===2&&!albumSiap){albumSiap=true;try{if(window.GKAlbum)GKAlbum.init({title:TXT.en.menu,subtitle:(D.nama?T('menu')+', '+D.nama:''),story:D.surat||'',author:D.pengirim?'— '+D.pengirim:'',
-      p1_img:D.p1,p2_img:D.p2,p3_img:D.p3,p4_img:D.p4,story_img:D.s1||D.p1,surprise_msg:''});}catch(e){}}
+      p1_img:D.p1,p2_img:D.p2,p3_img:D.p3,p4_img:D.p4,story_img:D.surprise_img||D.s1||D.p1,surprise_msg:D.surprise||''});}catch(e){}}
     t.classList.remove('on');},360);}
 
 /* 1 — YES / NO lari */
@@ -346,6 +368,11 @@ function cubaBuka(){var v=$('inNama').value,sasar=D.kunci||D.nama||'';
   salahN++;var i=$('inNama');i.classList.remove('gegar');void i.offsetWidth;i.classList.add('gegar');
   $('kjMsg').textContent=salahN>=2?T('petunjuk')+(D.petunjuk||T('hintDef')):T('salah');}
 
+/* video */
+var vidBuka=false;
+function bukaVideo(){var id=ytId(D.video);if(!id)return;vidBuka=true;hentiMuzik(false);$('vidLap').classList.add('on');
+  $('vidKotak').innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';}
+function tutupVideo(){if(!vidBuka)return;vidBuka=false;$('vidKotak').innerHTML='';$('vidLap').classList.remove('on');sambungMuzik(false);}
 /* lightbox */
 function tutupLap(id){$(id).classList.remove('on');}
 /* lightbox: cubit zum, seret, dwiketik; ketik sekali (tanpa zum) = tutup */
