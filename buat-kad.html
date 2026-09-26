@@ -25,6 +25,8 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fce4ec,
 .gp-scrap{background:#e3a9bd;background-image:repeating-linear-gradient(45deg,rgba(176,58,91,.25),rgba(176,58,91,.25) 8px,transparent 8px,transparent 16px)}
 .gp-merah{background:linear-gradient(160deg,#8c0d16,#a8121c 55%,#c4262f)}
 .gp-butterfly{background:linear-gradient(160deg,#e8c5c0,#efe4cf 45%,#9bb87a)}
+.gp-bloom{background:radial-gradient(ellipse at 50% 60%,#cc1a42,#8e0b2c 70%,#5c0619)}
+.g-badge.baru{background:#fff3c4;color:#b86e00;left:8px;right:auto}
 
 #lang{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.12);
   border-radius:999px;padding:6px 12px;font-size:12px;color:#5a4a42;cursor:pointer;font-family:inherit;z-index:5}
@@ -50,6 +52,10 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fce4ec,
     <div class="gp gp-butterfly"><span class="g-badge" data-k="ada">TERSEDIA</span>🦋<div class="g-glow"></div></div>
     <div class="gm"><h3 data-k="n3">Butterfly</h3><span data-k="d3">Rama-rama &amp; surat</span></div>
   </a>
+  <a class="g-card" href="buat-kad-bloom.html">
+    <div class="gp gp-bloom"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>🎁<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n4">A Bouquet for You</h3><span data-k="d4">Hadiah bunga &amp; kolaj</span></div>
+  </a>
 </div>
 
 <script>
@@ -57,10 +63,10 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fce4ec,
 var L={
  ms:{title:'Pilih Tema — Kad Hari Jadi 🎂',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Kad 🎂',
      sub:'Setiap tema ada design tersendiri. Pilih satu untuk mula.',ada:'TERSEDIA',baru:'BARU',
-     n1:'Scrapbook',d1:'Aesthetic',n2:'Merah Klasik',d2:'Elegant',n3:'Butterfly',d3:'Rama-rama &amp; surat'},
+     n1:'Scrapbook',d1:'Aesthetic',n2:'Merah Klasik',d2:'Elegant',n3:'Butterfly',d3:'Rama-rama &amp; surat',n4:'A Bouquet for You',d4:'Hadiah bunga &amp; kolaj'},
  en:{title:'Choose a Theme — Birthday Card 🎂',back:'‹ Back to Homepage',tajuk:'Choose a Card Theme 🎂',
      sub:'Each theme has its own design. Pick one to start.',ada:'AVAILABLE',baru:'NEW',
-     n1:'Scrapbook',d1:'Aesthetic',n2:'Classic Red',d2:'Elegant',n3:'Butterfly',d3:'Butterflies &amp; a letter'}
+     n1:'Scrapbook',d1:'Aesthetic',n2:'Classic Red',d2:'Elegant',n3:'Butterfly',d3:'Butterflies &amp; a letter',n4:'A Bouquet for You',d4:'Flower gift &amp; collage'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function pakai(){
