@@ -27,6 +27,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f3ecdc,
 .gp-navy{background:linear-gradient(145deg,#1b2a4a,#0f1b33)}
 .gp-skrol{background:linear-gradient(160deg,#0f1e38,#1c3157 45%,#e7c877)}
 .gp-sunflower{background:radial-gradient(ellipse at 50% 55%,#fff3cc,#f6d271 45%,#d9a12a)}
+.gp-newspaper{background:repeating-linear-gradient(0deg,rgba(60,50,35,.06) 0 1px,transparent 1px 6px),radial-gradient(ellipse at 50% 55%,#f5eedd,#e2d4b2 50%,#a8936a)}
 
 #lang{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.12);
   border-radius:999px;padding:6px 12px;font-size:12px;color:#5a4a42;cursor:pointer;font-family:inherit;z-index:5}
@@ -56,19 +57,23 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f3ecdc,
     <div class="gp gp-sunflower"><span class="g-badge" data-k="baru">BARU</span>🌻<div class="g-glow"></div></div>
     <div class="gm"><h3 data-k="n4">Sunflower</h3><span data-k="d4">Bunga matahari, topi terbang &amp; polaroid gosok</span></div>
   </a>
+  <a class="g-card" href="buat-kad-newspaper.html">
+    <div class="gp gp-newspaper"><span class="g-badge" data-k="baru">BARU</span>📰<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n5">The Graduate Times</h3><span data-k="d5">Muka depan akhbar, foto hitam-putih &amp; mesin taip</span></div>
+  </a>
 </div>
 
 <script>
 /* dwibahasa — kongsi pilihan dengan halaman lain melalui localStorage 'gk_lang' */
 var L={
  ms:{title:'Pilih Tema — Kad Graduasi 🎓',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Kad 🎓',
-     sub:'Empat gaya berbeza. Pilih satu untuk mula.',ada:'TERSEDIA',baru:'BARU',
+     sub:'Lima gaya berbeza. Pilih satu untuk mula.',ada:'TERSEDIA',baru:'BARU',
      n1:'Skrol Ijazah',d1:'Tarik reben, skrol terbuka',
-     n2:'Navy &amp; Emas',d2:'Rama-rama navy, surat panjang &amp; gambar calar',n3:'Graduate Memory',d3:'Buku scrapbook · selak 8 muka · 14 gambar',n4:'Sunflower',d4:'Bunga matahari, topi terbang &amp; polaroid gosok'},
+     n2:'Navy &amp; Emas',d2:'Rama-rama navy, surat panjang &amp; gambar calar',n3:'Graduate Memory',d3:'Buku scrapbook · selak 8 muka · 14 gambar',n4:'Sunflower',d4:'Bunga matahari, topi terbang &amp; polaroid gosok',n5:'The Graduate Times',d5:'Muka depan akhbar, foto hitam-putih &amp; mesin taip'},
  en:{title:'Choose a Theme — Graduation Card 🎓',back:'‹ Back to Homepage',tajuk:'Choose a Card Theme 🎓',
-     sub:'Four different styles. Pick one to start.',ada:'AVAILABLE',baru:'NEW',
+     sub:'Five different styles. Pick one to start.',ada:'AVAILABLE',baru:'NEW',
      n1:'Degree Scroll',d1:'Pull the ribbon, the scroll unrolls',
-     n2:'Navy &amp; Gold',d2:'Navy butterflies, a long letter &amp; scratch photos',n3:'Graduate Memory',d3:'A scrapbook · 8 flipping pages · 14 photos',n4:'Sunflower',d4:'Sunflowers, a flying cap &amp; scratch polaroids'}
+     n2:'Navy &amp; Gold',d2:'Navy butterflies, a long letter &amp; scratch photos',n3:'Graduate Memory',d3:'A scrapbook · 8 flipping pages · 14 photos',n4:'Sunflower',d4:'Sunflowers, a flying cap &amp; scratch polaroids',n5:'The Graduate Times',d5:'A newspaper front page, black &amp; white photos &amp; a typewriter'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function pakai(){
