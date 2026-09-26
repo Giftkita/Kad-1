@@ -376,7 +376,7 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5}
 const API_BASE=(location.hostname.indexOf('github.io')>-1)?'https://www.giftkita.com':'';
 let TOKEN='',D=null,TEMPOH=30,PAKEJ='',J_HAD=30;
 const BULAN=['Jan','Feb','Mac','Apr','Mei','Jun','Jul','Ogo','Sep','Okt','Nov','Dis'];
-const NAMA_TPL={befday:'Hari Jadi',scrapbook:'Scrapbook',merah:'Merah Klasik',butterfly:'Butterfly',bloom:'A Bouquet for You',fiona:'Fiona',anniversary:'Our Story',
+const NAMA_TPL={befday:'Hari Jadi',scrapbook:'Scrapbook',merah:'Merah Klasik',butterfly:'Butterfly',bloom:'A Bouquet for You',yinyang:'Yin & Yang',fiona:'Fiona',anniversary:'Our Story',
   suratcinta:'Surat Cinta',skrol:'Graduasi Skrol',gradnavy:'Graduasi Navy',gradmemory:'Graduate Memory',graduasi:'Memory Book',bouquet:'Bouquet Muka'};
 const NAMA_PAKEJ={basic:'Basic',premium:'Premium',bouquet:'Bouquet'};
 const MYT=8*36e5;
@@ -634,7 +634,7 @@ async function markPaid(id){
 
 /* ── NOTIS & PENYELENGGARAAN ── */
 const TPL_BORANG=[['buat-kad-scrapbook','Scrapbook','Hari Jadi'],['buat-kad-merah','Merah Klasik','Hari Jadi'],['buat-kad-butterfly','Butterfly','Hari Jadi'],['buat-kad-bloom','A Bouquet for You','Hari Jadi'],
-  ['buat-kad-anniversary-ourstory','Our Story','Anniversary'],['buat-kad-suratcinta','A Special Letter','Anniversary'],['buat-kad-fiona','Fiona','Anniversary'],
+  ['buat-kad-anniversary-ourstory','Our Story','Anniversary'],['buat-kad-suratcinta','A Special Letter','Anniversary'],['buat-kad-fiona','Fiona','Anniversary'],['buat-kad-yinyang','Yin & Yang','Anniversary'],
   ['buat-kad-skrol','Skrol Ijazah','Graduasi'],['buat-kad-gradnavy','Navy & Emas','Graduasi'],['buat-kad-gradmemory','Graduate Memory','Graduasi'],['bouquet-muka','Bouquet Muka','Gambar']];
 let N_JENIS='maint';
 document.getElementById('n-tpl').innerHTML=TPL_BORANG.map(([k,n,c])=>'<label><input type="checkbox" value="'+k+'"><span>'+esc(n)+'<small>'+esc(c)+'</small></span></label>').join('');
