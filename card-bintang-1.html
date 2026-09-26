@@ -71,7 +71,11 @@ button{font-family:inherit}
 #bulanK{position:fixed;right:6vw;top:calc(env(safe-area-inset-top,0px) + 52px);width:min(18vw,90px);filter:drop-shadow(0 0 14px rgba(255,220,140,.6));animation:apung 5s ease-in-out infinite;z-index:3;pointer-events:none}
 #teleskop{position:fixed;left:3vw;bottom:calc(env(safe-area-inset-bottom,0px) + 14px);width:min(24vw,120px);cursor:pointer;display:none;z-index:4;animation:apung 4s ease-in-out infinite}
 #teleskop.on{display:block}
-#teleskop::after{content:"▶";position:absolute;right:4%;top:4%;width:26px;height:26px;border-radius:50%;background:#e62117;color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center}
+#telLbl{position:fixed;left:2vw;bottom:calc(env(safe-area-inset-bottom,0px) + 22px + min(24vw,120px)*1.3);z-index:5;display:none;cursor:pointer;white-space:nowrap;
+  background:linear-gradient(135deg,#f6dc98,#e2b25a);color:#2a2150;border-radius:999px;padding:7px 13px;font:600 .78rem Fredoka,Poppins,sans-serif;box-shadow:0 0 16px rgba(246,210,130,.55);animation:denyut 1.6s ease-in-out infinite}
+#telLbl::after{content:"";position:absolute;left:28px;bottom:-6px;border:6px solid transparent;border-bottom:0;border-top-color:#e8bd66}
+#telLbl.on{display:block}
+#telLbl.dah{animation:none;opacity:.85}
 #tahi{position:fixed;z-index:6;width:min(70vw,420px);pointer-events:none;opacity:0}
 .btnB{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
 
@@ -140,7 +144,7 @@ button{font-family:inherit}
 </section>
 
 <img id="bulanK" alt="" style="display:none">
-<img id="teleskop" alt="">
+<img id="teleskop" alt=""><div id="telLbl"></div>
 <img id="tahi" alt="">
 
 <div class="lap" id="kenLap"><div class="no" id="kenNo"></div><div class="bulat" id="kenB"><div class="ft" id="kenFt"></div><img id="kenCincin" alt=""></div><div class="kap" id="kenKap"></div><button class="pil" id="bSambung"></button></div>
@@ -159,12 +163,12 @@ var D=null,LANG='ms';
 var TXT={
  ms:{judul:'Bintang Kita ✨',untuk:'Untuk',buka:'Buka tingkap ✨',langit:'Langit malam ni untuk kamu',sambungH:'Ketik bintang yang bercahaya untuk sambung buruj kita',
   sambung:'Sambung bintang ✨',bintang:'BINTANG',dari:'DARI',lengkap:'Buruj kita dah lengkap 💛',hajat:'Buat hajat 🌠',hajatH:'HAJAT KAMU DIMAKBULKAN',surat:'Baca surat dari bulan 🌙',
-  lagi:'✨ Lihat bintang lagi',ttd:'Dengan sepenuh cinta,',teleskop:'ketik di luar untuk tutup',salah:'Ikut bintang yang berdenyut dulu ✨',
+  lagi:'✨ Lihat bintang lagi',ttd:'Dengan sepenuh cinta,',teleskop:'ketik di luar untuk tutup',telLbl:'🔭 Tekan untuk teropong',salah:'Ikut bintang yang berdenyut dulu ✨',
   lbTt:'cubit untuk zum · ketik dua kali · ketik untuk tutup',
   g1:'Sambungan ke pangkalan data gagal. Sila refresh halaman.',g2:'Kad ini belum diaktifkan. Sila selesaikan pembayaran untuk membukanya.',g3:'Kad tidak dijumpai atau telah tamat tempoh.'},
  en:{judul:'Our Stars ✨',untuk:'For',buka:'Open the window ✨',langit:'Tonight\'s sky is for you',sambungH:'Tap the glowing star to connect our constellation',
   sambung:'Connect the star ✨',bintang:'STAR',dari:'OF',lengkap:'Our constellation is complete 💛',hajat:'Make a wish 🌠',hajatH:'YOUR WISH COMES TRUE',surat:'Read the letter from the moon 🌙',
-  lagi:'✨ See the stars again',ttd:'With all my love,',teleskop:'tap outside to close',salah:'Follow the glowing star first ✨',
+  lagi:'✨ See the stars again',ttd:'With all my love,',teleskop:'tap outside to close',telLbl:'🔭 Tap to look',salah:'Follow the glowing star first ✨',
   lbTt:'pinch to zoom · double tap · tap to close',
   g1:'Could not connect to the database. Please refresh the page.',g2:'This card is not active yet. Please complete the payment to open it.',g3:'Card not found or has expired.'}
 };
@@ -205,7 +209,8 @@ function bina(){
   $('bBuka').onclick=bukaTingkap;$('bSambung').onclick=sambungBintang;$('bSurat').onclick=keSurat;$('bBalik').onclick=function(){ke(2);};
   $('kenFt').onclick=function(){var k=KEN[aktif];if(k&&k.img)lbBuka(k.img);};$('kjFt').onclick=function(){if(D.surprise_img)lbBuka(D.surprise_img);};
   $('teleskop').onclick=bukaVideo;$('bMuzik').onclick=function(){if(mainLagu)hentiMuzik(true);else sambungMuzik(true);};
-  if(ytId(D.video))$('teleskop').classList.add('on');
+  if(ytId(D.video)){$('teleskop').classList.add('on');$('telLbl').classList.add('on');}
+  $('telLbl').onclick=bukaVideo;
   addEventListener('resize',susunBuruj);
 }
 function teks(){
@@ -213,7 +218,7 @@ function teks(){
   $('t1').textContent=T('judul');$('t1s').textContent=(D.nama?T('untuk')+' '+D.nama:'')+(D.pengirim?' · '+D.pengirim+' 💛':'');$('bBuka').textContent=T('buka');
   $('t2').textContent=siapBuruj?T('lengkap'):T('langit');$('t2s').textContent=siapBuruj?'':T('sambungH');$('bSambung').textContent=T('sambung');
   $('burujNama').textContent=(D.nama||'')+(D.nama&&D.pengirim?' ♥ ':'')+(D.pengirim||'');
-  $('kjNo').textContent=T('hajatH');$('bSurat').textContent=T('surat');$('bBalik').textContent=T('lagi');$('kantaTt').textContent=T('teleskop');$('lbTt').textContent=T('lbTt');
+  $('kjNo').textContent=T('hajatH');$('bSurat').textContent=T('surat');$('bBalik').textContent=T('lagi');$('kantaTt').textContent=T('teleskop');$('telLbl').textContent=T('telLbl');$('lbTt').textContent=T('lbTt');
   $('suratTx').innerHTML=esc(D.surat||'')+'<div class="ttd">'+esc(T('ttd'))+(D.pengirim?'<br>— '+esc(D.pengirim):'')+'</div>';
   if(siapBuruj)butangAkhir();
 }
@@ -287,7 +292,7 @@ function bunyi(j){try{AC=AC||new (window.AudioContext||window.webkitAudioContext
 
 /* video (teleskop) */
 var vidBuka=false;
-function bukaVideo(){var id=ytId(D.video);if(!id)return;vidBuka=true;hentiMuzik(false);$('kantaLap').classList.add('on');
+function bukaVideo(){var id=ytId(D.video);if(!id)return;vidBuka=true;$('telLbl').classList.add('dah');hentiMuzik(false);$('kantaLap').classList.add('on');
   $('kantaVid').innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';}
 function tutupVideo(){if(!vidBuka)return;vidBuka=false;$('kantaVid').innerHTML='';$('kantaLap').classList.remove('on');sambungMuzik(false);}
 function tutupLap(id){$(id).classList.remove('on');}
