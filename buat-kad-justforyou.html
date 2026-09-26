@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buat Kad — Made Just for You 💌</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Fredoka:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Poppins,system-ui,sans-serif;background:linear-gradient(180deg,#fff,#fdeef1 60%,#f8d6db);background-attachment:fixed;color:#4a3b3d;min-height:100vh}
+.wrap{max-width:620px;margin:0 auto;padding:18px 16px 60px}
+h1{font:700 2rem Fredoka,Poppins,sans-serif;color:#b8333c;text-align:center;margin:4px 0 2px}
+.sub{text-align:center;color:#9a7f84;font-size:.8rem;margin-bottom:14px}
+.aliran{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:0 0 16px}
+.aliran span{font-size:.68rem;color:#9a7f84;background:rgba(255,255,255,.55);padding:4px 10px;border-radius:50px}
+.sect{background:#fffdfd;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 8px 24px rgba(120,60,50,.12)}
+.sect h2{font-size:.95rem;color:#b8333c;border-bottom:2px solid #fbe3e6;padding-bottom:6px;margin-bottom:10px}
+label{display:block;font-size:.8rem;font-weight:500;color:#5a4a4c;margin:10px 0 4px}
+input[type=text],input[type=url],input[type=date],textarea{width:100%;padding:10px 12px;border:1.5px solid #f0d5d9;border-radius:10px;font-family:inherit;font-size:.88rem;background:#fff;color:#4a3b3d}
+input:focus,textarea:focus{outline:none;border-color:#e8818a}
+textarea{min-height:140px;resize:vertical;line-height:1.55}
+.hint{font-size:.72rem;color:#a0898d;margin-top:3px;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px}
+.th{position:relative;border-radius:4px;overflow:hidden;background:#fdf0f2;border:1.5px dashed #eaa9af;display:flex;align-items:center;justify-content:center;font-size:.68rem;color:#c0616c;text-align:center;cursor:pointer;box-shadow:0 0 0 5px #fff,0 4px 12px rgba(120,60,50,.12)}
+.th img{width:100%;height:100%;object-fit:cover}
+.th .num{position:absolute;top:4px;left:4px;min-width:20px;height:20px;border-radius:10px;padding:0 5px;background:rgba(184,51,60,.85);color:#fff;font-size:.66rem;display:flex;align-items:center;justify-content:center}
+.th .del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(184,51,60,.85);color:#fff;font-size:.7rem;border:0;cursor:pointer}
+.th input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.btn2{display:inline-block;padding:9px 14px;border:1.5px solid #e8818a;background:#fff;color:#b8333c;border-radius:10px;font:600 .8rem Poppins,sans-serif;cursor:pointer}
+.btn2.on{background:#b8333c;color:#fff}
+.toggle{display:flex;gap:8px;margin-top:4px}.toggle .btn2{flex:1}
+.panel{display:none;margin-top:6px}.panel.on{display:block}
+#petaWrap{position:relative;margin-top:10px;border-radius:12px;overflow:hidden;display:none;cursor:crosshair}
+#petaWrap img{display:block;width:100%}
+.pinF{position:absolute;width:26px;height:26px;border-radius:50%;background:#e8818a;border:2px solid #fff;color:#fff;font:600 .72rem/22px Poppins;text-align:center;transform:translate(-50%,-100%);box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
+.pinK{border:1.5px solid #f5dde0;border-radius:12px;padding:10px;margin-top:10px;display:grid;grid-template-columns:70px 1fr;gap:8px 10px;align-items:start}
+.pinK .th{width:70px;height:70px}
+.pinK .f label{margin:0 0 2px;font-size:.7rem}.pinK .f input{padding:7px 9px;font-size:.8rem;margin-bottom:6px}
+.pinK .hapus{grid-column:1/-1;justify-self:end;border:0;background:none;color:#b8333c;font:500 .72rem Poppins;cursor:pointer}
+.rek{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.rek .dot{width:10px;height:10px;border-radius:50%;background:#c33;display:none;animation:kd 1s infinite}
+.rek.aktif .dot{display:inline-block}@keyframes kd{50%{opacity:.2}}
+#saiz{font-size:.72rem;margin-top:6px;color:#6a8a5a}#saiz.berat{color:#c33;font-weight:600}
+#adj{position:fixed;inset:0;z-index:100;background:rgba(60,25,32,.93);display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#adj.on{display:flex}#adj .l{color:#fde;font-size:.78rem;margin-bottom:14px}
+#adjBox{position:relative;overflow:hidden;border:6px solid #fff;touch-action:none}
+#adjImg{position:absolute;max-width:none;cursor:grab;user-select:none}
+#adjOk{margin-top:16px;padding:11px 34px;background:#fff;color:#b8333c;border:0;border-radius:30px;font-weight:700;cursor:pointer;font-family:inherit}
+.previewbtn{width:100%;padding:14px;background:linear-gradient(135deg,#e8818a,#b8333c);color:#fff;border:none;border-radius:12px;font:600 .95rem Poppins,sans-serif;cursor:pointer;margin:4px 0 14px;box-shadow:0 8px 20px rgba(120,60,50,.25)}
+#gk-pratonton{min-height:40px;margin-bottom:10px}
+.langtoggle{position:fixed;top:10px;right:10px;z-index:50;display:flex;background:#fff;border-radius:30px;padding:3px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.langtoggle button{border:0;background:transparent;color:#b8333c;font:700 .72rem Poppins;padding:5px 12px;border-radius:20px;cursor:pointer}
+.langtoggle button.on{background:#b8333c;color:#fff}
+.back{display:block;text-align:center;font-size:.8rem;color:#9a7f84;margin-bottom:6px;text-decoration:none}
+.grid.jalur{grid-template-columns:repeat(4,1fr)}
+.plan{border:1.5px solid #f5dde0;border-radius:12px;padding:10px 12px;margin-top:10px;background:#fbf8f2}
+.plan b{font-size:.78rem;color:#b8333c}
+.nt{display:grid;gap:6px;margin-top:6px}
+</style>
+</head>
+<body>
+<div class="langtoggle"><button id="bMS" class="on" onclick="setLang('ms')">BM</button><button id="bEN" onclick="setLang('en')">EN</button></div>
+<div class="wrap">
+  <a class="back" href="buat-kad-cinta.html" data-i="back">‹ Kembali</a>
+  <h1>Made Just for You 💌</h1>
+  <div class="sub" data-i="sub"></div>
+  <div class="aliran"><span data-i="a1"></span><span data-i="a2"></span><span data-i="a3"></span><span data-i="a4"></span><span data-i="a5"></span></div>
+
+  <div class="sect"><h2 data-i="hNama"></h2>
+    <label data-i="lFrom"></label><input type="text" id="fFrom" maxlength="30" data-ph="phFrom">
+    <label data-i="lFor"></label><input type="text" id="fFor" maxlength="30" data-ph="phFor">
+  </div>
+
+  <div class="sect"><h2 data-i="hNota"></h2>
+    <div class="hint" data-i="hintNota"></div>
+    <div class="nt" id="gNota"></div>
+  </div>
+
+  <div class="sect"><h2 data-i="hSurat"></h2>
+    <label data-i="lSapa"></label><input type="text" id="fSapa" maxlength="30" data-ph="phSapa">
+    <label data-i="lSurat"></label><textarea id="fSurat" maxlength="900"></textarea>
+    <div class="hint" data-i="hintSurat"></div>
+  </div>
+
+  <div class="sect"><h2 data-i="hFoto"></h2>
+    <div class="hint" data-i="hintFoto"></div>
+    <div class="grid" id="gFoto"></div>
+    <label data-i="lJalur"></label>
+    <div class="hint" data-i="hintJalur"></div>
+    <div class="grid jalur" id="gJalur"></div>
+  </div>
+
+  <div class="sect"><h2 data-i="hKunci"></h2>
+    <div class="hint" data-i="hintKunci"></div>
+    <label data-i="lKunci"></label><input type="text" id="fKunci" maxlength="40" data-ph="phKunci">
+    <label data-i="lPetunjuk"></label><input type="text" id="fPetunjuk" maxlength="60" data-ph="phPetunjuk">
+  </div>
+
+  <div class="sect"><h2 data-i="hPlan"></h2>
+    <div class="hint" data-i="hintPlan"></div>
+    <div id="gPlan"></div>
+  </div>
+
+  <div class="sect"><h2 data-i="hLagu"></h2>
+    <div class="toggle"><button type="button" class="btn2 on" id="tYT" data-i="bYT"></button><button type="button" class="btn2" id="tMP3" data-i="bMP3"></button></div>
+    <div class="panel on" id="pYT"><label data-i="lYT"></label><input type="url" id="fYT" placeholder="https://youtube.com/watch?v=..."></div>
+    <div class="panel" id="pMP3"><label data-i="lMP3"></label><input type="file" id="fMP3" accept="audio/mpeg,audio/mp3"></div>
+    <div class="hint" data-i="hintLagu"></div>
+  </div>
+
+  <button class="previewbtn" id="btnPreview" type="button" data-i="bPrev"></button>
+  <div id="saiz"></div>
+
+  <div class="sect" style="margin-top:16px"><h2 data-i="hBayar"></h2><div id="gk-pratonton"></div><div id="gk-bayar"></div></div>
+</div>
+
+<div id="adj"><div class="l" data-i="adj"></div><div id="adjBox"><img id="adjImg" alt=""></div><button type="button" id="adjOk" data-i="selesai"></button></div>
+
+<script src="gk-bayar.js"></script>
+<script>
+var LANG='ms';
+var TX={
+ ms:{back:'‹ Kembali',sub:'Kucing malu tanya "nak tengok hadiah?", 4 kad kejutan: jambak mawar & nota, galeri foto, surat cinta dan kejutan terakhir berkunci nama',
+  a1:'💗 Nak tengok hadiah?',a2:'💐 Jambak & nota',a3:'📸 Galeri foto',a4:'💌 Surat cinta',a5:'🎀 Kunci nama',
+  hNama:'Nama',lFrom:'Daripada (nama kamu)',phFrom:'Contoh: Danial',lFor:'Untuk (nama penerima)',phFor:'Contoh: Aina',
+  hNota:'Nota di sekeliling jambak 💐',hintNota:'6 nota kecil keluar satu-satu di tepi jambak mawar. Dah diisi contoh — ubah atau kosongkan mana yang tak nak.',nota:'Nota',
+  hSurat:'Surat cinta 💌',lSapa:'Sapaan pembuka',phSapa:'Sayangku,',lSurat:'Isi surat',hintSurat:'Keluar atas kertas dengan bunga cat air bila penerima ketik sampul. Sapaan kosong = "Sayangku," / "My Love,".',
+  hFoto:'Galeri "Captured memories" 📸',hintFoto:'4 cetakan foto berselerak. Ketik gambar yang dah ada untuk laraskan kedudukan.',foto:'Foto',
+  lJalur:'Jalur photobooth (pilihan, sehingga 8)',hintJalur:'Dua jalur photobooth, 4 gambar satu jalur. Kalau kosong, jalur guna 4 foto di atas.',jalur:'Jalur',
+  hKunci:'Kejutan terakhir berkunci 🎀',hintKunci:'Penerima kena taip nama untuk buka "Rancangan Masa Depan Kita". Kosong = guna nama penerima (nama pertama pun boleh).',
+  lKunci:'Jawapan kunci (pilihan)',phKunci:'Contoh: nama timangan dia',lPetunjuk:'Petunjuk kalau salah 2 kali (pilihan)',phPetunjuk:'Contoh: panggilan manja aku untuk kamu',
+  hPlan:'Rancangan masa depan (3 kad) 🏡',hintPlan:'Setiap kad: ayat teka-teki di depan, tajuk + 2 baris bila diterbalikkan. Dah diisi contoh.',plan:'Kad',teka:'Depan (teka-teki)',tajuk:'Tajuk belakang',isi:'Isi belakang',
+  hLagu:'Lagu',bYT:'Pautan YouTube',bMP3:'Upload MP3',lYT:'Pautan YouTube lagu',lMP3:'Fail MP3 (Premium)',hintLagu:'Lagu main bila penerima tekan "Nak!". Butang ♪ di atas untuk henti/main.',
+  bPrev:'👀 Pratonton Kad',hBayar:'Bayaran',adj:'Seret gambar untuk laraskan kedudukan',selesai:'Selesai',
+  saiz:'Saiz kad: ',berat:' — terlalu besar, kecilkan/buang beberapa gambar atau MP3',penuh:'Gambar terlalu besar untuk pratonton. Cuba gambar yang lebih kecil.',besar:'Fail terlalu besar (maks 600KB).'},
+ en:{back:'‹ Back',sub:'A shy kitty asks "want to see your gift?", then 4 surprise cards: a rose bouquet with notes, a photo gallery, a love letter and a name-locked final surprise',
+  a1:'💗 See your gift?',a2:'💐 Bouquet & notes',a3:'📸 Photo gallery',a4:'💌 Love letter',a5:'🎀 Name lock',
+  hNama:'Names',lFrom:'From (your name)',phFrom:'e.g. Danial',lFor:'For (recipient)',phFor:'e.g. Aina',
+  hNota:'Notes around the bouquet 💐',hintNota:'6 little notes appear one by one beside the rose bouquet. Prefilled — edit or clear any you do not want.',nota:'Note',
+  hSurat:'Love letter 💌',lSapa:'Greeting',phSapa:'My Love,',lSurat:'Letter',hintSurat:'Shown on paper with watercolour flowers when the envelope is tapped. Empty greeting = "My Love,".',
+  hFoto:'"Captured memories" gallery 📸',hintFoto:'4 scattered photo prints. Tap a photo to adjust its position.',foto:'Photo',
+  lJalur:'Photobooth strips (optional, up to 8)',hintJalur:'Two photobooth strips, 4 photos each. If empty, the strip uses the 4 photos above.',jalur:'Strip',
+  hKunci:'Name-locked final surprise 🎀',hintKunci:'The recipient types a name to unlock "Our Future Plans". Empty = the recipient\'s name (first name works too).',
+  lKunci:'Unlock answer (optional)',phKunci:'e.g. their nickname',lPetunjuk:'Hint after 2 wrong tries (optional)',phPetunjuk:'e.g. what I always call you',
+  hPlan:'Future plans (3 cards) 🏡',hintPlan:'Each card: a teaser on the front, a title + 2 lines when flipped. Prefilled.',plan:'Card',teka:'Front (teaser)',tajuk:'Back title',isi:'Back text',
+  hLagu:'Song',bYT:'YouTube Link',bMP3:'Upload MP3',lYT:'Song YouTube link',lMP3:'MP3 file (Premium)',hintLagu:'The song plays when "Yes please" is tapped. The ♪ button pauses/plays.',
+  bPrev:'👀 Preview Card',hBayar:'Payment',adj:'Drag the photo to adjust its position',selesai:'Done',
+  saiz:'Card size: ',berat:' — too big, shrink/remove some photos or the MP3',penuh:'Photos are too large to preview. Try smaller photos.',besar:'File too large (max 600KB).'}
+};
+var LALAI={
+ ms:{nota:['Setiap hari dengan kamu terasa macam rahmat','Senyuman kamu tempat kegemaran aku','Sayang kamu perkara paling mudah aku pernah buat','Kamu buat dunia aku lebih ceria','Aku bangga dengan diri kamu yang sekarang','Dengan kamu, semuanya terasa betul'],
+  surat:'Aku rasa bertuah sangat dapat jalan hidup ni dengan kamu di sisi.\nMomen paling kecil pun jadi istimewa bila dengan kamu.\nKamu buat hari biasa rasa bermakna.\n\nSemoga tahun ni bawa kamu tenang, gembira, dan semua yang hati kamu doakan diam-diam.\nKamu layak dapat jauh lebih banyak dari yang kamu sangka.',
+  plan:[['Satu hari nanti...','Pelukan Pertama','Tiada lagi skrin,\nhanya kita berdua'],['Kamu akan tengok.','Rumah Kecil Kita','Pagi yang tenang,\nborak sampai lewat malam'],['Percayalah.','Bersama Selalu','Tempat baru,\ncinta yang sama']]},
+ en:{nota:['Every day with you feels like a blessing','Your smile is my favorite place',"Loving you is the easiest thing I've ever done",'You make my world brighter by being in it',"I'm so proud of the person you are becoming",'With you, everything feels right'],
+  surat:'I feel so lucky to walk through life with you by my side.\nEven the smallest moments feel special with you.\nYou make ordinary days feel meaningful.\n\nI hope this year brings you peace, joy, and everything your heart quietly wishes for.\nYou deserve so much more than you realize.',
+  plan:[['One day...','The First Hug','No more screens,\njust you and me'],["You'll see.",'Our Little Home','Simple mornings,\nlate-night talks'],['Trust me.','Side by Side','New places,\nsame love']]}
+};
+function t(k){return TX[LANG][k];}
+function $(i){return document.getElementById(i);}
+/* medan diisi lalai: kekal ikut bahasa selagi customer tak ubah */
+function isiLalai(el,ms,en,l){if(!el.value.trim()||el.value===ms||el.value===en)el.value=l==='en'?en:ms;}
+function binaMedan(){var g=$('gNota');if(!g.children.length){for(var i=0;i<6;i++){var e=document.createElement('input');e.type='text';e.maxLength=80;e.id='fNota'+i;g.appendChild(e);e.addEventListener('input',kiraSaiz);}}
+  var p=$('gPlan');if(!p.children.length){for(var j=0;j<3;j++){var d=document.createElement('div');d.className='plan';
+    d.innerHTML='<b class="pl"></b><label class="lt"></label><input type="text" maxlength="30" id="fPT'+j+'"><label class="lj"></label><input type="text" maxlength="30" id="fPJ'+j+'"><label class="li"></label><textarea id="fPI'+j+'" maxlength="90" style="min-height:62px"></textarea>';p.appendChild(d);}}}
+function setLang(l){var lama=LANG;LANG=l;try{localStorage.setItem('gk_lang',l);}catch(e){}document.documentElement.lang=l;
+  $('bMS').classList.toggle('on',l==='ms');$('bEN').classList.toggle('on',l==='en');
+  document.querySelectorAll('[data-i]').forEach(function(e){var v=TX[l][e.getAttribute('data-i')];if(v!=null)e.textContent=v;});
+  document.querySelectorAll('[data-ph]').forEach(function(e){var v=TX[l][e.getAttribute('data-ph')];if(v!=null)e.placeholder=v;});
+  binaMedan();var M=LALAI.ms,E=LALAI.en;
+  for(var i=0;i<6;i++){var n=$('fNota'+i);n.placeholder=t('nota')+' '+(i+1);if(!n.dataset.ubah)n.value=(l==='en'?E:M).nota[i];}
+  if(!$('fSurat').dataset.ubah)$('fSurat').value=(l==='en'?E:M).surat;
+  [].forEach.call(document.querySelectorAll('.plan'),function(d,j){d.querySelector('.pl').textContent=t('plan')+' '+(j+1);d.querySelector('.lt').textContent=t('teka');d.querySelector('.lj').textContent=t('tajuk');d.querySelector('.li').textContent=t('isi');
+    ['fPT','fPJ','fPI'].forEach(function(f,x){var el=$(f+j);if(!el.dataset.ubah)el.value=(l==='en'?E:M).plan[j][x];});});
+  renderFoto();if(window.GKBayar&&GKBayar.lang)GKBayar.lang();}
+function tandaUbah(e){if(e.target.matches('#gNota input,#fSurat,#gPlan input,#gPlan textarea'))e.target.dataset.ubah='1';}
+document.addEventListener('input',tandaUbah);
+
+/* ── gambar ── */
+var RATIO={p1:.8,p2:.8,p3:.8,p4:.8,s1:.94,s2:.94,s3:.94,s4:.94,s5:.94,s6:.94,s7:.94,s8:.94};
+var F={},POS={};
+function resize(file,maxW,q,cb){var r=new FileReader();r.onload=function(ev){var im=new Image();im.onload=function(){var s=Math.min(1,maxW/Math.max(im.width,im.height)),w=Math.round(im.width*s),h=Math.round(im.height*s);
+  var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);cb(c.toDataURL('image/jpeg',q));};im.src=ev.target.result;};r.readAsDataURL(file);}
+function kotak(k,label,num){var el=document.createElement('div');el.className='th';el.style.aspectRatio=RATIO[k];
+  if(F[k]){var p=POS[k]||{x:50,y:50};el.innerHTML='<img src="'+F[k]+'" style="object-position:'+p.x+'% '+p.y+'%"><div class="num">'+num+'</div><button type="button" class="del">✕</button>';
+    el.querySelector('.del').onclick=function(e){e.stopPropagation();delete F[k];delete POS[k];renderFoto();};el.querySelector('img').onclick=function(){bukaAdj(k);};}
+  else{el.textContent='📷 '+label;var i=document.createElement('input');i.type='file';i.accept='image/*';i.onchange=function(){if(i.files[0])resize(i.files[0],k[0]==='s'?520:760,.8,function(d){F[k]=d;renderFoto();});};el.appendChild(i);}
+  return el;}
+function renderFoto(){var g=$('gFoto');g.innerHTML='';['p1','p2','p3','p4'].forEach(function(k,i){g.appendChild(kotak(k,t('foto')+' '+(i+1),i+1));});
+  var j=$('gJalur');j.innerHTML='';['s1','s2','s3','s4','s5','s6','s7','s8'].forEach(function(k,i){j.appendChild(kotak(k,t('jalur')+' '+(i+1),'J'+(i+1)));});kiraSaiz();}
+var adj=null;
+function bukaAdj(k){var box=$('adjBox'),im=$('adjImg'),bw=Math.min(280,innerWidth-40),bh=bw/RATIO[k];box.style.width=bw+'px';box.style.height=bh+'px';im.src=F[k];$('adj').classList.add('on');
+  im.onload=function(){var s=Math.max(bw/im.naturalWidth,bh/im.naturalHeight),dw=im.naturalWidth*s,dh=im.naturalHeight*s,p=POS[k]||{x:50,y:50};im.style.width=dw+'px';im.style.height=dh+'px';
+    adj={k:k,dw:dw,dh:dh,bw:bw,bh:bh,x:-(p.x/100)*(dw-bw),y:-(p.y/100)*(dh-bh)};im.style.left=adj.x+'px';im.style.top=adj.y+'px';};}
+(function(){var im=$('adjImg'),d=false,sx,sy,ox,oy;im.onpointerdown=function(e){if(!adj)return;d=true;sx=e.clientX;sy=e.clientY;ox=adj.x;oy=adj.y;};
+  addEventListener('pointermove',function(e){if(!d)return;adj.x=Math.min(0,Math.max(adj.bw-adj.dw,ox+e.clientX-sx));adj.y=Math.min(0,Math.max(adj.bh-adj.dh,oy+e.clientY-sy));im.style.left=adj.x+'px';im.style.top=adj.y+'px';});
+  addEventListener('pointerup',function(){d=false;});})();
+$('adjOk').onclick=function(){if(!adj)return;POS[adj.k]={x:Math.round(adj.dw>adj.bw?-adj.x/(adj.dw-adj.bw)*100:50),y:Math.round(adj.dh>adj.bh?-adj.y/(adj.dh-adj.bh)*100:50)};$('adj').classList.remove('on');adj=null;renderFoto();};
+
+/* ── lagu ── */
+var MP3=null;
+$('tYT').onclick=function(){$('tYT').classList.add('on');$('tMP3').classList.remove('on');$('pYT').classList.add('on');$('pMP3').classList.remove('on');kiraSaiz();};
+$('tMP3').onclick=function(){$('tMP3').classList.add('on');$('tYT').classList.remove('on');$('pMP3').classList.add('on');$('pYT').classList.remove('on');kiraSaiz();};
+$('fMP3').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){MP3=ev.target.result;kiraSaiz();};r.readAsDataURL(f);};
+
+/* ── kumpul data (SYNC, return terus) ── */
+function collect(){
+  var D={template:'justforyou',pengirim:$('fFrom').value.trim(),nama:$('fFor').value.trim(),sapaan:$('fSapa').value.trim(),surat:$('fSurat').value,
+    kunci:$('fKunci').value.trim(),petunjuk:$('fPetunjuk').value.trim(),lang:LANG};
+  for(var i=0;i<6;i++)D['nota'+(i+1)]=$('fNota'+i).value.trim();
+  for(var j=0;j<3;j++){D['plan'+(j+1)+'_teka']=$('fPT'+j).value.trim();D['plan'+(j+1)+'_tajuk']=$('fPJ'+j).value.trim();D['plan'+(j+1)+'_isi']=$('fPI'+j).value.trim();}
+  ['p1','p2','p3','p4','s1','s2','s3','s4','s5','s6','s7','s8'].forEach(function(k){if(F[k]){D[k]=F[k];if(POS[k])D[k+'_pos']=POS[k].x+'% '+POS[k].y+'%';}});
+  if($('tMP3').classList.contains('on')){if(MP3)D.mp3=MP3;}else D.yt=$('fYT').value.trim();
+  return D;
+}
+function kiraSaiz(){if(!$('fNota0'))return;var kb=JSON.stringify(collect()).length/1024,el=$('saiz');el.textContent=t('saiz')+(kb/1024).toFixed(2)+' MB'+(kb>3800?t('berat'):'');el.classList.toggle('berat',kb>3800);}
+['fFrom','fFor','fSapa','fSurat','fKunci','fPetunjuk','fYT'].forEach(function(i){$(i).addEventListener('input',kiraSaiz);});
+$('btnPreview').onclick=function(){try{localStorage.setItem('gk_preview',JSON.stringify(collect()));}catch(e){alert(t('penuh'));return;}window.open('card-justforyou-1.html?preview=1','_blank');};
+
+if(window.GKBayar){GKBayar.mount({el:'gk-bayar',previewEl:'gk-pratonton',viewer:'card-justforyou-1.html',collect:collect,produk:'Made Just for You',qr:true});}
+else{$('gk-bayar').innerHTML='<div style="padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;font-size:.82rem;color:#c62828">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia di root repo, bukan dalam folder api.</div>';}
+try{if(localStorage.getItem('gk_lang')==='en')LANG='en';}catch(e){}
+setLang(LANG);
+</script>
+<script src="gk-notis.js" defer></script>
+</body>
+</html>
