@@ -262,7 +262,7 @@ let myLink='';
 function EN(){try{return localStorage.getItem('gk_lang')==='en'}catch(_e){return false}}
 function hideInfo(){const i=document.getElementById('d-info');i.style.display='none';}
 function showInfo(msg){const i=document.getElementById('d-info');i.textContent=msg;i.style.display='block';}
-const NAMA_TEMPLATE={befday:'Hari Jadi',scrapbook:'Scrapbook',merah:'Merah Klasik',butterfly:'Butterfly',bloom:'A Bouquet for You',fiona:'Fiona',
+const NAMA_TEMPLATE={befday:'Hari Jadi',scrapbook:'Scrapbook',merah:'Merah Klasik',butterfly:'Butterfly',bloom:'A Bouquet for You',yinyang:'Yin & Yang',fiona:'Fiona',
   anniversary:'Anniversary',suratcinta:'Surat Cinta',skrol:'Graduasi Skrol',gradnavy:'Graduasi Navy',gradmemory:'Graduate Memory',
   graduasi:'Graduasi',bouquet:'Bouquet Muka'};
 function tarikh(d){try{return new Date(d).toLocaleDateString(EN()?'en-GB':'ms-MY',{day:'numeric',month:'short'})}catch(_e){return ''}}
