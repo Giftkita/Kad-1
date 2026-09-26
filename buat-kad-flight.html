@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Buat Kad — Flight to You ✈️</title>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Fredoka:wght@700&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:Poppins,system-ui,sans-serif;background:linear-gradient(180deg,#cfe8f8,#eaf4fb 55%,#fde6ee);background-attachment:fixed;color:#4a3b3d;min-height:100vh}
+.wrap{max-width:620px;margin:0 auto;padding:18px 16px 60px}
+h1{font:700 2rem Fredoka,Poppins,sans-serif;color:#2b3a67;text-align:center;margin:4px 0 2px}
+.sub{text-align:center;color:#9a7f84;font-size:.8rem;margin-bottom:14px}
+.aliran{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:0 0 16px}
+.aliran span{font-size:.68rem;color:#9a7f84;background:rgba(255,255,255,.55);padding:4px 10px;border-radius:50px}
+.sect{background:#fffdfd;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 8px 24px rgba(120,60,50,.12)}
+.sect h2{font-size:.95rem;color:#2b3a67;border-bottom:2px solid #fbe3e6;padding-bottom:6px;margin-bottom:10px}
+label{display:block;font-size:.8rem;font-weight:500;color:#5a4a4c;margin:10px 0 4px}
+input[type=text],input[type=url],input[type=date],textarea{width:100%;padding:10px 12px;border:1.5px solid #f0d5d9;border-radius:10px;font-family:inherit;font-size:.88rem;background:#fff;color:#4a3b3d}
+input:focus,textarea:focus{outline:none;border-color:#7fb8e6}
+textarea{min-height:140px;resize:vertical;line-height:1.55}
+.hint{font-size:.72rem;color:#a0898d;margin-top:3px;line-height:1.5}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:8px}
+.th{position:relative;border-radius:4px;overflow:hidden;background:#fdf0f2;border:1.5px dashed #eaa9af;display:flex;align-items:center;justify-content:center;font-size:.68rem;color:#c0616c;text-align:center;cursor:pointer;box-shadow:0 0 0 5px #fff,0 4px 12px rgba(120,60,50,.12)}
+.th img{width:100%;height:100%;object-fit:cover}
+.th .num{position:absolute;top:4px;left:4px;min-width:20px;height:20px;border-radius:10px;padding:0 5px;background:rgba(184,51,60,.85);color:#fff;font-size:.66rem;display:flex;align-items:center;justify-content:center}
+.th .del{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(184,51,60,.85);color:#fff;font-size:.7rem;border:0;cursor:pointer}
+.th input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.btn2{display:inline-block;padding:9px 14px;border:1.5px solid #7fb8e6;background:#fff;color:#2b3a67;border-radius:10px;font:600 .8rem Poppins,sans-serif;cursor:pointer}
+.btn2.on{background:#2b3a67;color:#fff}
+.toggle{display:flex;gap:8px;margin-top:4px}.toggle .btn2{flex:1}
+.panel{display:none;margin-top:6px}.panel.on{display:block}
+#petaWrap{position:relative;margin-top:10px;border-radius:12px;overflow:hidden;display:none;cursor:crosshair}
+#petaWrap img{display:block;width:100%}
+.pinF{position:absolute;width:26px;height:26px;border-radius:50%;background:#7fb8e6;border:2px solid #fff;color:#fff;font:600 .72rem/22px Poppins;text-align:center;transform:translate(-50%,-100%);box-shadow:0 2px 6px rgba(0,0,0,.3);pointer-events:none}
+.pinK{border:1.5px solid #f5dde0;border-radius:12px;padding:10px;margin-top:10px;display:grid;grid-template-columns:70px 1fr;gap:8px 10px;align-items:start}
+.pinK .th{width:70px;height:70px}
+.pinK .f label{margin:0 0 2px;font-size:.7rem}.pinK .f input{padding:7px 9px;font-size:.8rem;margin-bottom:6px}
+.pinK .hapus{grid-column:1/-1;justify-self:end;border:0;background:none;color:#2b3a67;font:500 .72rem Poppins;cursor:pointer}
+.rek{display:flex;align-items:center;gap:10px;margin-top:8px;flex-wrap:wrap}
+.rek .dot{width:10px;height:10px;border-radius:50%;background:#c33;display:none;animation:kd 1s infinite}
+.rek.aktif .dot{display:inline-block}@keyframes kd{50%{opacity:.2}}
+#saiz{font-size:.72rem;margin-top:6px;color:#6a8a5a}#saiz.berat{color:#c33;font-weight:600}
+#adj{position:fixed;inset:0;z-index:100;background:rgba(60,25,32,.93);display:none;flex-direction:column;align-items:center;justify-content:center;padding:20px}
+#adj.on{display:flex}#adj .l{color:#fde;font-size:.78rem;margin-bottom:14px}
+#adjBox{position:relative;overflow:hidden;border:6px solid #fff;touch-action:none}
+#adjImg{position:absolute;max-width:none;cursor:grab;user-select:none}
+#adjOk{margin-top:16px;padding:11px 34px;background:#fff;color:#2b3a67;border:0;border-radius:30px;font-weight:700;cursor:pointer;font-family:inherit}
+.previewbtn{width:100%;padding:14px;background:linear-gradient(135deg,#7fb8e6,#2b3a67);color:#fff;border:none;border-radius:12px;font:600 .95rem Poppins,sans-serif;cursor:pointer;margin:4px 0 14px;box-shadow:0 8px 20px rgba(120,60,50,.25)}
+#gk-pratonton{min-height:40px;margin-bottom:10px}
+.langtoggle{position:fixed;top:10px;right:10px;z-index:50;display:flex;background:#fff;border-radius:30px;padding:3px;box-shadow:0 2px 10px rgba(0,0,0,.15)}
+.langtoggle button{border:0;background:transparent;color:#2b3a67;font:700 .72rem Poppins;padding:5px 12px;border-radius:20px;cursor:pointer}
+.langtoggle button.on{background:#2b3a67;color:#fff}
+.back{display:block;text-align:center;font-size:.8rem;color:#9a7f84;margin-bottom:6px;text-decoration:none}
+.grid.jalur{grid-template-columns:repeat(4,1fr)}
+.plan{border:1.5px solid #f5dde0;border-radius:12px;padding:10px 12px;margin-top:10px;background:#fbf8f2}
+.plan b{font-size:.78rem;color:#2b3a67}
+.nt{display:grid;gap:6px;margin-top:6px}
+.banyak{position:relative;overflow:hidden;display:block;width:100%;text-align:center;padding:13px;margin-top:10px;background:linear-gradient(135deg,#f6b8c0,#7fb8e6);color:#fff;border:0;font-size:.85rem;box-shadow:0 6px 16px rgba(232,129,138,.3)}
+.banyak input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.kap{display:grid;grid-template-columns:78px 1fr;gap:10px;align-items:start;border:1.5px solid #f5dde0;border-radius:12px;padding:10px;margin-top:10px;background:#fffafb}
+.kap b{grid-column:1/-1;font-size:.78rem;color:#2b3a67}
+.kap textarea{min-height:70px;font-size:.84rem}
+.kap .th{width:78px}
+.dua{display:grid;grid-template-columns:90px 1fr;gap:8px}
+.dua input:first-child{text-transform:uppercase;font:700 1rem 'Space Mono',monospace;text-align:center;letter-spacing:.1em}
+.papanPv{margin-top:10px;background:#1d2433;border:4px solid #2b3a67;outline:2px solid #e9c46a;border-radius:10px;padding:10px 8px;display:grid;gap:4px}
+.papanPv .r{display:grid;grid-template-columns:repeat(16,1fr);gap:2px}
+.papanPv .r span{background:linear-gradient(180deg,#2a3142 0 49%,#1a1f2b 51%);color:#f7d98b;font:700 .72rem/1.9 'Space Mono',monospace;text-align:center;border-radius:2px;min-width:0}
+.papan input{text-transform:uppercase;font:700 .9rem 'Space Mono',monospace;letter-spacing:.06em}
+</style>
+</head>
+<body>
+<div class="langtoggle"><button id="bMS" class="on" onclick="setLang('ms')">BM</button><button id="bEN" onclick="setLang('en')">EN</button></div>
+<div class="wrap">
+  <a class="back" href="buat-kad-cinta.html" data-i="back">‹ Kembali</a>
+  <h1>Flight to You ✈️</h1>
+  <div class="sub" data-i="sub"></div>
+  <div class="aliran"><span data-i="a1"></span><span data-i="a2"></span><span data-i="a3"></span><span data-i="a4"></span><span data-i="a5"></span></div>
+
+  <div class="sect"><h2 data-i="hNama"></h2>
+    <label data-i="lFrom"></label><input type="text" id="fFrom" maxlength="30" data-ph="phFrom">
+    <label data-i="lFor"></label><input type="text" id="fFor" maxlength="30" data-ph="phFor">
+  </div>
+
+  <div class="sect"><h2 data-i="hTiket"></h2>
+    <div class="hint" data-i="hintTiket"></div>
+    <label data-i="lDari"></label><div class="dua"><input type="text" id="fDK" maxlength="3" placeholder="KUL"><input type="text" id="fDKt" maxlength="22" placeholder="Kuala Lumpur"></div>
+    <label data-i="lKe"></label><div class="dua"><input type="text" id="fKK" maxlength="3" placeholder="LUV"><input type="text" id="fKKt" maxlength="22" data-ph="phKeKota"></div>
+    <label data-i="lTarikh"></label><input type="date" id="fTarikh">
+  </div>
+
+  <div class="sect papan"><h2 data-i="hPapan"></h2>
+    <div class="hint" data-i="hintPapan"></div>
+    <input type="text" id="fP1" maxlength="16" style="margin-top:8px"><input type="text" id="fP2" maxlength="16" style="margin-top:6px"><input type="text" id="fP3" maxlength="16" style="margin-top:6px">
+    <div class="papanPv" id="pv"></div>
+  </div>
+
+  <div class="sect"><h2 data-i="hFoto"></h2>
+    <div class="hint" data-i="hintFoto"></div>
+    <label class="btn2 banyak"><span data-i="bBanyak"></span><input type="file" id="fBanyak" accept="image/*" multiple></label>
+    <div id="proses" class="hint"></div>
+    <div class="grid" id="gFoto" style="grid-template-columns:repeat(3,1fr)"></div>
+  </div>
+
+  <div class="sect"><h2 data-i="hSurat"></h2>
+    <textarea id="fSurat" maxlength="900"></textarea>
+    <div class="hint" data-i="hintSurat"></div>
+    <label data-i="lKjFoto"></label>
+    <div class="grid" id="gKejut" style="grid-template-columns:1fr;max-width:160px;margin:8px auto 0"></div>
+  </div>
+
+  <div class="sect"><h2 data-i="hVideo"></h2>
+    <label data-i="lVideo"></label><input type="url" id="fVideo" placeholder="https://youtube.com/watch?v=...">
+    <div class="hint" data-i="hintVideo"></div>
+  </div>
+
+  <div class="sect"><h2 data-i="hLagu"></h2>
+    <div class="toggle"><button type="button" class="btn2 on" id="tYT" data-i="bYT"></button><button type="button" class="btn2" id="tMP3" data-i="bMP3"></button></div>
+    <div class="panel on" id="pYT"><label data-i="lYT"></label><input type="url" id="fYT" placeholder="https://youtube.com/watch?v=..."></div>
+    <div class="panel" id="pMP3"><label data-i="lMP3"></label><input type="file" id="fMP3" accept="audio/mpeg,audio/mp3"></div>
+    <div class="hint" data-i="hintLagu"></div>
+  </div>
+
+  <button class="previewbtn" id="btnPreview" type="button" data-i="bPrev"></button>
+  <div id="saiz"></div>
+
+  <div class="sect" style="margin-top:16px"><h2 data-i="hBayar"></h2><div id="gk-pratonton"></div><div id="gk-bayar"></div></div>
+</div>
+
+<div id="adj"><div class="l" data-i="adj"></div><div id="adjBox"><img id="adjImg" alt=""></div><button type="button" id="adjOk" data-i="selesai"></button></div>
+
+<script src="gk-bayar.js"></script>
+<script>
+var LANG='ms';
+var TX={
+ ms:{back:'‹ Kembali',sub:'Kad penerbangan cinta: papan DEPARTURES berpusing huruf, boarding pass yang dikoyak, kapal terbang atas peta, mesej di papan ketibaan, bagasi foto dan pasport dengan surat.',
+  a1:'🛫 Daftar masuk',a2:'🎫 Koyak tiket',a3:'🗺 Terbang',a4:'🔤 Papan ketibaan',a5:'🛂 Pasport',
+  hNama:'Nama',lFrom:'Daripada (nama kamu)',phFrom:'Contoh: Danial',lFor:'Untuk (nama penerima — keluar sebagai penumpang)',phFor:'Contoh: Aina',
+  hTiket:'Boarding pass 🎫',hintTiket:'Kod 3 huruf macam kod lapangan terbang. Contoh: KUL Kuala Lumpur → JHB Johor Bahru, atau LUV "Hati Kamu" 💗',
+  lDari:'Dari (kod + nama tempat)',lKe:'Ke (kod + nama tempat)',phKeKota:'Hati Kamu',lTarikh:'Tarikh penerbangan (kosong = hari ini)',
+  hPapan:'Mesej papan ketibaan 🔤',hintPapan:'3 baris, maksimum 16 huruf sebaris. Huruf berpusing satu-satu macam papan airport. Guna ♥ untuk hati. Emoji lain tak keluar.',
+  hFoto:'Tag bagasi — foto (sehingga 6) 🧳',hintFoto:'Keluar sebagai tag bagasi yang terbang dari beg. Pilih banyak gambar sekali gus, ketik gambar untuk laras kedudukan.',
+  bBanyak:'📷 Pilih banyak gambar sekali gus',proses:'Memproses gambar',penuhSlot:'Semua 6 tag dah penuh — buang gambar dulu untuk tukar.',lebih:' gambar tak masuk sebab tag dah penuh.',foto:'Foto',
+  hSurat:'Surat dalam pasport 💌',hintSurat:'Keluar di halaman kanan pasport, ketik untuk baca penuh.',lKjFoto:'Gambar pasport (pilihan — kosong guna Foto 1)',fKejut:'Gambar pasport',
+  hVideo:'Video (pilihan) 🎬',lVideo:'Pautan YouTube',hintVideo:'Keluar di skrin TV kerusi kapal terbang selepas bagasi dibuka.',
+  hLagu:'Lagu',bYT:'Pautan YouTube',bMP3:'Upload MP3',lYT:'Pautan YouTube lagu',lMP3:'Fail MP3 (Premium)',hintLagu:'Lagu main bila penerima tekan "Daftar masuk". Butang ♪ di atas untuk henti/main.',
+  bPrev:'👀 Pratonton Kad',hBayar:'Bayaran',adj:'Seret gambar untuk laraskan kedudukan',selesai:'Selesai',
+  saiz:'Saiz kad: ',berat:' — terlalu besar, kecilkan/buang beberapa gambar atau MP3',penuh:'Gambar terlalu besar untuk pratonton. Cuba gambar yang lebih kecil.',besar:'Fail terlalu besar (maks 600KB).'},
+ en:{back:'‹ Back',sub:'A love flight card: a flipping DEPARTURES board, a boarding pass to tear, a plane across the map, your message on the arrivals board, photo baggage tags and a passport with your letter.',
+  a1:'🛫 Check in',a2:'🎫 Tear the ticket',a3:'🗺 Fly',a4:'🔤 Arrivals board',a5:'🛂 Passport',
+  hNama:'Names',lFrom:'From (your name)',phFrom:'e.g. Danial',lFor:'For (recipient — shown as the passenger)',phFor:'e.g. Aina',
+  hTiket:'Boarding pass 🎫',hintTiket:'3-letter codes like airport codes. e.g. KUL Kuala Lumpur → JHB Johor Bahru, or LUV "Your Heart" 💗',
+  lDari:'From (code + place)',lKe:'To (code + place)',phKeKota:'Your Heart',lTarikh:'Flight date (empty = today)',
+  hPapan:'Arrivals board message 🔤',hintPapan:'3 lines, max 16 characters each. Letters flip one by one like an airport board. Use ♥ for a heart. Other emoji will not show.',
+  hFoto:'Baggage tags — photos (up to 6) 🧳',hintFoto:'Shown as baggage tags flying out of the suitcase. Pick many photos at once, tap a photo to adjust it.',
+  bBanyak:'📷 Pick many photos at once',proses:'Processing photos',penuhSlot:'All 6 tags are full — remove a photo first to change it.',lebih:' photo(s) not added because the tags are full.',foto:'Photo',
+  hSurat:'Letter in the passport 💌',hintSurat:'Shown on the right page of the passport, tap to read in full.',lKjFoto:'Passport photo (optional — empty uses Photo 1)',fKejut:'Passport photo',
+  hVideo:'Video (optional) 🎬',lVideo:'YouTube link',hintVideo:'Plays on the seatback TV after the baggage is opened.',
+  hLagu:'Song',bYT:'YouTube Link',bMP3:'Upload MP3',lYT:'Song YouTube link',lMP3:'MP3 file (Premium)',hintLagu:'The song plays when "Check in" is tapped. The ♪ button pauses/plays.',
+  bPrev:'👀 Preview Card',hBayar:'Payment',adj:'Drag the photo to adjust its position',selesai:'Done',
+  saiz:'Card size: ',berat:' — too big, shrink/remove some photos or the MP3',penuh:'Photos are too large to preview. Try smaller photos.',besar:'File too large (max 600KB).'}
+};
+var LALAI={ms:{papan:['RINDU KAMU','SETIAP HARI','JUMPA NANTI ♥'],surat:'Sayang,\n\nWalau jauh macam mana pun, hati aku sentiasa terbang balik pada kamu. Setiap batu jarak antara kita cuma buat aku lebih sayang.\n\nTunggu aku ya — penerbangan kita seterusnya, kita naik sama-sama.'},
+ en:{papan:['I MISS YOU','EVERY SINGLE DAY','SEE YOU SOON ♥'],surat:'My love,\n\nNo matter how far apart we are, my heart always flies back to you. Every mile between us only makes me love you more.\n\nWait for me — on our next flight, we board together.'}};
+function t(k){return TX[LANG][k];}
+function $(i){return document.getElementById(i);}
+var HURUF=' ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789♥!?.,-&:';
+function normal(s){return String(s||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').split('').map(function(c){return HURUF.indexOf(c)>=0?c:(c==='❤'||c==='💗'?'♥':' ');}).join('').replace(/\s+/g,' ').trim();}
+function pratontonPapan(){var pv=$('pv');pv.innerHTML='';['fP1','fP2','fP3'].forEach(function(id){var s=normal($(id).value).slice(0,16),pad=Math.floor((16-s.length)/2);s=(' '.repeat(pad)+s).padEnd(16,' ');
+  var r=document.createElement('div');r.className='r';r.innerHTML=s.split('').map(function(c){return '<span'+(c==='♥'?' style="color:#f29aac"':'')+'>'+(c===' '?'&nbsp;':c)+'</span>';}).join('');pv.appendChild(r);});}
+function setLang(l){LANG=l;try{localStorage.setItem('gk_lang',l);}catch(e){}document.documentElement.lang=l;
+  $('bMS').classList.toggle('on',l==='ms');$('bEN').classList.toggle('on',l==='en');
+  document.querySelectorAll('[data-i]').forEach(function(e){var v=TX[l][e.getAttribute('data-i')];if(v!=null)e.textContent=v;});
+  document.querySelectorAll('[data-ph]').forEach(function(e){var v=TX[l][e.getAttribute('data-ph')];if(v!=null)e.placeholder=v;});
+  var L=LALAI[l];['fP1','fP2','fP3'].forEach(function(id,i){var x=$(id);if(!x.dataset.ubah)x.value=L.papan[i];});
+  if(!$('fSurat').dataset.ubah)$('fSurat').value=L.surat;pratontonPapan();
+  renderFoto();if(window.GKBayar&&GKBayar.lang)GKBayar.lang();}
+document.addEventListener('input',function(e){if(e.target.matches('#fP1,#fP2,#fP3,#fSurat'))e.target.dataset.ubah='1';if(e.target.matches('#fP1,#fP2,#fP3'))pratontonPapan();});
+
+var RATIO={surprise_img:.793,p1:.747,p2:.747,p3:.747,p4:.747,p5:.747,p6:.747};
+var F={},POS={};
+var SLOT=['p1','p2','p3','p4','p5','p6'];
+/* isi petak kosong ikut turutan, bermula dari petak 'mula' (atau yang pertama kosong); proses satu-satu supaya tak tersekat */
+function isiBanyak(files,mula){var kosong=SLOT.slice(mula?SLOT.indexOf(mula):0).concat(mula?SLOT.slice(0,SLOT.indexOf(mula)):[]).filter(function(k){return !F[k];});
+  if(!kosong.length){alert(t('penuhSlot'));return;}
+  var lebih=Math.max(0,files.length-kosong.length);files=files.slice(0,kosong.length);var n=0,p=$('proses');
+  (function satu(){if(n>=files.length){p.textContent='';renderFoto();if(lebih)alert(lebih+t('lebih'));return;}
+    p.textContent=t('proses')+' '+(n+1)+'/'+files.length+'…';var k=kosong[n];
+    resize(files[n],760,.8,function(d){F[k]=d;n++;if(n%3===0)renderFoto();satu();});})();}
+function resize(file,maxW,q,cb){var r=new FileReader();r.onload=function(ev){var im=new Image();im.onload=function(){var s=Math.min(1,maxW/Math.max(im.width,im.height)),w=Math.round(im.width*s),h=Math.round(im.height*s);
+  var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);cb(c.toDataURL('image/jpeg',q));};im.src=ev.target.result;};r.readAsDataURL(file);}
+function kotak(k,label,num){var el=document.createElement('div');el.className='th';el.style.aspectRatio=RATIO[k];
+  if(F[k]){var p=POS[k]||{x:50,y:50};el.innerHTML='<img src="'+F[k]+'" style="object-position:'+p.x+'% '+p.y+'%"><div class="num">'+num+'</div><button type="button" class="del">✕</button>';
+    el.querySelector('.del').onclick=function(e){e.stopPropagation();delete F[k];delete POS[k];renderFoto();};el.querySelector('img').onclick=function(){bukaAdj(k);};}
+  else{el.textContent='📷 '+label;var i=document.createElement('input');i.type='file';i.accept='image/*';if(SLOT.indexOf(k)>=0)i.multiple=true;
+    i.onchange=function(){if(!i.files.length)return;if(SLOT.indexOf(k)>=0)isiBanyak([].slice.call(i.files),k);else resize(i.files[0],760,.8,function(d){F[k]=d;renderFoto();});};el.appendChild(i);}
+  return el;}
+function renderFoto(){var g=$('gFoto');g.innerHTML='';SLOT.forEach(function(k,i){g.appendChild(kotak(k,t('foto')+' '+(i+1),i+1));});
+  var gk=$('gKejut');gk.innerHTML='';gk.appendChild(kotak('surprise_img',t('fKejut'),'🛂'));kiraSaiz();}
+var adj=null;
+function bukaAdj(k){var box=$('adjBox'),im=$('adjImg'),bw=Math.min(280,innerWidth-40),bh=bw/RATIO[k];box.style.width=bw+'px';box.style.height=bh+'px';im.src=F[k];$('adj').classList.add('on');
+  im.onload=function(){var s=Math.max(bw/im.naturalWidth,bh/im.naturalHeight),dw=im.naturalWidth*s,dh=im.naturalHeight*s,p=POS[k]||{x:50,y:50};im.style.width=dw+'px';im.style.height=dh+'px';
+    adj={k:k,dw:dw,dh:dh,bw:bw,bh:bh,x:-(p.x/100)*(dw-bw),y:-(p.y/100)*(dh-bh)};im.style.left=adj.x+'px';im.style.top=adj.y+'px';};}
+(function(){var im=$('adjImg'),d=false,sx,sy,ox,oy;im.onpointerdown=function(e){if(!adj)return;d=true;sx=e.clientX;sy=e.clientY;ox=adj.x;oy=adj.y;};
+  addEventListener('pointermove',function(e){if(!d)return;adj.x=Math.min(0,Math.max(adj.bw-adj.dw,ox+e.clientX-sx));adj.y=Math.min(0,Math.max(adj.bh-adj.dh,oy+e.clientY-sy));im.style.left=adj.x+'px';im.style.top=adj.y+'px';});
+  addEventListener('pointerup',function(){d=false;});})();
+$('adjOk').onclick=function(){if(!adj)return;POS[adj.k]={x:Math.round(adj.dw>adj.bw?-adj.x/(adj.dw-adj.bw)*100:50),y:Math.round(adj.dh>adj.bh?-adj.y/(adj.dh-adj.bh)*100:50)};$('adj').classList.remove('on');adj=null;renderFoto();};
+
+/* ── lagu ── */
+var MP3=null;
+$('tYT').onclick=function(){$('tYT').classList.add('on');$('tMP3').classList.remove('on');$('pYT').classList.add('on');$('pMP3').classList.remove('on');kiraSaiz();};
+$('tMP3').onclick=function(){$('tMP3').classList.add('on');$('tYT').classList.remove('on');$('pMP3').classList.add('on');$('pYT').classList.remove('on');kiraSaiz();};
+$('fMP3').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){MP3=ev.target.result;kiraSaiz();};r.readAsDataURL(f);};
+
+/* ── kumpul data (SYNC, return terus) ── */
+function collect(){
+  var D={template:'flight',pengirim:$('fFrom').value.trim(),nama:$('fFor').value.trim(),
+    dari_kod:$('fDK').value.trim().toUpperCase(),dari_kota:$('fDKt').value.trim(),ke_kod:$('fKK').value.trim().toUpperCase(),ke_kota:$('fKKt').value.trim(),tarikh:$('fTarikh').value,
+    papan1:$('fP1').value.trim(),papan2:$('fP2').value.trim(),papan3:$('fP3').value.trim(),surat:$('fSurat').value,video:$('fVideo').value.trim(),lang:LANG};
+  ['p1','p2','p3','p4','p5','p6','surprise_img'].forEach(function(k){if(F[k]){D[k]=F[k];if(POS[k])D[k+'_pos']=POS[k].x+'% '+POS[k].y+'%';}});
+  if($('tMP3').classList.contains('on')){if(MP3)D.mp3=MP3;}else D.yt=$('fYT').value.trim();
+  return D;
+}
+function kiraSaiz(){if(!$('fP1'))return;var kb=JSON.stringify(collect()).length/1024,el=$('saiz');el.textContent=t('saiz')+(kb/1024).toFixed(2)+' MB'+(kb>3800?t('berat'):'');el.classList.toggle('berat',kb>3800);}
+['fFrom','fFor','fDK','fDKt','fKK','fKKt','fTarikh','fP1','fP2','fP3','fSurat','fYT','fVideo'].forEach(function(i){$(i).addEventListener('input',kiraSaiz);});
+$('fBanyak').onchange=function(e){var fs=[].slice.call(e.target.files);e.target.value='';if(fs.length)isiBanyak(fs,null);};
+$('btnPreview').onclick=function(){try{localStorage.setItem('gk_preview',JSON.stringify(collect()));}catch(e){alert(t('penuh'));return;}window.open('card-flight-1.html?preview=1','_blank');};
+
+if(window.GKBayar){GKBayar.mount({el:'gk-bayar',previewEl:'gk-pratonton',viewer:'card-flight-1.html',collect:collect,produk:'Flight to You',qr:true});}
+else{$('gk-bayar').innerHTML='<div style="padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;font-size:.82rem;color:#c62828">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia di root repo, bukan dalam folder api.</div>';}
+try{if(localStorage.getItem('gk_lang')==='en')LANG='en';}catch(e){}
+setLang(LANG);
+</script>
+<script src="gk-notis.js" defer></script>
+</body>
+</html>
