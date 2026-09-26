@@ -25,6 +25,8 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 .gp-ourstory{background:linear-gradient(160deg,#8e1224,#c9223c 55%,#f26d8f)}
 .gp-suratcinta{background:linear-gradient(160deg,#0a1a2f,#13294b 55%,#4a6fa5)}
 .gp-fiona{background:linear-gradient(160deg,#4f6042,#8fa07d 52%,#e8c5c0)}
+.gp-yinyang{background:radial-gradient(ellipse at 45% 55%,#f0c7c0,#e0abaa 45%,#c77f82)}
+.g-badge.baru{background:#fff3c4;color:#b86e00;left:8px;right:auto}
 
 #lang{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.12);
   border-radius:999px;padding:6px 12px;font-size:12px;color:#5a4a42;cursor:pointer;font-family:inherit;z-index:5}
@@ -35,7 +37,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 <a class="back" href="index.html" data-k="back">‹ Kembali ke Homepage</a>
 <div class="g-head">
   <h2 class="g-title" data-k="tajuk">Pilih Tema Anniversary 💑</h2>
-  <p class="g-sub" data-k="sub">Tiga gaya berbeza — pilih yang paling sesuai dengan cerita korang.</p>
+  <p class="g-sub" data-k="sub">Empat gaya berbeza — pilih yang paling sesuai dengan cerita korang.</p>
 </div>
 <div class="g-grid">
   <a class="g-card" href="buat-kad-anniversary-ourstory.html">
@@ -50,6 +52,10 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
     <div class="gp gp-fiona"><span class="g-badge" data-k="ada">TERSEDIA</span>📼<div class="g-glow"></div></div>
     <div class="gm"><h3 data-k="n3">Fiona</h3><span data-k="d3">Mixtape — sampul, bunga mekar &amp; lagu</span></div>
   </a>
+  <a class="g-card" href="buat-kad-yinyang.html">
+    <div class="gp gp-yinyang"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>☯<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n4">Yin &amp; Yang</h3><span data-k="d4">Bunga, sampul &amp; polaroid gosok</span></div>
+  </a>
 </div>
 
 <script>
@@ -59,12 +65,12 @@ var L={
      sub:'Tiga gaya berbeza — pilih yang paling sesuai dengan cerita korang.',ada:'TERSEDIA',baru:'BARU',
      n1:'Our Story',d1:'Buku diari — selak macam album',
      n2:'A Special Letter',d2:'Surat cinta — scroll &amp; buka sampul',
-     n3:'Fiona',d3:'Mixtape — sampul, bunga mekar &amp; lagu'},
+     n3:'Fiona',d3:'Mixtape — sampul, bunga mekar &amp; lagu',n4:'Yin &amp; Yang',d4:'Bunga, sampul &amp; polaroid gosok'},
  en:{title:'Choose a Theme — Anniversary 💑',back:'‹ Back to Homepage',tajuk:'Choose an Anniversary Theme 💑',
-     sub:'Three different styles — pick the one that fits your story.',ada:'AVAILABLE',baru:'NEW',
+     sub:'Four different styles — pick the one that fits your story.',ada:'AVAILABLE',baru:'NEW',
      n1:'Our Story',d1:'A diary book — flip it like an album',
      n2:'A Special Letter',d2:'A love letter — scroll &amp; open the envelope',
-     n3:'Fiona',d3:'Mixtape — envelope, blooming flowers &amp; a song'}
+     n3:'Fiona',d3:'Mixtape — envelope, blooming flowers &amp; a song',n4:'Yin &amp; Yang',d4:'Flowers, envelope &amp; scratch polaroids'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function pakai(){
