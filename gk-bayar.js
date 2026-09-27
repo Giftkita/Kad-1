@@ -54,12 +54,12 @@ var CFG={};
    tu dan tetapkan harga yang sama (create-bill.js untuk RM, create-checkout.js untuk USD). */
 var PLAN_LALAI={
   basic:  { rm:6, usd:8,  nm:'Basic',   ds:'Muzik YouTube · link kekal',       ds_en:'YouTube music · permanent link' },
-  premium:{ rm:8, usd:10, nm:'Premium', ds:'MP3 sendiri · kod QR · album PDF', ds_en:'Your own MP3 · QR code · PDF album' }
+  premium:{ rm:8, usd:10, nm:'Premium', ds:'Semua Basic · kod QR · album PDF', ds_en:'Everything in Basic · QR code · PDF album' }
 };
 var USD_LALAI={ basic:8, premium:10, bouquet:3 };
 var EN_LALAI={
   basic:  { nm:'Basic',   ds:'YouTube music · permanent link' },
-  premium:{ nm:'Premium', ds:'Your own MP3 · QR code · PDF album' },
+  premium:{ nm:'Premium', ds:'Everything in Basic · QR code · PDF album' },
   bouquet:{ nm:'Photo Bouquet', ds:'Full image without watermark · instant download' }
 };
 var PLANS=PLAN_LALAI;
