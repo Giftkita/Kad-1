@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /diagnostik.html
+Disallow: /bayar.html
+Disallow: /api/
+
+Sitemap: https://www.giftkita.com/sitemap.xml
