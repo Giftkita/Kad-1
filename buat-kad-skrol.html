@@ -63,6 +63,9 @@ input:focus,textarea:focus{outline:2px solid var(--navy);outline-offset:1px}
 #laras .semula,#laras .tukar{background:#fff;border:1px solid rgba(150,125,110,.34);color:#4a3b33}
 .amaran{padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;font-size:.82rem;color:#c62828}
 </style>
+<style>/* GiftKita 27 Sep 2026: upload MP3 dibuang — lagu guna pautan YouTube sahaja */
+#tMP3,#pMP3,#tYT,#btnMP3,#panelMP3,#btnYT,#pane-mp3,.mtabs,.sm:has(> #fMp3),.sm:has(> input[data-mp3]),label[data-k="lMp3"],#mp3f,#mp3info{display:none!important}
+</style>
 </head>
 <body>
 <header>
@@ -111,7 +114,7 @@ input:focus,textarea:focus{outline:2px solid var(--navy);outline-offset:1px}
   </div>
 
   <div class="sec">
-    <h2 id="s6">Lagu</h2><div class="hint" id="s6h">Main sendiri bila reben ditarik. Link YouTube atau upload MP3.</div>
+    <h2 id="s6">Lagu</h2><div class="hint" id="s6h">Main sendiri bila reben ditarik. Guna link YouTube.</div>
     <div class="row">
       <div><label id="lSong">Tajuk lagu</label><input type="text" id="fSong" maxlength="40" placeholder="Perfect"></div>
       <div><label id="lArtist">Penyanyi</label><input type="text" id="fArtist" maxlength="40" placeholder="Ed Sheeran"></div>
@@ -158,7 +161,7 @@ var L={
      s3:'Gambar graduan',s3h:'4 bingkai emas berukir — gambar konvo, keluarga, detik terbaik',s3n:'Tekan kotak untuk pilih. Boleh pilih beberapa sekali gus — diisi ikut urutan. Tekan gambar untuk laras.',
      s4:'Kawan-kawan',s4h:'6 bingkai. Setiap kawan: gambar + nama + nota pendek. Bila dia tekan bingkai, nota tu keluar macam tandatangan buku tahunan.',
      s5:'Kejutan — bermeterai',s5h:'Bingkai ni tertutup dengan meterai lilin emas. Dia tekan, meterai pecah, gambar ni keluar. Nota di bawah pilihan.',lNotaK:'Nota kejutan (pilihan)',
-     s6:'Lagu',s6h:'Main sendiri bila reben ditarik. Link YouTube atau upload MP3.',lSong:'Tajuk lagu',lArtist:'Penyanyi',atauMp3:'atau upload MP3',
+     s6:'Lagu',s6h:'Main sendiri bila reben ditarik. Guna link YouTube.',lSong:'Tajuk lagu',lArtist:'Penyanyi',atauMp3:'atau upload MP3',
      s7:'Video YouTube',s7h:'Pilihan — keluar dalam bingkai emas besar, tekan untuk main',
      kNama:'Nama kawan',kNota:'Nota dia',kFoto:'Gambar',laras:'tekan untuk laras',
      f:['Graduan 1','Graduan 2','Graduan 3','Graduan 4','Kawan 1','Kawan 2','Kawan 3','Kawan 4','Kawan 5','Kawan 6','Gambar kejutan ✦'],
@@ -170,7 +173,7 @@ var L={
      s3:'Graduate photos',s3h:'4 ornate gold frames — convocation, family, the best moments',s3n:'Tap a box to choose. You can pick several at once — they fill in order. Tap a photo to adjust.',
      s4:'Friends',s4h:'6 frames. Each friend: photo + name + a short note. When they tap a frame, the note appears like a yearbook signature.',
      s5:'Surprise — sealed',s5h:'This frame is closed with a gold wax seal. They tap it, the seal breaks, this photo appears. The note below is optional.',lNotaK:'Surprise note (optional)',
-     s6:'Song',s6h:'Plays when the ribbon is pulled. YouTube link or upload an MP3.',lSong:'Song title',lArtist:'Artist',atauMp3:'or upload an MP3',
+     s6:'Song',s6h:'Plays when the ribbon is pulled. Use a YouTube link.',lSong:'Song title',lArtist:'Artist',atauMp3:'or upload an MP3',
      s7:'YouTube video',s7h:'Optional — shows in the large gold frame, tap to play',
      kNama:'Friend\'s name',kNota:'Their note',kFoto:'Photo',laras:'tap to adjust',
      f:['Graduate 1','Graduate 2','Graduate 3','Graduate 4','Friend 1','Friend 2','Friend 3','Friend 4','Friend 5','Friend 6','Surprise photo ✦'],
