@@ -65,6 +65,9 @@ textarea{min-height:140px;resize:vertical;line-height:1.55}
 .kap textarea{min-height:70px;font-size:.84rem}
 .kap .th{width:78px;border-radius:50%}
 </style>
+<style>/* GiftKita 27 Sep 2026: upload MP3 dibuang — lagu guna pautan YouTube sahaja */
+#tMP3,#pMP3,#tYT,#btnMP3,#panelMP3,#btnYT,#pane-mp3,.mtabs,.sm:has(> #fMp3),.sm:has(> input[data-mp3]),label[data-k="lMp3"],#mp3f,#mp3info{display:none!important}
+</style>
 </head>
 <body>
 <div class="langtoggle"><button id="bMS" class="on" onclick="setLang('ms')">BM</button><button id="bEN" onclick="setLang('en')">EN</button></div>
@@ -127,7 +130,7 @@ var TX={
   hSurat:'Surat dari bulan 🌙',hintSurat:'Keluar paling akhir atas kertas biru malam bertulisan emas.',
   lKjFoto:'Gambar hajat — tahi bintang (pilihan)',lKjMsg:'Ayat hajat (pilihan)',phKjMsg:'Contoh: Tiket konsert kita dah ada 🎟️',fKejut:'Gambar hajat',
   hVideo:'Video (pilihan) 🎬',lVideo:'Pautan YouTube',hintVideo:'Keluar sebagai teleskop di sudut langit — ketik untuk tengok video dalam kanta.',
-  hLagu:'Lagu',bYT:'Pautan YouTube',bMP3:'Upload MP3',lYT:'Pautan YouTube lagu',lMP3:'Fail MP3 (Premium)',hintLagu:'Lagu main bila penerima buka tingkap. Butang ♪ di atas untuk henti/main.',
+  hLagu:'Lagu',bYT:'Pautan YouTube',bMP3:'Upload MP3',lYT:'Pautan YouTube lagu',lMP3:'Fail MP3 (maks 2.2 MB)',hintLagu:'Lagu main bila penerima buka tingkap. Butang ♪ di atas untuk henti/main.',
   bPrev:'👀 Pratonton Kad',hBayar:'Bayaran',adj:'Seret gambar untuk laraskan kedudukan',selesai:'Selesai',
   saiz:'Saiz kad: ',berat:' — terlalu besar, kecilkan/buang beberapa gambar atau MP3',penuh:'Gambar terlalu besar untuk pratonton. Cuba gambar yang lebih kecil.',besar:'Fail terlalu besar (maks 600KB).'},
  en:{back:'‹ Back',sub:'A romantic night sky: open the window, connect the stars into a heart constellation (each star is a memory), make a wish on a shooting star and read a letter from the moon.',
@@ -139,7 +142,7 @@ var TX={
   hSurat:'Letter from the moon 🌙',hintSurat:'Shown last on midnight-blue paper in gold writing.',
   lKjFoto:'Wish photo — shooting star (optional)',lKjMsg:'Wish message (optional)',phKjMsg:'e.g. Our concert tickets are booked 🎟️',fKejut:'Wish photo',
   hVideo:'Video (optional) 🎬',lVideo:'YouTube link',hintVideo:'Shown as a telescope in the corner of the sky — tap to watch the video in the lens.',
-  hLagu:'Song',bYT:'YouTube Link',bMP3:'Upload MP3',lYT:'Song YouTube link',lMP3:'MP3 file (Premium)',hintLagu:'The song plays when the window is opened. The ♪ button pauses/plays.',
+  hLagu:'Song',bYT:'YouTube Link',bMP3:'Upload MP3',lYT:'Song YouTube link',lMP3:'MP3 file (max 2.2 MB)',hintLagu:'The song plays when the window is opened. The ♪ button pauses/plays.',
   bPrev:'👀 Preview Card',hBayar:'Payment',adj:'Drag the photo to adjust its position',selesai:'Done',
   saiz:'Card size: ',berat:' — too big, shrink/remove some photos or the MP3',penuh:'Photos are too large to preview. Try smaller photos.',besar:'File too large (max 600KB).'}
 };
@@ -197,7 +200,7 @@ $('adjOk').onclick=function(){if(!adj)return;POS[adj.k]={x:Math.round(adj.dw>adj
 var MP3=null;
 $('tYT').onclick=function(){$('tYT').classList.add('on');$('tMP3').classList.remove('on');$('pYT').classList.add('on');$('pMP3').classList.remove('on');kiraSaiz();};
 $('tMP3').onclick=function(){$('tMP3').classList.add('on');$('tYT').classList.remove('on');$('pMP3').classList.add('on');$('pYT').classList.remove('on');kiraSaiz();};
-$('fMP3').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){MP3=ev.target.result;kiraSaiz();};r.readAsDataURL(f);};
+$('fMP3').onchange=function(e){var f=e.target.files[0];if(!f)return;var mb=(f.size/1048576).toFixed(1);if(f.size>2.2*1048576){alert(LANG==='en'?'This song is '+mb+' MB — too big for the card (max 2.2 MB). Use a YouTube link, or a shorter / smaller MP3 (e.g. 64–96 kbps, about 2–3 minutes).':'Lagu ni '+mb+' MB — terlalu besar untuk kad (maks 2.2 MB). Guna pautan YouTube, atau MP3 yang lebih pendek / kecil (contoh 64–96 kbps, lebih kurang 2–3 minit).');e.target.value='';MP3=null;kiraSaiz();return;}var r=new FileReader();r.onload=function(ev){MP3=ev.target.result;kiraSaiz();};r.readAsDataURL(f);};
 
 /* ── kumpul data (SYNC, return terus) ── */
 function collect(){
@@ -211,7 +214,7 @@ function collect(){
 function kiraSaiz(){if(!$('kt1'))return;var kb=JSON.stringify(collect()).length/1024,el=$('saiz');el.textContent=t('saiz')+(kb/1024).toFixed(2)+' MB'+(kb>3800?t('berat'):'');el.classList.toggle('berat',kb>3800);}
 ['fFrom','fFor','fSurat','fKejut','fYT','fVideo'].forEach(function(i){$(i).addEventListener('input',kiraSaiz);});
 $('fBanyak').onchange=function(e){var fs=[].slice.call(e.target.files);e.target.value='';if(fs.length)isiBanyak(fs,null);};
-$('btnPreview').onclick=function(){try{localStorage.setItem('gk_preview',JSON.stringify(collect()));}catch(e){alert(t('penuh'));return;}window.open('card-bintang-1.html?preview=1','_blank');};
+$('btnPreview').onclick=function(){try{localStorage.setItem('gk_preview',JSON.stringify(collect()));}catch(e){try{var lite=collect();delete lite.mp3;localStorage.setItem('gk_preview',JSON.stringify(lite));alert(LANG==='en'?'The preview is too big with the MP3, so it opens without the song. The song will still be in the real card.':'Pratonton terlalu besar dengan MP3, jadi ia dibuka tanpa lagu. Lagu tetap ada dalam kad sebenar.');}catch(e2){alert(t('penuh'));return;}}window.open('card-bintang-1.html?preview=1','_blank');};
 
 if(window.GKBayar){GKBayar.mount({el:'gk-bayar',previewEl:'gk-pratonton',viewer:'card-bintang-1.html',collect:collect,produk:'Bintang Kita',qr:true});}
 else{$('gk-bayar').innerHTML='<div style="padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;font-size:.82rem;color:#c62828">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia di root repo, bukan dalam folder api.</div>';}

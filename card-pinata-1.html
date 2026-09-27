@@ -58,7 +58,9 @@ button{font-family:inherit}
 .jumbai{position:fixed;z-index:9;width:10px;height:5px;border-radius:2px;pointer-events:none;animation:jumbai 1.2s ease-out forwards}
 @keyframes jumbai{to{translate:var(--dx) var(--dy);rotate:var(--dr);opacity:0}}
 .serpih{position:fixed;z-index:9;pointer-events:none;background-size:100% 100%;background-repeat:no-repeat;filter:drop-shadow(0 6px 6px rgba(80,40,60,.25))}
-.benda{position:absolute;left:0;top:0;z-index:6;cursor:pointer;will-change:transform}
+.benda{position:absolute;left:0;top:0;z-index:6;cursor:grab;will-change:transform;touch-action:none}
+.benda.seret{cursor:grabbing}
+.benda.seret img{filter:drop-shadow(0 14px 12px rgba(80,40,60,.35));scale:1.08}
 .benda img{width:100%;pointer-events:none;filter:drop-shadow(0 5px 5px rgba(80,40,60,.25))}
 .benda.gul{z-index:7}
 .benda.gul.sedia img{animation:cahaya 1.4s ease-in-out infinite}
@@ -143,7 +145,7 @@ button{font-family:inherit}
   <div id="jari">👆</div>
 </div>
 <div id="atas"><div class="tajuk" id="t1"></div><div class="sub" id="t1s"></div><div id="kaunter"></div></div>
-<div id="bawah"><div id="hint"></div><div class="btnB" style="margin:0"><button class="pil p2" id="bSemua" style="display:none"></button><button class="pil" id="bUtama"></button></div></div>
+<div id="bawah"><div id="hint"></div><div class="btnB" style="margin:0"><button class="pil p2" id="bSemua" style="display:none;padding:13px 18px"></button><button class="pil" id="bUtama"></button></div></div>
 <canvas id="confetti"></canvas>
 
 <section id="sk2">
@@ -167,12 +169,12 @@ var SLOT={"bingkai": {"l": 10.76, "t": 13.75, "w": 78.86, "h": 75.03, "R": 1.049
 var SZ={"kayu": [500, 657], "coklat": [150, 256], "lolipop": [170, 300], "gulE": [280, 182], "kad": [760, 693], "belon": [420, 593], "popper": [320, 531], "bintang": [300, 471], "bunting": [1100, 286], "pHati": [460, 682], "gJ": [200, 130], "gulJ": [260, 160], "bingkai": [620, 651], "jeli": [190, 178], "gK": [200, 123], "pBintang": [560, 682], "hadiah": [360, 404], "pLlama": [480, 710], "gulB": [260, 166], "gB": [200, 127]};
 var D=null,LANG='ms';
 var TXT={
- ms:{hbd:'Selamat Hari Jadi',keN:'Yang ke-',dari:'daripada',pukulH:'Pegang kayu & hayun kuat ke pinata! 🪅',lagiH:'Hayun lagi! 💥 (atau goncang phone)',semua:'📜 Lihat semula',semuaNo:'SEMUA GULUNGAN',kejutan:'Kejutan',kad:'Kad',akhirH:'Ketik gulungan di rumput untuk baca semula 📜',pecahH:'Kutip gulungan nota yang jatuh 📜',
+ ms:{hbd:'Selamat Hari Jadi',keN:'Yang ke-',dari:'daripada',pukulH:'Pegang kayu & hayun kuat ke pinata! 🪅',lagiH:'Hayun lagi! 💥 (atau goncang phone)',semua:'📜 Lihat semula',semuaNo:'SEMUA GULUNGAN',kejutan:'Kejutan',kad:'Kad',akhirH:'Ketik gulungan untuk baca semula · seret untuk alih 📜',pecahH:'Ketik gulungan untuk buka · seret untuk alih 📜',
   gulung:'GULUNGAN',video:'VIDEO UNTUK KAMU',videoK:'Tekan ▶ untuk tengok',tutup:'Tutup',dikutip:'dikutip',emasH:'Ada gulungan emas! Ketik ✨',emasB:'Gulungan emas ✨',
   kjH:'KEJUTAN UNTUK KAMU',bacaKad:'Baca kad ucapan 💌',kadJ:'Kad ucapan untuk kamu 💌',balik:'🪅 Kembali ke parti',ttd:'Dengan penuh kasih sayang,',
   vidTt:'ketik di luar untuk tutup',lbTt:'cubit untuk zum · ketik dua kali · ketik untuk tutup',
   g1:'Sambungan ke pangkalan data gagal. Sila refresh halaman.',g2:'Kad ini belum diaktifkan. Sila selesaikan pembayaran untuk membukanya.',g3:'Kad tidak dijumpai atau telah tamat tempoh.'},
- en:{hbd:'Happy Birthday',keN:'Turning ',dari:'from',pukulH:'Grab the stick & swing it at the piñata! 🪅',lagiH:'Swing again! 💥 (or shake your phone)',semua:'📜 See them again',semuaNo:'ALL SCROLLS',kejutan:'Surprise',kad:'Card',akhirH:'Tap a scroll on the grass to read it again 📜',pecahH:'Pick up the fallen scrolls 📜',
+ en:{hbd:'Happy Birthday',keN:'Turning ',dari:'from',pukulH:'Grab the stick & swing it at the piñata! 🪅',lagiH:'Swing again! 💥 (or shake your phone)',semua:'📜 See them again',semuaNo:'ALL SCROLLS',kejutan:'Surprise',kad:'Card',akhirH:'Tap a scroll to read it again · drag to move it 📜',pecahH:'Tap a scroll to open · drag to move it 📜',
   gulung:'SCROLL',video:'A VIDEO FOR YOU',videoK:'Tap ▶ to watch',tutup:'Close',dikutip:'collected',emasH:'A golden scroll! Tap it ✨',emasB:'Golden scroll ✨',
   kjH:'A SURPRISE FOR YOU',bacaKad:'Read the card 💌',kadJ:'A card for you 💌',balik:'🪅 Back to the party',ttd:'With lots of love,',
   vidTt:'tap outside to close',lbTt:'pinch to zoom · double tap · tap to close',
@@ -235,7 +237,7 @@ function teks(){
   else if(fasa==='pukul'){b.style.display='none';h.textContent=T('lagiH');}
   else if(fasa==='kutip'){b.style.display='none';h.textContent=T('pecahH');}
   else if(fasa==='emas'){b.textContent=T('emasB');h.textContent=T('emasH');}
-  else if(fasa==='akhir'){b.textContent=T('bacaKad');h.textContent=T('akhirH');}
+  else if(fasa==='akhir'){b.textContent=T('bacaKad');h.classList.remove('on');}
   else b.style.display='none';
   kaunter();}
 function kaunter(){var k=$('kaunter');if(fasa==='pukul')k.textContent='💥 '+hit+' / '+HIT;else k.textContent='📜 '+kutip+' / '+GL.length+' '+T('dikutip');}
@@ -268,7 +270,7 @@ function rehatKayu(){var k=$('kayu');k.classList.remove('tangan');k.classList.ad
   if(fasa==='mula'){var j=$('jari');j.style.left=(P.W*.5-17)+'px';j.style.top=(P.H*.78)+'px';j.classList.add('on');}}
 function pasangTangan(){var L=$('laman');L.classList.add('main');setTimeout(rehatKayu,50);
   L.addEventListener('pointerdown',function(e){if(fasa!=='mula'&&fasa!=='pukul')return;if(e.target.closest('.benda'))return;e.preventDefault();try{L.setPointerCapture(e.pointerId);}catch(_){}
-    mulaParti();tangan.aktif=true;tangan.x=e.clientX;tangan.y=e.clientY;tangan.px=e.clientX;tangan.pt=performance.now();tangan.A=-Math.PI/2;
+    cubaMain();mulaParti();tangan.aktif=true;tangan.x=e.clientX;tangan.y=e.clientY;tangan.px=e.clientX;tangan.pt=performance.now();tangan.A=-Math.PI/2;
     var k=$('kayu');k.getAnimations().forEach(function(a){a.cancel();});k.classList.remove('rehat');k.classList.add('tangan');k.style.opacity='';
     var t=letakKayu(tangan.x,tangan.y,tangan.A);tangan.tx=t.x;tangan.ty=t.y;tangan.tl=tangan.pt;});
   L.addEventListener('pointermove',function(e){if(!tangan.aktif)return;var now=performance.now(),dt=Math.max(8,now-tangan.pt),vx=(e.clientX-tangan.px)/dt;
@@ -279,7 +281,7 @@ function pasangTangan(){var L=$('laman');L.classList.add('main');setTimeout(reha
     var r=$('pin').getBoundingClientRect(),ix=r.width*.14,iy=r.height*.12,kena2=false;
     for(var f=.55;f<=1.001;f+=.15){var qx=tangan.x+Math.cos(tangan.A)*t.L*f,qy=tangan.y+Math.sin(tangan.A)*t.L*f;if(qx>r.left+ix&&qx<r.right-ix&&qy>r.top+iy&&qy<r.bottom-iy){kena2=true;break;}}
     if(kena2){tangan.akhir=now;kena(arah>=0?1:-1);}});
-  function lepas(){if(!tangan.aktif)return;tangan.aktif=false;muzik();izinGerak();if(fasa==='pukul'||fasa==='mula')rehatKayu();}
+  function lepas(){cubaMain();izinGerak();if(!tangan.aktif)return;tangan.aktif=false;if(fasa==='pukul'||fasa==='mula')rehatKayu();}
   L.addEventListener('pointerup',lepas);L.addEventListener('pointercancel',lepas);}
 function hayunKayu(dari,cb){$('kayu').style.transform='';$('kayu').classList.remove('tangan','rehat');var k=$('kayu'),W=P.W,H=P.H,r=$('pin').getBoundingClientRect(),tx=r.left+r.width/2,ty=r.top+r.height*.52;
   var hx=dari<0?W*.08:W*.92,hy=H*.84;var L=Math.hypot(tx-hx,ty-hy)*1.02;var sw=SZ.kayu[0],sh=SZ.kayu[1];
@@ -319,11 +321,23 @@ var BD=[],fizRaf=null,emasEl=null;
 function benda(jenis,x,y,w,gul,emas){var e=document.createElement('div');e.className='benda'+(gul?' gul':'')+(emas?' emas':'');e.innerHTML='<img src="'+ASET[jenis]+'" alt="">';e.style.width=w+'px';$('bendaG').appendChild(e);
   var h=sz(jenis,w),o={el:e,x:x,y:y,vx:rnd(-7,7),vy:rnd(-12,-4),w:w,h:h,r:rnd(-40,40),vr:rnd(-12,12),g:P.tanah+rnd(P.H*.02,P.H*.16),diam:false};BD.push(o);if(!fizRaf)fizik();return o;}
 function hujan(x,y){var G=['gJ','gB','gK','lolipop','coklat','jeli'],W=P.W;for(var i=0;i<16;i++){var j=G[i%6],w=Math.min(W*.13,70)*(j==='lolipop'?.75:j==='coklat'?.62:1);
-    (function(o){o.el.onclick=function(){var r=o.el.getBoundingClientRect();o.el.classList.remove('picit');void o.el.offsetWidth;o.el.classList.add('picit');bunyi('gula');kilau(r.left+r.width/2,r.top+r.height/2);};})(benda(j,x+rnd(-30,30),y+rnd(-20,20),w,false));}
-  var GJ=['gulJ','gulB'];GL.forEach(function(g,i){var o=benda(GJ[i%2],x+rnd(-20,20),y,Math.min(W*.22,120),true);o.gi=i;o.el.onclick=function(){if(o.diam)bukaGul(o);};});}
+    (function(o){seret(o,function(){var r=o.el.getBoundingClientRect();o.el.classList.remove('picit');void o.el.offsetWidth;o.el.classList.add('picit');bunyi('gula');kilau(r.left+r.width/2,r.top+r.height/2);});})(benda(j,x+rnd(-30,30),y+rnd(-20,20),w,false));}
+  var GJ=['gulJ','gulB'],n=GL.length,gw=Math.min(W*.22,120,W/Math.max(3,Math.ceil(n/2))*.95);GL.forEach(function(g,i){var o=benda(GJ[i%2],x+rnd(-20,20),y,gw,true);o.gi=i;
+    /* sebar gulungan: 2 baris, kedudukan x sekata */
+    var baris=i%2,kol=Math.floor(i/2),nk=Math.ceil(n/2),tx=gw*.55+(W-gw*1.1)*(nk>1?kol/(nk-1):.5)+(baris?gw*.25:0);o.vx=(tx-o.x)/62;o.tx=tx;o.vy=rnd(-11,-8);o.vr=rnd(-6,6);o.g=P.tanah+P.H*(baris?.075:.035);
+    seret(o,function(){if(o.diam)bukaGul(o);});});}
+function luncur(o){var x0=o.x,t0=performance.now();(function f(t){if(o.seret)return;var k=Math.min(1,(t-t0)/500),e=1-Math.pow(1-k,3);o.x=x0+(o.tx-x0)*e;
+  o.el.style.transform='translate('+(o.x-o.w/2)+'px,'+(o.y-o.h/2)+'px) rotate('+o.r+'deg)';if(k<1)requestAnimationFrame(f);})(t0);}
+function seret(o,tap){var e=o.el,d=null;e.addEventListener('pointerdown',function(ev){ev.stopPropagation();d={x:ev.clientX,y:ev.clientY,ox:o.x,oy:o.y,gerak:false};try{e.setPointerCapture(ev.pointerId);}catch(_){}});
+  e.addEventListener('pointermove',function(ev){if(!d)return;var dx=ev.clientX-d.x,dy=ev.clientY-d.y;if(!d.gerak&&Math.hypot(dx,dy)<9)return;
+    if(!d.gerak){d.gerak=true;o.diam=true;o.seret=true;o.vx=o.vy=0;e.classList.add('seret');}
+    o.x=Math.max(o.w/2,Math.min(P.W-o.w/2,d.ox+dx));o.y=Math.max(P.H*.3,Math.min(P.H-o.h/2,d.oy+dy));o.g=o.y+o.h/2;
+    e.style.transform='translate('+(o.x-o.w/2)+'px,'+(o.y-o.h/2)+'px) rotate('+o.r+'deg)';e.style.zIndex=9000;});
+  function habis(ev){if(!d)return;var g=d.gerak;d=null;e.classList.remove('seret');if(g){e.style.zIndex=(e.classList.contains('gul')?7:6)*1000+Math.round(o.g)+500;}else tap();}
+  e.addEventListener('pointerup',habis);e.addEventListener('pointercancel',function(){d=null;e.classList.remove('seret');});}
 function fizik(){(function f(){var hidupF=false;BD.forEach(function(o){if(o.diam)return;hidupF=true;o.vy+=.55;o.x+=o.vx;o.y+=o.vy;o.r+=o.vr;
     if(o.x<o.w/2){o.x=o.w/2;o.vx*=-.6;}if(o.x>P.W-o.w/2){o.x=P.W-o.w/2;o.vx*=-.6;}
-    if(o.y+o.h/2>o.g){o.y=o.g-o.h/2;o.vy*=-.42;o.vx*=.75;o.vr*=.6;if(Math.abs(o.vy)<1.4){o.vy=0;o.diam=true;o.el.classList.add('sedia');if(o.onDiam)o.onDiam();}}
+    if(o.y+o.h/2>o.g){o.y=o.g-o.h/2;o.vy*=-.42;o.vx*=.75;o.vr*=.6;if(Math.abs(o.vy)<1.4){o.vy=0;o.diam=true;o.el.classList.add('sedia');if(o.onDiam)o.onDiam();if(o.tx!=null)luncur(o);}}
     o.el.style.transform='translate('+(o.x-o.w/2)+'px,'+(o.y-o.h/2)+'px) rotate('+o.r+'deg)';o.el.style.zIndex=(o.el.classList.contains('gul')?7:6)*1000+Math.round(o.g);});
     fizRaf=hidupF?requestAnimationFrame(f):null;})();}
 function kilau(x,y){for(var i=0;i<6;i++){var s=document.createElement('div');s.className='kil';s.textContent=['✨','⭐','💖'][i%3];s.style.left=(x-8)+'px';s.style.top=(y-8)+'px';var a=rnd(0,Math.PI*2),d=rnd(20,50);
@@ -345,7 +359,7 @@ function muat(box){var t=box.querySelector('.t'),z=Math.min(32,box.clientWidth/8
 function tutupIsi(){$('isiLap').classList.remove('on');var o=gulKini;gulKini=null;if(!o||o.dikutip)return;o.dikutip=true;kutip++;kaunter();
   o.el.classList.add('dah');o.el.classList.remove('sedia');
   if(kutip>=GL.length){fasa='emas';setTimeout(function(){teks();jatuhEmas();},600);}}
-function jatuhEmas(){var W=P.W,o=benda('gulE',W/2,-80,Math.min(W*.3,160),true,true);o.vx=rnd(-2,2);o.vy=2;emasEl=o;bunyi('ajaib');o.onDiam=function(){teks();};o.el.onclick=function(){if(o.diam)bukaEmas();};$('hint').classList.add('on');}
+function jatuhEmas(){var W=P.W,o=benda('gulE',W/2,-80,Math.min(W*.3,160),true,true);o.vx=0;o.vy=2;o.g=P.tanah-P.H*.02;emasEl=o;bunyi('ajaib');o.onDiam=function(){teks();};seret(o,function(){if(o.diam)bukaEmas();});$('hint').classList.add('on');}
 var emasDah=false;
 function bukaEmas(){if(emasDah){tunjukKejutan();return;}if(fasa!=='emas')return;emasDah=true;fasa='akhir';var r=emasEl.el.getBoundingClientRect();confetti(r.left+r.width/2,r.top+r.height/2,0,140);bunyi('pecah');teks();
   emasEl.el.classList.add('dah');setTimeout(tunjukKejutan,500);}
@@ -424,6 +438,11 @@ function lbTerap(){$('lbimg').style.transform='translate('+LB.x+'px,'+LB.y+'px) 
 
 
 /* ═══ MUZIK ═══ */
+/* mulakan / sambung lagu pada setiap sentuhan sehingga ia benar-benar main (iOS/Android perlukan gerak isyarat) */
+function cubaMain(){try{bunyiInit();if(!siapM){muzik();return;}if(dihentiUser||vidBuka)return;
+  if(mode==='mp3'){var a=$('mp3');if(a.paused)a.play().then(function(){setMain(true);}).catch(function(){});}
+  else if(mode==='yt'&&ytp&&ytOk){if(ytp.getPlayerState&&ytp.getPlayerState()!==1)ytp.playVideo();}}catch(e){}}
+document.addEventListener('pointerup',function(){if(fasa!=='mula')cubaMain();},true);
 var mode=null,ytp=null,ytOk=false,siapM=false,mainLagu=false,dihentiUser=false;
 function muzik(){if(siapM||!D)return;siapM=true;
   if(D.mp3){mode='mp3';var a=$('mp3');a.src=D.mp3;a.play().then(function(){setMain(true);}).catch(function(){});$('bMuzik').classList.add('on');}

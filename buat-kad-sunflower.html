@@ -55,6 +55,9 @@ textarea{min-height:140px;resize:vertical;line-height:1.55}
 .langtoggle button.on{background:#8a5a1c;color:#fff}
 .back{display:block;text-align:center;font-size:.8rem;color:#8a6a3a;margin-bottom:6px;text-decoration:none}
 </style>
+<style>/* GiftKita 27 Sep 2026: upload MP3 dibuang — lagu guna pautan YouTube sahaja */
+#tMP3,#pMP3,#tYT,#btnMP3,#panelMP3,#btnYT,#pane-mp3,.mtabs,.sm:has(> #fMp3),.sm:has(> input[data-mp3]),label[data-k="lMp3"],#mp3f,#mp3info{display:none!important}
+</style>
 </head>
 <body>
 <div class="langtoggle"><button id="bMS" class="on" onclick="setLang('ms')">BM</button><button id="bEN" onclick="setLang('en')">EN</button></div>
@@ -91,7 +94,7 @@ textarea{min-height:140px;resize:vertical;line-height:1.55}
   <div class="sect"><h2 data-i="hLagu">Lagu</h2>
     <div class="toggle"><button type="button" class="btn2 on" id="tYT" data-i="bYT">Pautan YouTube</button><button type="button" class="btn2" id="tMP3" data-i="bMP3">Upload MP3</button></div>
     <div class="panel on" id="pYT"><label data-i="lYT">Pautan YouTube lagu</label><input type="url" id="fYT" placeholder="https://youtube.com/watch?v=..."></div>
-    <div class="panel" id="pMP3"><label data-i="lMP3">Fail MP3 (Premium)</label><input type="file" id="fMP3" accept="audio/mpeg,audio/mp3"></div>
+    <div class="panel" id="pMP3"><label data-i="lMP3">Fail MP3 (maks 2.2 MB)</label><input type="file" id="fMP3" accept="audio/mpeg,audio/mp3"></div>
     <label data-i="lSong">Tajuk lagu</label><input type="text" id="fSong" maxlength="50" placeholder="Just the Two of Us">
     <label data-i="lArtist">Penyanyi</label><input type="text" id="fArtist" maxlength="50" placeholder="Bill Withers">
     <div class="hint" data-i="hintLagu">Lagu main bila penerima ketik sampul. Kad lagu hitam ada butang main/henti.</div>
@@ -131,7 +134,7 @@ var TX={
   hNama:'Nama',lFrom:'Daripada (nama kamu)',phFrom:'Contoh: Mak & Abah',lFor:'Untuk (nama penerima)',phFor:'Contoh: Aina',
   hSurat:'Ucapan di belakang kad 🎓',hintSurat:'Ayat tahniah graduasi dah diisi — boleh kekalkan, ubah atau padam. Keluar bila penerima ketik kad CONGRATS GRAD.',
   hFoto:'Polaroid "Gosok saya" (4)',hintFoto:'Setiap gambar tersorok bawah lapisan "Gosok saya". Ketik gambar yang dah ada untuk laraskan kedudukan.',foto:'Foto',
-  hVideo:'Video (pilihan)',lVideo:'Pautan YouTube — keluar dalam kad video',hLagu:'Lagu',bYT:'Pautan YouTube',bMP3:'Upload MP3',lYT:'Pautan YouTube lagu',lMP3:'Fail MP3 (Premium)',
+  hVideo:'Video (pilihan)',lVideo:'Pautan YouTube — keluar dalam kad video',hLagu:'Lagu',bYT:'Pautan YouTube',bMP3:'Upload MP3',lYT:'Pautan YouTube lagu',lMP3:'Fail MP3 (maks 2.2 MB)',
   lSong:'Tajuk lagu',lArtist:'Penyanyi',hintLagu:'Lagu main bila penerima ketik sampul. Kad lagu hitam ada butang main/henti.',
   hPeta:'Peta kenangan (pilihan)',hintPeta:'Screenshot Google Maps tempat kenangan kamu, upload di sini, kemudian ketik atas peta untuk letak pin (maksimum 3).',bPeta:'🗺 Pilih screenshot peta',bPetaX:'Buang peta',
   pin:'Pin',pTitle:'Tajuk (cth: Kampus\'22)',pPlace:'Tempat / nota (cth: Tempat semuanya bermula)',pDate:'Tarikh',pImg:'Gambar',hapus:'Buang pin',
@@ -143,7 +146,7 @@ var TX={
   hNama:'Names',lFrom:'From (your name)',phFrom:'e.g. Mom & Dad',lFor:'For (recipient)',phFor:'e.g. Aina',
   hSurat:'Message on the back of the card 🎓',hintSurat:'Graduation wording is prefilled — keep it, edit it or delete it. Shows when the CONGRATS GRAD card is tapped.',
   hFoto:'"Scratch me" polaroids (4)',hintFoto:'Each photo hides under a "Scratch me" layer. Tap a photo to adjust its position.',foto:'Photo',
-  hVideo:'Video (optional)',lVideo:'YouTube link — shown in the video card',hLagu:'Song',bYT:'YouTube Link',bMP3:'Upload MP3',lYT:'Song YouTube link',lMP3:'MP3 file (Premium)',
+  hVideo:'Video (optional)',lVideo:'YouTube link — shown in the video card',hLagu:'Song',bYT:'YouTube Link',bMP3:'Upload MP3',lYT:'Song YouTube link',lMP3:'MP3 file (max 2.2 MB)',
   lSong:'Song title',lArtist:'Artist',hintLagu:'The song plays when the envelope is tapped. The black song card has play/pause.',
   hPeta:'Memory map (optional)',hintPeta:'Screenshot Google Maps of your special places, upload it here, then tap on the map to drop pins (max 3).',bPeta:'🗺 Choose map screenshot',bPetaX:'Remove map',
   pin:'Pin',pTitle:'Title (e.g. Campus\'22)',pPlace:'Place / note (e.g. Where it all began)',pDate:'Date',pImg:'Photo',hapus:'Remove pin',
@@ -192,7 +195,7 @@ $('adjOk').onclick=function(){if(!adj)return;POS[adj.k]={x:Math.round(adj.dw>adj
 var MP3=null;
 $('tYT').onclick=function(){$('tYT').classList.add('on');$('tMP3').classList.remove('on');$('pYT').classList.add('on');$('pMP3').classList.remove('on');kiraSaiz();};
 $('tMP3').onclick=function(){$('tMP3').classList.add('on');$('tYT').classList.remove('on');$('pMP3').classList.add('on');$('pYT').classList.remove('on');kiraSaiz();};
-$('fMP3').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){MP3=ev.target.result;kiraSaiz();};r.readAsDataURL(f);};
+$('fMP3').onchange=function(e){var f=e.target.files[0];if(!f)return;var mb=(f.size/1048576).toFixed(1);if(f.size>2.2*1048576){alert(LANG==='en'?'This song is '+mb+' MB — too big for the card (max 2.2 MB). Use a YouTube link, or a shorter / smaller MP3 (e.g. 64–96 kbps, about 2–3 minutes).':'Lagu ni '+mb+' MB — terlalu besar untuk kad (maks 2.2 MB). Guna pautan YouTube, atau MP3 yang lebih pendek / kecil (contoh 64–96 kbps, lebih kurang 2–3 minit).');e.target.value='';MP3=null;kiraSaiz();return;}var r=new FileReader();r.onload=function(ev){MP3=ev.target.result;kiraSaiz();};r.readAsDataURL(f);};
 
 /* ── peta ── */
 var PETA=null,PINS=[];
@@ -242,7 +245,7 @@ function collect(){
 function kiraSaiz(){var kb=JSON.stringify(collect()).length/1024,el=$('saiz');el.textContent=t('saiz')+(kb/1024).toFixed(2)+' MB'+(kb>3800?t('berat'):'');el.classList.toggle('berat',kb>3800);}
 $('fSkrol').addEventListener('input',function(){skrolDisentuh=true;});
 ['fFrom','fFor','fSurat','fSkrol','fKejut','fVideo','fYT'].forEach(function(i){$(i).addEventListener('input',kiraSaiz);});
-$('btnPreview').onclick=function(){try{localStorage.setItem('gk_preview',JSON.stringify(collect()));}catch(e){alert(t('penuh'));return;}window.open('card-sunflower-1.html?preview=1','_blank');};
+$('btnPreview').onclick=function(){try{localStorage.setItem('gk_preview',JSON.stringify(collect()));}catch(e){try{var lite=collect();delete lite.mp3;localStorage.setItem('gk_preview',JSON.stringify(lite));alert(LANG==='en'?'The preview is too big with the MP3, so it opens without the song. The song will still be in the real card.':'Pratonton terlalu besar dengan MP3, jadi ia dibuka tanpa lagu. Lagu tetap ada dalam kad sebenar.');}catch(e2){alert(t('penuh'));return;}}window.open('card-sunflower-1.html?preview=1','_blank');};
 
 if(window.GKBayar){GKBayar.mount({el:'gk-bayar',previewEl:'gk-pratonton',viewer:'card-sunflower-1.html',collect:collect,produk:'Sunflower Graduasi',qr:true});}
 else{$('gk-bayar').innerHTML='<div style="padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;font-size:.82rem;color:#c62828">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia di root repo, bukan dalam folder api.</div>';}
