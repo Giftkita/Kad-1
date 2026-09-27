@@ -61,6 +61,9 @@ textarea{min-height:140px;resize:vertical;line-height:1.55}
 .banyak{position:relative;overflow:hidden;display:block;width:100%;text-align:center;padding:13px;margin-top:10px;background:linear-gradient(135deg,#f6b8c0,#e8818a);color:#fff;border:0;font-size:.85rem;box-shadow:0 6px 16px rgba(232,129,138,.3)}
 .banyak input{position:absolute;inset:0;opacity:0;cursor:pointer}
 </style>
+<style>/* GiftKita 27 Sep 2026: upload MP3 dibuang — lagu guna pautan YouTube sahaja */
+#tMP3,#pMP3,#tYT,#btnMP3,#panelMP3,#btnYT,#pane-mp3,.mtabs,.sm:has(> #fMp3),.sm:has(> input[data-mp3]),label[data-k="lMp3"],#mp3f,#mp3info{display:none!important}
+</style>
 </head>
 <body>
 <div class="langtoggle"><button id="bMS" class="on" onclick="setLang('ms')">BM</button><button id="bEN" onclick="setLang('en')">EN</button></div>
@@ -144,7 +147,7 @@ var TX={
   hKunci:'Kejutan terakhir berkunci 🎀',hintKunci:'Penerima kena taip nama untuk buka "Rancangan Masa Depan Kita" — gambar kejutan keluar di situ. Kosong = guna nama penerima (nama pertama pun boleh).',
   lKjFoto:'Gambar kejutan (pilihan)',lKjMsg:'Ayat bawah gambar (pilihan)',phKjMsg:'Contoh: Tiket kita dah siap tempah ✈️',fKejut:'Gambar kejutan',lKunci:'Jawapan kunci (pilihan)',phKunci:'Contoh: nama timangan dia',lPetunjuk:'Petunjuk kalau salah 2 kali (pilihan)',phPetunjuk:'Contoh: panggilan manja aku untuk kamu',
   hPlan:'Rancangan masa depan (3 kad) 🏡',hintPlan:'Setiap kad: ayat teka-teki di depan, tajuk + 2 baris bila diterbalikkan. Dah diisi contoh.',plan:'Kad',teka:'Depan (teka-teki)',tajuk:'Tajuk belakang',isi:'Isi belakang',
-  hLagu:'Lagu',bYT:'Pautan YouTube',bMP3:'Upload MP3',lYT:'Pautan YouTube lagu',lMP3:'Fail MP3 (Premium)',hintLagu:'Lagu main bila penerima tekan "Nak!". Butang ♪ di atas untuk henti/main.',
+  hLagu:'Lagu',bYT:'Pautan YouTube',bMP3:'Upload MP3',lYT:'Pautan YouTube lagu',lMP3:'Fail MP3 (maks 2.2 MB)',hintLagu:'Lagu main bila penerima tekan "Nak!". Butang ♪ di atas untuk henti/main.',
   bPrev:'👀 Pratonton Kad',hBayar:'Bayaran',adj:'Seret gambar untuk laraskan kedudukan',selesai:'Selesai',
   saiz:'Saiz kad: ',berat:' — terlalu besar, kecilkan/buang beberapa gambar atau MP3',penuh:'Gambar terlalu besar untuk pratonton. Cuba gambar yang lebih kecil.',besar:'Fail terlalu besar (maks 600KB).'},
  en:{back:'‹ Back',sub:'A shy kitty asks "want to see your gift?", then 4 surprise cards: a rose bouquet with notes, a photo gallery, a love letter and a name-locked final surprise',
@@ -157,7 +160,7 @@ var TX={
   hKunci:'Name-locked final surprise 🎀',hintKunci:'The recipient types a name to unlock "Our Future Plans" — the surprise photo appears there. Empty = the recipient\'s name (first name works too).',
   lKjFoto:'Surprise photo (optional)',lKjMsg:'Caption under the photo (optional)',phKjMsg:'e.g. Our tickets are booked ✈️',fKejut:'Surprise photo',lKunci:'Unlock answer (optional)',phKunci:'e.g. their nickname',lPetunjuk:'Hint after 2 wrong tries (optional)',phPetunjuk:'e.g. what I always call you',
   hPlan:'Future plans (3 cards) 🏡',hintPlan:'Each card: a teaser on the front, a title + 2 lines when flipped. Prefilled.',plan:'Card',teka:'Front (teaser)',tajuk:'Back title',isi:'Back text',
-  hLagu:'Song',bYT:'YouTube Link',bMP3:'Upload MP3',lYT:'Song YouTube link',lMP3:'MP3 file (Premium)',hintLagu:'The song plays when "Yes please" is tapped. The ♪ button pauses/plays.',
+  hLagu:'Song',bYT:'YouTube Link',bMP3:'Upload MP3',lYT:'Song YouTube link',lMP3:'MP3 file (max 2.2 MB)',hintLagu:'The song plays when "Yes please" is tapped. The ♪ button pauses/plays.',
   bPrev:'👀 Preview Card',hBayar:'Payment',adj:'Drag the photo to adjust its position',selesai:'Done',
   saiz:'Card size: ',berat:' — too big, shrink/remove some photos or the MP3',penuh:'Photos are too large to preview. Try smaller photos.',besar:'File too large (max 600KB).'}
 };
@@ -224,7 +227,7 @@ $('adjOk').onclick=function(){if(!adj)return;POS[adj.k]={x:Math.round(adj.dw>adj
 var MP3=null;
 $('tYT').onclick=function(){$('tYT').classList.add('on');$('tMP3').classList.remove('on');$('pYT').classList.add('on');$('pMP3').classList.remove('on');kiraSaiz();};
 $('tMP3').onclick=function(){$('tMP3').classList.add('on');$('tYT').classList.remove('on');$('pMP3').classList.add('on');$('pYT').classList.remove('on');kiraSaiz();};
-$('fMP3').onchange=function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){MP3=ev.target.result;kiraSaiz();};r.readAsDataURL(f);};
+$('fMP3').onchange=function(e){var f=e.target.files[0];if(!f)return;var mb=(f.size/1048576).toFixed(1);if(f.size>2.2*1048576){alert(LANG==='en'?'This song is '+mb+' MB — too big for the card (max 2.2 MB). Use a YouTube link, or a shorter / smaller MP3 (e.g. 64–96 kbps, about 2–3 minutes).':'Lagu ni '+mb+' MB — terlalu besar untuk kad (maks 2.2 MB). Guna pautan YouTube, atau MP3 yang lebih pendek / kecil (contoh 64–96 kbps, lebih kurang 2–3 minit).');e.target.value='';MP3=null;kiraSaiz();return;}var r=new FileReader();r.onload=function(ev){MP3=ev.target.result;kiraSaiz();};r.readAsDataURL(f);};
 
 /* ── kumpul data (SYNC, return terus) ── */
 function collect(){
@@ -239,7 +242,7 @@ function collect(){
 function kiraSaiz(){if(!$('fNota0'))return;var kb=JSON.stringify(collect()).length/1024,el=$('saiz');el.textContent=t('saiz')+(kb/1024).toFixed(2)+' MB'+(kb>3800?t('berat'):'');el.classList.toggle('berat',kb>3800);}
 ['fFrom','fFor','fSapa','fSurat','fKunci','fPetunjuk','fYT','fVideo','fKejut'].forEach(function(i){$(i).addEventListener('input',kiraSaiz);});
 $('fBanyak').onchange=function(e){var fs=[].slice.call(e.target.files);e.target.value='';if(fs.length)isiBanyak(fs,null);};
-$('btnPreview').onclick=function(){try{localStorage.setItem('gk_preview',JSON.stringify(collect()));}catch(e){alert(t('penuh'));return;}window.open('card-justforyou-1.html?preview=1','_blank');};
+$('btnPreview').onclick=function(){try{localStorage.setItem('gk_preview',JSON.stringify(collect()));}catch(e){try{var lite=collect();delete lite.mp3;localStorage.setItem('gk_preview',JSON.stringify(lite));alert(LANG==='en'?'The preview is too big with the MP3, so it opens without the song. The song will still be in the real card.':'Pratonton terlalu besar dengan MP3, jadi ia dibuka tanpa lagu. Lagu tetap ada dalam kad sebenar.');}catch(e2){alert(t('penuh'));return;}}window.open('card-justforyou-1.html?preview=1','_blank');};
 
 if(window.GKBayar){GKBayar.mount({el:'gk-bayar',previewEl:'gk-pratonton',viewer:'card-justforyou-1.html',collect:collect,produk:'Made Just for You',qr:true});}
 else{$('gk-bayar').innerHTML='<div style="padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;font-size:.82rem;color:#c62828">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia di root repo, bukan dalam folder api.</div>';}

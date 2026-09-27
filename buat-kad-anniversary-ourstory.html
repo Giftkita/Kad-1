@@ -55,6 +55,9 @@ textarea{height:130px;resize:vertical;line-height:1.7}
 .okfile{font-size:.74rem;color:#1a7a42;margin-top:6px;display:block;word-break:break-all}
 .divider{height:1px;background:var(--garis);margin:30px 0 6px}
 </style>
+<style>/* GiftKita 27 Sep 2026: upload MP3 dibuang — lagu guna pautan YouTube sahaja */
+#tMP3,#pMP3,#tYT,#btnMP3,#panelMP3,#btnYT,#pane-mp3,.mtabs,.sm:has(> #fMp3),.sm:has(> input[data-mp3]),label[data-k="lMp3"],#mp3f,#mp3info{display:none!important}
+</style>
 </head>
 <body>
 <header class="top">
@@ -109,7 +112,7 @@ textarea{height:130px;resize:vertical;line-height:1.7}
   </div>
   <div class="pane" id="pane-mp3">
     <label>Fail MP3</label>
-    <span class="hint">Bawah 3MB. Pilihan Premium.</span>
+    <span class="hint">Bawah 3MB.</span>
     <label class="upl"><div class="b">Pilih fail MP3</div>
       <input type="file" accept="audio/*" id="mp3file"></label>
     <span class="okfile" id="mp3name"></span>
@@ -283,7 +286,7 @@ var GK_DICT={
 "Kejutan":"Surprise","Tersembunyi dalam kotak hadiah sehingga penerima ketuk.":"Hidden in a gift box until they tap it.",
 "Ayat kejutan":"Surprise message","Gambar kejutan":"Surprise photo","Pilih gambar":"Choose photo",
 "Lagu":"Music","Link YouTube":"YouTube link","Upload MP3":"Upload MP3","Link lagu YouTube":"YouTube song link",
-"Fail MP3":"MP3 file","Bawah 3MB. Pilihan Premium.":"Under 3MB. Premium option.",
+"Fail MP3":"MP3 file","Bawah 3MB.":"Under 3MB.",
 "Pilih fail MP3":"Choose MP3 file","Nama lagu (papar dalam kad)":"Song name (shown in card)",
 "Pratonton kad":"Preview card","Maklumat & bayaran":"Details & payment",
 "Tengok rupa sebenar kad anda. Tiada bayaran, tiada maklumat diperlukan.":"See how your card really looks. No payment, no details needed.",
