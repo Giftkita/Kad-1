@@ -55,6 +55,9 @@ textarea{min-height:130px;resize:vertical;line-height:1.55}
 .aliran{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:-8px 0 18px}
 .aliran span{font-size:.68rem;color:#fff;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);padding:4px 10px;border-radius:50px}
 </style>
+<style>/* GiftKita 27 Sep 2026: upload MP3 dibuang — lagu guna pautan YouTube sahaja */
+#tMP3,#pMP3,#tYT,#btnMP3,#panelMP3,#btnYT,#pane-mp3,.mtabs,.sm:has(> #fMp3),.sm:has(> input[data-mp3]),label[data-k="lMp3"],#mp3f,#mp3info{display:none!important}
+</style>
 </head>
 <body>
 <div class="langtoggle"><button id="btnMS2" class="on" onclick="setFormLang('ms')">BM</button><button id="btnEN2" onclick="setFormLang('en')">EN</button></div>
@@ -120,7 +123,7 @@ textarea{min-height:130px;resize:vertical;line-height:1.55}
       <input type="url" id="f-lagu-yt" placeholder="https://youtube.com/watch?v=...">
     </div>
     <div class="music-panel" id="panelMP3">
-      <label data-i18n="lbl_mp3file">Fail MP3 (Premium)</label>
+      <label data-i18n="lbl_mp3file">Fail MP3 (maks 2.2 MB)</label>
       <input type="file" id="f-lagu-mp3" accept="audio/mpeg,audio/mp3">
     </div>
     <div class="hint" data-i18n="hint_muzik">Lagu mula main bila penerima ketik kotak hadiah.</div>
@@ -151,7 +154,7 @@ var FORM_TXT = {
     h_gambar:'Gambar Polaroid (2)', hint_gambar:'Ketik kotak untuk pilih gambar. Lepas gambar masuk, ketik sekali lagi untuk laraskan kedudukan.',
     lbl_gambar_kiraan:'gambar', adj:'Seret gambar untuk laraskan kedudukan', selesai:'Selesai',
     h_surat:'Surat 💌', lbl_surat:'Mesej atas kertas hitam (dibuka penuh bila penerima ketik surat)', ph_surat:'Selamat hari jadi, sayang...',
-    h_muzik:'Muzik', btn_yt:'Pautan YouTube', btn_mp3:'Upload MP3', lbl_yt2:'Pautan YouTube lagu', lbl_mp3file:'Fail MP3 (Premium)',
+    h_muzik:'Muzik', btn_yt:'Pautan YouTube', btn_mp3:'Upload MP3', lbl_yt2:'Pautan YouTube lagu', lbl_mp3file:'Fail MP3',
     hint_muzik:'Lagu mula main bila penerima ketik kotak hadiah.', h_video:'Video (pilihan)', lbl_video:'Pautan YouTube — keluar dalam polaroid video', hint_surat:'Ayat hari jadi dah diisi — boleh kekalkan, ubah atau padam.', h_kejut:'Kejutan 🎁', hint_kejut:'Tersorok dalam sampul leopard. Bila penerima ketik "Kejutan", gambar & mesej ni keluar.', lbl_kejut:'Mesej kejutan', ph_kejut:'Contoh: Jom dinner malam ni, aku belanja!', fkejut:'Gambar kejutan', btn_preview:'👀 Pratonton Kad', h_bayar:'Bayaran', foto:'Foto', padat:'Ruang kosong tinggal '
   },
   en: {
@@ -163,7 +166,7 @@ var FORM_TXT = {
     h_gambar:'Polaroid Photos (2)', hint_gambar:'Tap a box to choose a photo. Once it\'s in, tap it again to adjust its position.',
     lbl_gambar_kiraan:'photos', adj:'Drag the photo to adjust its position', selesai:'Done',
     h_surat:'Letter 💌', lbl_surat:'Message on the black paper (opens full-screen when tapped)', ph_surat:'Happy birthday, love...',
-    h_muzik:'Music', btn_yt:'YouTube Link', btn_mp3:'Upload MP3', lbl_yt2:'Song YouTube link', lbl_mp3file:'MP3 file (Premium)',
+    h_muzik:'Music', btn_yt:'YouTube Link', btn_mp3:'Upload MP3', lbl_yt2:'Song YouTube link', lbl_mp3file:'MP3 file',
     hint_muzik:'The song starts when the recipient taps the gift box.', h_video:'Video (optional)', lbl_video:'YouTube link — shown in the video polaroid', hint_surat:'Birthday wording is prefilled — keep it, edit it or delete it.', h_kejut:'Surprise 🎁', hint_kejut:'Hidden in the leopard envelope. When the recipient taps "Surprise", this photo & message appear.', lbl_kejut:'Surprise message', ph_kejut:'e.g. Dinner tonight, my treat!', fkejut:'Surprise photo', btn_preview:'👀 Preview Card', h_bayar:'Payment', foto:'Photo', padat:'Empty slots left: '
   }
 };
