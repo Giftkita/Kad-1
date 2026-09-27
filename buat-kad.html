@@ -25,6 +25,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fce4ec,
 .gp-scrap{background:#e3a9bd;background-image:repeating-linear-gradient(45deg,rgba(176,58,91,.25),rgba(176,58,91,.25) 8px,transparent 8px,transparent 16px)}
 .gp-merah{background:linear-gradient(160deg,#8c0d16,#a8121c 55%,#c4262f)}
 .gp-butterfly{background:linear-gradient(160deg,#e8c5c0,#efe4cf 45%,#9bb87a)}
+.gp-lilin{background:radial-gradient(ellipse at 50% 40%,#ffd9a8,#f7a8c4 55%,#b98ad8)}
 .gp-bloom{background:radial-gradient(ellipse at 50% 60%,#cc1a42,#8e0b2c 70%,#5c0619)}
 .g-badge.baru{background:#fff3c4;color:#b86e00;left:8px;right:auto}
 
@@ -56,6 +57,10 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fce4ec,
     <div class="gp gp-bloom"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>🎁<div class="g-glow"></div></div>
     <div class="gm"><h3 data-k="n4">A Bouquet for You</h3><span data-k="d4">Hadiah bunga &amp; kolaj</span></div>
   </a>
+  <a class="g-card" href="buat-kad-lilin.html">
+    <div class="gp gp-lilin"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>🎂<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n5">Tiup Lilin</h3><span data-k="d5">Tiup lilin betul-betul &amp; potong kek</span></div>
+  </a>
 </div>
 
 <script>
@@ -63,10 +68,10 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#fce4ec,
 var L={
  ms:{title:'Pilih Tema — Kad Hari Jadi 🎂',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Kad 🎂',
      sub:'Setiap tema ada design tersendiri. Pilih satu untuk mula.',ada:'TERSEDIA',baru:'BARU',
-     n1:'Scrapbook',d1:'Aesthetic',n2:'Merah Klasik',d2:'Elegant',n3:'Butterfly',d3:'Rama-rama &amp; surat',n4:'A Bouquet for You',d4:'Hadiah bunga &amp; kolaj'},
+     n1:'Scrapbook',d1:'Aesthetic',n2:'Merah Klasik',d2:'Elegant',n3:'Butterfly',d3:'Rama-rama &amp; surat',n4:'A Bouquet for You',d4:'Hadiah bunga &amp; kolaj',n5:'Tiup Lilin',d5:'Tiup lilin betul-betul &amp; potong kek'},
  en:{title:'Choose a Theme — Birthday Card 🎂',back:'‹ Back to Homepage',tajuk:'Choose a Card Theme 🎂',
      sub:'Each theme has its own design. Pick one to start.',ada:'AVAILABLE',baru:'NEW',
-     n1:'Scrapbook',d1:'Aesthetic',n2:'Classic Red',d2:'Elegant',n3:'Butterfly',d3:'Butterflies &amp; a letter',n4:'A Bouquet for You',d4:'Flower gift &amp; collage'}
+     n1:'Scrapbook',d1:'Aesthetic',n2:'Classic Red',d2:'Elegant',n3:'Butterfly',d3:'Butterflies &amp; a letter',n4:'A Bouquet for You',d4:'Flower gift &amp; collage',n5:'Blow the Candles',d5:'Really blow out the candles &amp; cut the cake'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function pakai(){
