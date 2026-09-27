@@ -18,7 +18,7 @@ const PRICES_USD = { basic: 800, premium: 1000, bouquet: 300 };
 const PLAN_NAME  = { basic: 'GiftKita Basic', premium: 'GiftKita Premium', bouquet: 'GiftKita Photo Bouquet' };
 const PLAN_DESC  = {
   basic:   'Personalized digital greeting card · YouTube music · permanent link',
-  premium: 'Personalized digital greeting card · your own MP3 · QR code · PDF album',
+  premium: 'Personalized digital greeting card · YouTube music · QR code · PDF album',
   bouquet: 'Personalized photo bouquet image · full resolution, no watermark'
 };
 
