@@ -48,6 +48,9 @@ textarea{min-height:140px;resize:vertical;line-height:1.55}
 .bukaanLaras img{position:absolute;left:50%;top:50%;width:100%;transform-origin:center;pointer-events:none}
 input[type=range]{width:100%;margin-top:10px}
 </style>
+<style>/* GiftKita 27 Sep 2026: upload MP3 dibuang — lagu guna pautan YouTube sahaja */
+#tMP3,#pMP3,#tYT,#btnMP3,#panelMP3,#btnYT,#pane-mp3,.mtabs,.sm:has(> #fMp3),.sm:has(> input[data-mp3]),label[data-k="lMp3"],#mp3f,#mp3info{display:none!important}
+</style>
 </head>
 <body>
 
@@ -93,7 +96,7 @@ input[type=range]{width:100%;margin-top:10px}
   </div>
 
   <div class="sec">
-    <h2 data-k="s6">Lagu</h2><div class="hint" data-k="s6h">Main bila buku dibuka. Link YouTube ATAU upload MP3.</div>
+    <h2 data-k="s6">Lagu</h2><div class="hint" data-k="s6h">Main bila buku dibuka. Guna link YouTube.</div>
     <label class="l" data-k="lYt">Link YouTube</label><input type="url" id="yt" placeholder="https://www.youtube.com/watch?v=...">
     <label class="l" data-k="lMp3">atau upload MP3</label>
     <input type="file" id="mp3f" accept="audio/*">
@@ -137,7 +140,7 @@ var L={
    s4:'Kejutan',s4h:'Kotak hadiah pada muka terakhir. Tekan → tudung terbuka → gambar & nota ni keluar.',
    lNota:'Nota kejutan (pilihan)',
    s5:'Video YouTube',s5h:'Pilihan — keluar sebagai polaroid video pada muka terakhir',
-   s6:'Lagu',s6h:'Main bila buku dibuka. Link YouTube ATAU upload MP3.',
+   s6:'Lagu',s6h:'Main bila buku dibuka. Guna link YouTube.',
    lYt:'Link YouTube',lMp3:'atau upload MP3',lSong:'Tajuk lagu',lArtist:'Penyanyi',
    s7:'Pratonton & bayar',s7h:'Tekan pratonton untuk tengok buku dulu. Bayaran selepas anda puas hati.',
    lrTajuk:'Laras kedudukan gambar',lrHint:'Seret gambar untuk alih, guna slider untuk zum.',
@@ -154,7 +157,7 @@ var L={
    s4:'Surprise',s4h:'A gift box on the last page. Tap it → the lid opens → this photo & note appear.',
    lNota:'Surprise note (optional)',
    s5:'YouTube video',s5h:'Optional — shows as a video polaroid on the last page',
-   s6:'Song',s6h:'Plays when the book is opened. A YouTube link OR an MP3 upload.',
+   s6:'Song',s6h:'Plays when the book is opened. Use a YouTube link.',
    lYt:'YouTube link',lMp3:'or upload an MP3',lSong:'Song title',lArtist:'Artist',
    s7:'Preview & pay',s7h:'Tap preview to see the book first. Pay once you are happy with it.',
    lrTajuk:'Adjust the photo',lrHint:'Drag the photo to move it, use the slider to zoom.',
