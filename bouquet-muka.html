@@ -131,7 +131,7 @@ var BQ={
    aUpload:'Upload gambar dulu',aPilih:'Pilih design & upload gambar dulu',
    aTpl:'Pilih gambar template dulu',aStoran:'Storan browser penuh. Padam template lama dulu.',aPadam:'Padam template ini?',
    sSusun:'Susun ikut suka anda, kemudian tekan <b>Kemaskan &amp; pratonton</b>.',
-   sMenyusun:'Menyusun muka...',sPotong:'Memotong badan dari gambar...',sKemas:'Mengemaskan bouquet...',
+   sMenyusun:'Menyusun muka...',sPotong:'Memotong badan dari gambar...',sPotongCPU:'WebGL tak tersedia — guna cara sandaran (lebih perlahan, sabar ya)...',sKemas:'Mengemaskan bouquet...',
    sSiap:'Siap! Kalau puas hati, teruskan ke pembayaran di bawah. ✨',
    sTapDulu:'Tap satu keping gambar dulu untuk pilih.',sRalat:'Ralat: ',
    eOrang:'Tak jumpa orang dalam gambar. Guna gambar separuh badan, muka jelas.',
@@ -162,7 +162,7 @@ var BQ={
    aUpload:'Upload a photo first',aPilih:'Pick a design & upload a photo first',
    aTpl:'Choose a template image first',aStoran:'Browser storage is full. Delete an old template first.',aPadam:'Delete this template?',
    sSusun:'Arrange it however you like, then tap <b>Finish &amp; preview</b>.',
-   sMenyusun:'Arranging the photos...',sPotong:'Cutting you out of the photo...',sKemas:'Finishing your bouquet...',
+   sMenyusun:'Arranging the photos...',sPotong:'Cutting you out of the photo...',sPotongCPU:'WebGL unavailable — using fallback (slower, please wait)...',sKemas:'Finishing your bouquet...',
    sSiap:'Done! If you are happy with it, continue to payment below. ✨',
    sTapDulu:'Tap one of the cut-outs to select it first.',sRalat:'Error: ',
    eOrang:'Could not find a person in the photo. Use a half-body photo with a clear face.',
@@ -549,16 +549,33 @@ async function getSeg(){
 async function segMask(img){
   const S=Math.min(1,640/Math.max(img.width,img.height)); let src=img;
   if(S<1){ const c=document.createElement('canvas'); c.width=Math.round(img.width*S); c.height=Math.round(img.height*S); c.getContext('2d').drawImage(img,0,0,c.width,c.height); src=c; }
-  for(let cuba=0;cuba<2;cuba++){
+  /* Laluan 1: MediaPipe Selfie Segmentation (GPU/WebGL) — laju. Gagal → cuba sekali lagi dengan instance baru. */
+  if(!segGunaCPU) for(let cuba=0;cuba<2;cuba++){
     const alertAsal=window.alert; window.alert=m=>console.warn('mediapipe:',m);   /* MediaPipe panggil alert() sendiri bila WebGL gagal */
     try{
       const seg=await getSeg();
       return await new Promise((res,rej)=>{ const t=setTimeout(()=>rej(new Error('timeout')),25000);
         seg.onResults(r=>{ clearTimeout(t); res(r.segmentationMask); }); seg.send({image:src}).catch(e=>{ clearTimeout(t); rej(e); }); });
-    }catch(e){ console.warn('segmentasi gagal',cuba,e); try{ if(segModel) segModel.close(); }catch(_){} segModel=null;
-      if(cuba) throw new Error(TB('eWebGL')); await new Promise(r=>setTimeout(r,500)); }
+    }catch(e){ console.warn('segmentasi GPU gagal',cuba,e); try{ if(segModel) segModel.close(); }catch(_){} segModel=null; await new Promise(r=>setTimeout(r,400)); }
     finally{ window.alert=alertAsal; }
   }
+  /* Laluan 2: MediaPipe Tasks ImageSegmenter dengan delegate CPU (WASM) — tak perlu WebGL langsung, lebih perlahan (~2-5s) tapi jalan di telefon yang WebGL-nya rosak. */
+  try{ setStatusK('sPotongCPU'); const m=await segCPU(src); segGunaCPU=true; return m; }
+  catch(e){ console.error('segmentasi CPU gagal',e); throw new Error(TB('eWebGL')); }
+}
+let segGunaCPU=false, segCPUModel=null;
+async function segCPU(src){
+  if(!segCPUModel){
+    const V='https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
+    const mod=await import(V+'/vision_bundle.mjs');
+    const fs=await mod.FilesetResolver.forVisionTasks(V+'/wasm');
+    segCPUModel=await mod.ImageSegmenter.createFromOptions(fs,{baseOptions:{modelAssetPath:'https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite',delegate:'CPU'},
+      runningMode:'IMAGE',outputConfidenceMasks:true,outputCategoryMask:false});
+  }
+  const r=segCPUModel.segment(src); const mk=r.confidenceMasks[0], w=mk.width, h=mk.height, f=mk.getAsFloat32Array();
+  const c=document.createElement('canvas'); c.width=w; c.height=h; const im=c.getContext('2d').createImageData(w,h), d=im.data;
+  for(let i=0;i<w*h;i++){ const v=Math.round(Math.max(0,Math.min(1,f[i]))*255); d[i*4]=d[i*4+1]=d[i*4+2]=255; d[i*4+3]=v; }
+  c.getContext('2d').putImageData(im,0,0); r.close&&r.close(); return c;
 }
 async function cutPerson(img){
   const mask=await segMask(img);
