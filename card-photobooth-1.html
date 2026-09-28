@@ -233,7 +233,7 @@ var DEMO={template:'photobooth',nama:'Aina',umur:'25',pengirim:'Danial',
 /* ═══ DATA ═══ */
 var KN=[],JL=[];
 function binaData(){KN=[];var n=0;for(var i=1;i<=8;i++){var t=D['s'+i+'_teks'],im=D['s'+i+'_img'];if(!t&&!im)continue;n++;KN.push({jenis:im?'foto':'nota',no:n,teks:t||'',img:im||'',pos:D['s'+i+'_img_pos']||'50% 50%'});}
-  if(ytId(D.video))KN.splice(Math.min(1,KN.length),0,{jenis:'video'});KN.forEach(function(k,i){k.i=i;});
+  if(ytId(D.video))KN.push({jenis:'video'});  /* video selepas semua gambar */KN.forEach(function(k,i){k.i=i;});
   JL=[];for(var j=0;j<KN.length;j+=4)JL.push({emas:false,isi:KN.slice(j,j+4)});}
 function adaKejut(){return !!(D.surprise_img||D.surprise);}
 function imgOf(k){return k.jenis==='video'?'https://img.youtube.com/vi/'+ytId(D.video)+'/hqdefault.jpg':k.img;}

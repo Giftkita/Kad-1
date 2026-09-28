@@ -235,7 +235,7 @@ var DEMO={template:'mixtape',nama:'Aina',umur:'25',pengirim:'Danial',tajuk:'Mixt
 var TR=[];
 function binaData(){TR=[];var n=0;for(var i=1;i<=8;i++){var t=D['s'+i+'_teks'],im=D['s'+i+'_img'],j=D['s'+i+'_judul'];if(!t&&!im&&!j)continue;n++;
     TR.push({jenis:im?'foto':'nota',no:n,judul:j||'',teks:t||'',img:im||'',pos:D['s'+i+'_img_pos']||'50% 50%'});}
-  if(ytId(D.video))TR.splice(Math.min(1,TR.length),0,{jenis:'video'});
+  if(ytId(D.video))TR.push({jenis:'video'});
   TR.forEach(function(t,i){t.i=i;});}
 function judul(t){return t.jenis==='video'?T('vidJ'):(t.judul||T('trackD')+' '+(t.i+1));}
 function adaKejut(){return !!(D.surprise_img||D.surprise);}

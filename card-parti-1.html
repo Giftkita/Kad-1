@@ -252,7 +252,7 @@ var DEMO={template:'parti',nama:'Aina',umur:'25',pengirim:'Danial',
 /* ═══ DATA ═══ */
 var FR=[],BL=[],buka=0;
 function binaData(){FR=[];for(var i=1;i<=5;i++){var t=D['f'+i+'_teks'],im=D['f'+i+'_img'];if(!t&&!im)continue;FR.push({jenis:im?'foto':'nota',teks:t||'',img:im||'',pos:D['f'+i+'_img_pos']||'50% 50%'});}
-  if(ytId(D.video))FR.splice(Math.min(1,FR.length),0,{jenis:'video'});
+  if(ytId(D.video))FR.push({jenis:'video'});
   BL=[];for(var i=1;i<=5;i++){var t=D['b'+i+'_teks'];if(t)BL.push({teks:t});}}
 var JENIS=['bOval','bSegi','bTegak'];
 function jumlah(){return FR.length+BL.length;}

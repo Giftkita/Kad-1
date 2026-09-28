@@ -208,7 +208,7 @@ var KAP=[],EMAS=null,dibuka=0,emasKeluar=false,emasSiap=false;
 function binaSenarai(){KAP=[];
   for(var i=1;i<=8;i++){var t=D['k'+i+'_teks'],im=D['k'+i+'_img'];if(!t&&!im)continue;
     KAP.push({jenis:im?'foto':'nota',teks:t||'',img:im||'',pos:D['k'+i+'_img_pos']||'50% 50%',warna:WARNA[KAP.length%6]});}
-  if(ytId(D.video))KAP.splice(Math.min(2,KAP.length),0,{jenis:'video',teks:'',warna:WARNA[KAP.length%6]});
+  if(ytId(D.video))KAP.push({jenis:'video',teks:'',warna:WARNA[KAP.length%6]});
   KAP.forEach(function(k,i){k.warna=WARNA[i%6];});
   EMAS={jenis:'emas',warna:'kEmas'};}
 

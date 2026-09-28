@@ -216,7 +216,7 @@ var DEMO={template:'pinata',nama:'Aina',umur:'25',pengirim:'Danial',pinata:'bint
 /* ═══ DATA ═══ */
 var GL=[],kutip=0;
 function binaData(){GL=[];var n=0;for(var i=1;i<=8;i++){var t=D['s'+i+'_teks'],im=D['s'+i+'_img'];if(!t&&!im)continue;n++;GL.push({jenis:im?'foto':'nota',no:n,teks:t||'',img:im||'',pos:D['s'+i+'_img_pos']||'50% 50%'});}
-  if(ytId(D.video))GL.splice(Math.min(1,GL.length),0,{jenis:'video'});}
+  if(ytId(D.video))GL.push({jenis:'video'});}
 function jenisPin(){var p=D.pinata;return p==='llama'?'pLlama':p==='hati'?'pHati':'pBintang';}
 
 /* ═══ SUSUN ═══ */

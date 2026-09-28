@@ -224,7 +224,7 @@ var DEMO={template:'lilin',nama:'Aina',umur:'25',pengirim:'Danial',
 /* ═══ DATA ═══ */
 var HR=[],ambil=0;
 function binaData(){HR=[];var n=0;for(var i=1;i<=10;i++){var t=D['s'+i+'_teks'],im=D['s'+i+'_img'];if(!t&&!im)continue;n++;HR.push({jenis:im?'foto':'nota',no:n,teks:t||'',img:im||'',pos:D['s'+i+'_img_pos']||'50% 50%'});}
-  if(ytId(D.video))HR.splice(Math.min(2,HR.length),0,{jenis:'video'});}
+  if(ytId(D.video))HR.push({jenis:'video'});}
 function umurDg(){var u=String(D.umur||'').replace(/\D/g,'').slice(0,3);return u;}
 
 /* ═══ SUSUN ═══ */

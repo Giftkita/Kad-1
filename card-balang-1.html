@@ -220,7 +220,7 @@ var DEMO={template:'balang',nama:'Aina',pengirim:'Danial',
 /* ═══ DATA ═══ */
 var ITEM=[],baca=0,dibuka={};
 function binaItem(){ITEM=[];var n=0;for(var i=1;i<=20;i++){var t=D['s'+i+'_teks'],im=D['s'+i+'_img'];if(!t&&!im)continue;n++;ITEM.push({jenis:im?'foto':'nota',no:n,teks:t||'',img:im||'',pos:D['s'+i+'_img_pos']||'50% 50%'});}
-  if(ytId(D.video))ITEM.splice(Math.min(2,ITEM.length),0,{jenis:'video',no:0});
+  if(ytId(D.video))ITEM.push({jenis:'video',no:0});
   var spr=['bJ','bK','bM','bL','hati','gulung'];ITEM.forEach(function(it,i){it.spr=it.jenis==='video'?'hati':spr[(i*5+1)%6];});}
 
 /* ═══ PENTAS ═══ */
