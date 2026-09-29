@@ -72,6 +72,16 @@ input,textarea{font-family:inherit}
   .g-3{grid-template-columns:2fr 1fr}
   .wrap{padding:22px}
 }
+.kap{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:640px){.kap{grid-template-columns:1fr}}
+.kap .card h3{display:flex;justify-content:space-between;align-items:center;font-size:.86rem}
+.kap .meter{height:10px;border-radius:6px;background:#eee6ea!important;overflow:hidden;margin:10px 0 6px}
+.kap .meter i{display:block;height:100%;border-radius:6px;background:var(--good)!important;transition:width .6s}
+.kap .meter.warn i{background:var(--warn)!important}.kap .meter.bad i{background:var(--bad)!important}
+.kap .angka{font-size:1.25rem;font-weight:700}.kap .angka small{font-size:.75rem;color:var(--muted);font-weight:500}
+.kap .nota{font-size:.72rem;color:var(--ink2);line-height:1.45}
+.kap .pill{font-size:.66rem;font-weight:700;padding:2px 9px;border-radius:50px;background:var(--good-bg);color:var(--good)}
+.kap .pill.warn{background:var(--warn-bg);color:var(--warn)}.kap .pill.bad{background:var(--bad-bg);color:var(--bad)}.kap .pill.off{background:var(--grid);color:var(--muted)}
 .card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--sh);min-width:0}
 .card h3{font-size:.92rem;font-weight:600;display:flex;align-items:center;justify-content:space-between;gap:8px}
 .card h3 small{font-size:.72rem;color:var(--muted);font-weight:400}
@@ -232,6 +242,15 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5}
       <div class="card kpi"><div class="lbl">Purata setiap jualan</div><div class="val" id="k-purata">RM0</div><div class="hint">hasil ÷ jualan</div></div>
       <div class="card kpi"><div class="lbl">Dari affiliate</div><div class="val" id="k-aff">0%</div><div class="hint" id="k-aff-h"></div></div>
       <div class="card kpi"><div class="lbl">Komisen belum bayar</div><div class="val" id="k-kom">RM0</div><div class="hint" id="k-kom-h"></div></div>
+    </div>
+
+    <div class="kap" id="kap">
+      <div class="card"><h3>💾 Pangkalan data (Supabase) <span class="pill off" id="kp-db-p">…</span></h3>
+        <div class="angka" id="kp-db-a">–</div><div class="meter" id="kp-db-m"><i style="width:0"></i></div>
+        <div class="nota" id="kp-db-n">Memuatkan…</div></div>
+      <div class="card"><h3>🌐 Trafik website (Vercel) <span class="pill off" id="kp-vc-p">…</span></h3>
+        <div class="angka" id="kp-vc-a">–</div><div class="meter" id="kp-vc-m"><i style="width:0"></i></div>
+        <div class="nota" id="kp-vc-n">Memuatkan…</div></div>
     </div>
 
     <div class="grid g-3" style="margin-top:12px">
@@ -432,8 +451,34 @@ async function muat(pertama){
     D=await api({action:'dashboard'});
     D.sales.forEach(s=>{s.ms=s.t?Date.parse(s.t):0});
     lukisSemua();
+    muatKapasiti();
   }catch(e){if(pertama)throw e;alert('❌ '+e.message)}
   finally{ic.classList.remove('spin')}
+}
+
+/* ── kapasiti: amaran sebelum had pelan percuma penuh ── */
+function kpSet(id,pct,angka,nota,label){
+  const m=document.getElementById('kp-'+id+'-m'),p=document.getElementById('kp-'+id+'-p');
+  const tahap=pct==null?'off':pct>=90?'bad':pct>=70?'warn':'';
+  m.className='meter'+(tahap&&tahap!=='off'?' '+tahap:'');m.firstElementChild.style.width=(pct==null?0:Math.min(100,pct))+'%';
+  p.className='pill'+(tahap?' '+tahap:'');p.textContent=label||(pct==null?'–':tahap==='bad'?'Hampir penuh!':tahap==='warn'?'Awas':'Selamat');
+  document.getElementById('kp-'+id+'-a').innerHTML=angka;document.getElementById('kp-'+id+'-n').innerHTML=nota;
+}
+async function muatKapasiti(){
+  let K;try{K=await api({action:'kapasiti'})}catch(e){kpSet('db',null,'–','Gagal baca: '+e.message);kpSet('vc',null,'–','Gagal baca: '+e.message);return}
+  const d=K.db||{},v=K.vercel||{};
+  if(d.bytes!=null){const mb=d.bytes/1048576,had=d.limit/1048576,pct=mb/had*100;
+    kpSet('db',pct,Math.round(mb)+'MB <small>/ '+had+'MB ('+Math.round(pct)+'%)</small>',
+      pct>=90?'⚠️ <b>Hampir penuh.</b> Lepas 500MB kad baru TAK boleh disimpan. Naik Supabase Pro sekarang.'
+      :pct>=70?'Dah lebih 70%. Rancang naik <b>Supabase Pro</b> ($25/bulan, 8GB).'
+      :'Kad tak berbayar dipadam automatik setiap malam. Naik Pro bila lebih 70%.');}
+  else kpSet('db',null,'Belum aktif',d.error==='sql'?'Jalankan <b>docs/sql-kapasiti.sql</b> sekali di Supabase SQL Editor.':'Tak dapat baca saiz ('+(d.detail||d.error||'?')+').','Belum aktif');
+  if(v.gb!=null){const pct=v.gb/v.limit*100,hari=new Date().getDate(),dim=new Date(new Date().getFullYear(),new Date().getMonth()+1,0).getDate(),jangka=v.gb/hari*dim;
+    kpSet('vc',pct,v.gb.toFixed(1)+'GB <small>/ '+v.limit+'GB bulan ini ('+Math.round(pct)+'%)</small>',
+      (pct>=90?'⚠️ <b>Hampir had.</b> Lepas 100GB website boleh dihentikan sementara. Naik Vercel Pro.':pct>=70?'Dah lebih 70% — pertimbang <b>Vercel Pro</b> ($20/bulan, 1TB).':'Trafik bulan ini masih rendah.')
+      +'<br>Jangkaan hujung bulan: <b>'+jangka.toFixed(1)+'GB</b>.');}
+  else if(v.error==='no_token')kpSet('vc',null,'Belum aktif','Tambah <b>VERCEL_TOKEN</b> dalam Environment Variables Vercel (lihat BACA-SAYA). Buat masa ni semak di <a href="https://vercel.com/dashboard" target="_blank" rel="noopener">vercel.com</a> → Usage.','Belum aktif');
+  else kpSet('vc',null,'Tak dapat baca','Vercel tak benarkan baca data ('+(v.status||v.error||'?')+'). Semak manual di <a href="https://vercel.com/dashboard" target="_blank" rel="noopener">vercel.com</a> → Usage. Had pelan Hobby: 100GB sebulan.','?');
 }
 
 /* ── tab & penapis ── */
