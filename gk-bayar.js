@@ -53,12 +53,12 @@ var CFG={};
    Kunci pelan (basic/premium/bouquet) dihantar ke server — server MESTI kenal kunci
    tu dan tetapkan harga yang sama (create-bill.js untuk RM, create-checkout.js untuk USD). */
 var PLAN_LALAI={
-  basic:  { rm:6, usd:8,  nm:'Basic',   ds:'Muzik YouTube · link kekal',       ds_en:'YouTube music · permanent link' },
+  basic:  { rm:6, usd:8,  nm:'Basic',   ds:'Muzik YouTube · link aktif 2 bulan', ds_en:'YouTube music · link active 2 months' },
   premium:{ rm:8, usd:10, nm:'Premium', ds:'Semua Basic · kod QR · album PDF', ds_en:'Everything in Basic · QR code · PDF album' }
 };
 var USD_LALAI={ basic:8, premium:10, bouquet:3 };
 var EN_LALAI={
-  basic:  { nm:'Basic',   ds:'YouTube music · permanent link' },
+  basic:  { nm:'Basic',   ds:'YouTube music · link active 2 months' },
   premium:{ nm:'Premium', ds:'Everything in Basic · QR code · PDF album' },
   bouquet:{ nm:'Photo Bouquet', ds:'Full image without watermark · instant download' }
 };
