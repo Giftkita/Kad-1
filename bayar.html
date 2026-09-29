@@ -278,6 +278,7 @@ function gkLogo(ctx,W,px,dark,light){
     <h1>Pembayaran Berjaya!</h1>
     <p id="ok-msg">Kad kamu dah siap! Salin link di bawah & hantar kepada orang tersayang 💝</p>
     <div id="link-box"><a id="card-link" href="#" target="_blank"></a></div>
+    <p id="tempoh" style="font-size:.78rem;color:#a0527a;background:#fff5f9;border:1px dashed #f48fb1;border-radius:10px;padding:8px 10px;margin:10px 0">⏳ Link kad aktif selama 2 bulan dari hari ini. Simpan gambar / album kamu sebelum tamat tempoh ya 💝</p>
     <div class="btns">
       <button class="btn b-copy" id="copy-btn" onclick="copyLink()">📋 Salin Link</button>
       <a id="wa-btn" class="btn b-wa" href="#" target="_blank">💬 WhatsApp</a>
@@ -410,6 +411,7 @@ async function buildLink(base){
     tukar('ok-msg', nm+' kamu dah siap! Tekan butang di bawah untuk download gambar penuh tanpa tanda air 🌸');
     tukar('view-btn', '⬇️ Download '+nm);
     document.getElementById('link-box').style.display='none';
+    document.getElementById('tempoh').style.display='none';
     document.getElementById('copy-btn').style.display='none';
     document.getElementById('wa-btn').style.display='none';
     show('st-ok'); confetti();
@@ -477,6 +479,7 @@ checkNow(false);
 <div id="gk-langtog" style="position:fixed;bottom:14px;left:14px;z-index:99999;display:inline-flex;border:1.5px solid #ffd6e6;border-radius:50px;overflow:hidden;font-family:Poppins,sans-serif;font-size:.72rem;font-weight:700;background:#fff;box-shadow:0 3px 12px rgba(233,30,99,.28)"><button data-l="en" onclick="gkApply('en')" style="border:none;background:#fff;color:#a07;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">EN</button><button data-l="ms" onclick="gkApply('ms')" style="border:none;background:#fff;color:#a07;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">BM</button></div>
 <script>
 var GK_DICT={
+"⏳ Link kad aktif selama 2 bulan dari hari ini. Simpan gambar / album kamu sebelum tamat tempoh ya 💝":"⏳ Your card link stays active for 2 months from today. Save your photos / album before it expires 💝",
 "Menyemak pembayaran...":"Checking payment...",
 "Sila tunggu sebentar, kami sedang sahkan pembayaran kamu 🙏":"Please wait a moment, we are confirming your payment 🙏",
 "Pembayaran Berjaya!":"Payment Successful!",

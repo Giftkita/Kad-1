@@ -215,7 +215,7 @@ var TXT={
   vidTt:'tap outside to close',lbTt:'pinch to zoom · double tap · tap to close',
   g1:'Could not connect to the database. Please refresh the page.',g2:'This card is not active yet. Please complete the payment to open it.',g3:'Card not found or has expired.'}
 };
-function T(k){return TXT[LANG][k];}
+function T(k){var v=TXT[LANG][k];return v==null?k:v;}
 function $(i){return document.getElementById(i);}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function rnd(a,b){return a+Math.random()*(b-a);}
@@ -307,7 +307,7 @@ function gerakKe(x,cb,ms){x=Math.max(.12,Math.min(.88,x));var x0=capX,t0=perform
   (function f(t){var k=Math.min(1,(t-t0)/d),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;capX=x0+(x-x0)*e;lukisCapit();if(k<1)requestAnimationFrame(f);else if(cb)cb();})(t0);}
 function tekanK(b){b.classList.remove('tekan');void b.offsetWidth;b.classList.add('tekan');setTimeout(function(){b.classList.remove('tekan');},150);}
 function turunKe(y,ms,cb){var y0=capY,t0=performance.now();(function f(t){var k=Math.min(1,(t-t0)/ms),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;capY=y0+(y-y0)*e;lukisCapit();if(bawa)ikut();if(k<1)requestAnimationFrame(f);else if(cb)cb();})(t0);}
-var bawa=null,cubaan=0,lepasDulu=false,gagal=0;
+var bawa=null,cubaan=0,lepasDulu=false,gagalN=0;
 var TAHAP={senang:{t:.45,s:.45,p:0,lawak:false},sederhana:{t:.24,s:.46,p:.12,lawak:true},susah:{t:.14,s:.42,p:.28,lawak:true}};
 function TH(){return TAHAP[D.tahap]||TAHAP.sederhana;}
 function ikut(){var o=bawa;if(!o)return;var ch=P.capH,y=P.kh*.03+capY+ch*.62;o.el.style.left=(capX*P.kw-o.w/2)+'px';o.el.style.top=y+'px';o.el.style.zIndex=45;}
@@ -318,8 +318,8 @@ function tangkap(){if(fasa!=='main'||sibuk)return;sibuk=true;cubaMain();bunyiIni
   turunKe(dy,700+dy*2,function(){capL='T';$('iCapit').src=ASET.capitT;lukisCapit();bunyi('genggam');
     setTimeout(function(){
       if(!s){turunKe(0,700,function(){capL=null;$('iCapit').src=ASET.capitB;lukisCapit();toast(T('kosong'));siapSemula();});return;}
-      cubaan++;var th=TH(),off=Math.abs(s.x-capX)*P.kw/s.w,sipi=off>th.t&&gagal<3,slip=sipi||(gagal<3&&!s.besar&&((th.lawak&&!lepasDulu)||Math.random()<th.p));if(slip&&!sipi)lepasDulu=true;
-      var msg=sipi?T(capX>s.x?'hampirKi':'hampirKa'):T('terlepas');if(slip)gagal++;else gagal=0;
+      cubaan++;var th=TH(),off=Math.abs(s.x-capX)*P.kw/s.w,sipi=off>th.t&&gagalN<3,slip=sipi||(gagalN<3&&!s.besar&&((th.lawak&&!lepasDulu)||Math.random()<th.p));if(slip&&!sipi)lepasDulu=true;
+      var msg=sipi?T(capX>s.x?'hampirKi':'hampirKa'):T('terlepas');if(slip)gagalN++;else gagalN=0;
       bawa=s;s.el.style.transition='none';ikut();bunyi('naik');
       if(slip){turunKe(dy*.45,650,function(){bawa=null;capL=null;$('iCapit').src=ASET.capitB;lukisCapit();bunyi('aww');jatuhBalik(s);toast(msg);turunKe(0,600,siapSemula);});return;}
       turunKe(0,s.besar?1300:800,function(){bunyi('gerak');gerakKe(.14,function(){capL=null;$('iCapit').src=ASET.capitB;lukisCapit();bawa=null;bunyi('lepas');keluarPintu(s);},900);});
@@ -470,6 +470,7 @@ function gagal(k){try{if(localStorage.getItem('gk_lang')==='en')LANG='en';}catch
   db.from('cards').select('card_data,paid').eq('id',id).single().then(function(r){
     if(r.error)throw r.error;
     if(r.data.paid!==true){gagal('g2');return;}
+    if(r.data.card_data&&r.data.card_data.tamat){gagal('Kad ini telah tamat tempoh (link aktif 2 bulan). · This card has expired (links stay active for 2 months).');return;}
     D=r.data.card_data||{};bina();
   }).catch(function(){gagal('g3');});
 })();
