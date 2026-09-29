@@ -201,7 +201,7 @@ var TXT={
   vidTt:'tap outside to close',lbTt:'pinch to zoom · double tap · tap to close',
   g1:'Could not connect to the database. Please refresh the page.',g2:'This card is not active yet. Please complete the payment to open it.',g3:'Card not found or has expired.'}
 };
-function T(k){return TXT[LANG][k];}
+function T(k){var v=TXT[LANG][k];return v==null?k:v;}
 function $(i){return document.getElementById(i);}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
 function rnd(a,b){return a+Math.random()*(b-a);}
@@ -494,6 +494,7 @@ function gagal(k){try{if(localStorage.getItem('gk_lang')==='en')LANG='en';}catch
   db.from('cards').select('card_data,paid').eq('id',id).single().then(function(r){
     if(r.error)throw r.error;
     if(r.data.paid!==true){gagal('g2');return;}
+    if(r.data.card_data&&r.data.card_data.tamat){gagal('Kad ini telah tamat tempoh (link aktif 2 bulan). · This card has expired (links stay active for 2 months).');return;}
     D=r.data.card_data||{};bina();
   }).catch(function(){gagal('g3');});
 })();

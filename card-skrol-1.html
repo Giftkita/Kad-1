@@ -612,6 +612,7 @@ function badge(){ document.getElementById('badge').style.display='block'; }
   db.from('cards').select('card_data,paid').eq('id',id).single().then(function(r){
     if(r.error) throw r.error;
     if(r.data.paid!==true){ gagal(T('belum')); return; }
+    if(r.data.card_data&&r.data.card_data.tamat){gagal('Kad ini telah tamat tempoh (link aktif 2 bulan). · This card has expired (links stay active for 2 months).');return;}
     D=r.data.card_data; bina();
   }).catch(function(){ gagal(T('tiada')); });
 })();
