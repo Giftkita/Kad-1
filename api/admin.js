@@ -5,6 +5,7 @@
 //  POST {token, action:'reset_pass', code}    → password sementara affiliate
 //  POST {token, action:'dashboard'}           → data untuk dashboard admin.html
 //  POST {token, action:'get_notice' | 'set_notice', notice} → notis & penyelenggaraan
+//  POST {token, action:'kapasiti'}          → saiz pangkalan data Supabase + trafik Vercel bulan ini
 //  GET  /api/admin?notis=1                    → AWAM: notis semasa (untuk gk-notis.js)
 //
 //  Sep 2026: token dibanding secara timing-safe, id dienkod, dan reset
@@ -81,6 +82,11 @@ module.exports = async (req, res) => {
     }
 
     // ── DASHBOARD: semua data mentah yang ringkas, dikira di browser ──
+    if (action === 'kapasiti') {
+      res.status(200).json({ db: await kapasitiDb(), vercel: await kapasitiVercel(), now: new Date().toISOString() });
+      return;
+    }
+
     if (action === 'dashboard') {
       const arr = x => Array.isArray(x) ? x : [];
       let sales = arr(await sbAll(`sales?select=id,card_id,ref_code,amount,bill_code,created_at&order=created_at.desc`));
@@ -189,6 +195,47 @@ async function bacaNotis() {
   return Array.isArray(r) && r[0] ? r[0].value || {} : {};
 }
 function awam(n) { return bersih(n || {}); }
+
+// ── KAPASITI: amaran awal sebelum had pelan percuma penuh ──
+// Supabase: perlukan fungsi SQL public.saiz_db() (docs/sql-kapasiti.sql, jalan sekali).
+async function kapasitiDb() {
+  const HAD = 500 * 1024 * 1024;   // pelan Free: 500MB (jadi read-only bila lepas)
+  try {
+    const { url, key } = SB();
+    const r = await fetch(url + 'rpc/saiz_db', { method: 'POST', headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' }, body: '{}' });
+    const j = await r.json();
+    const b = typeof j === 'number' ? j : Number(j && (j.saiz_db ?? j[0]?.saiz_db));
+    if (!r.ok || !isFinite(b)) return { error: 'sql', detail: (j && j.message) || String(r.status) };
+    return { bytes: b, limit: HAD };
+  } catch (e) { return { error: 'gagal', detail: String(e.message || e) }; }
+}
+// Vercel: perlukan env VERCEL_TOKEN (vercel.com/account/tokens), pilihan VERCEL_TEAM_ID.
+// Guna /v1/billing/charges (format FOCUS, JSONL, harian). Jumlah "Fast Data Transfer" bulan ini.
+async function kapasitiVercel() {
+  const HAD_GB = 100;              // pelan Hobby: 100GB Fast Data Transfer sebulan
+  const T = process.env.VERCEL_TOKEN;
+  if (!T) return { error: 'no_token', limit: HAD_GB };
+  try {
+    const now = new Date(), mula = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+    const q = new URLSearchParams({ from: mula.toISOString(), to: now.toISOString() });
+    if (process.env.VERCEL_TEAM_ID) q.set('teamId', process.env.VERCEL_TEAM_ID);
+    const r = await fetch('https://api.vercel.com/v1/billing/charges?' + q, { headers: { Authorization: 'Bearer ' + T } });
+    const txt = await r.text();
+    if (!r.ok) return { error: 'api', status: r.status, detail: txt.slice(0, 160), limit: HAD_GB };
+    const baris = txt.split('\n').map(l => { try { return JSON.parse(l); } catch (e) { return null; } }).filter(Boolean);
+    const rekod = baris.length === 1 && Array.isArray(baris[0]) ? baris[0] : (baris.length === 1 && Array.isArray(baris[0].data) ? baris[0].data : baris);
+    let gb = 0, jumpa = 0;
+    for (const x of rekod) {
+      const nama = [x.ServiceName, x.ChargeDescription, x.SkuMeter, x.SkuId, x.ResourceName, x.ChargeCategory].filter(Boolean).join(' ');
+      if (!/fast\s*data\s*transfer/i.test(nama)) continue;
+      const qty = Number(x.ConsumedQuantity ?? x.PricingQuantity ?? 0); if (!isFinite(qty)) continue;
+      const unit = String(x.ConsumedUnit || x.PricingUnit || 'GB').toLowerCase();
+      gb += /^b(yte)?s?$/.test(unit) ? qty / 1e9 : /mb/.test(unit) ? qty / 1e3 : /tb/.test(unit) ? qty * 1e3 : qty;
+      jumpa++;
+    }
+    return { gb: Math.round(gb * 100) / 100, limit: HAD_GB, rows: jumpa, from: mula.toISOString() };
+  } catch (e) { return { error: 'gagal', detail: String(e.message || e), limit: HAD_GB }; }
+}
 
 // ── helper Supabase REST (service key) ──
 const SB = () => ({ url: process.env.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/', key: process.env.SUPABASE_SERVICE_KEY });
