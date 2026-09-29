@@ -392,6 +392,7 @@ async function init(){
     const{data,error}=await db.from('cards').select('card_data,paid').eq('id',id).single();
     if(error)throw error;
     if(data.paid!==true){ showErr('Kad ini belum diaktifkan. Sila selesaikan pembayaran untuk membuka kad.'); return; }
+    if(data.card_data&&data.card_data.tamat){showErr('Kad ini telah tamat tempoh (link aktif 2 bulan). · This card has expired (links stay active for 2 months).');return;}
     D=data.card_data; renderCard();
   }catch(e){ showErr('Kad tidak dijumpai atau telah tamat tempoh.'); }
 }

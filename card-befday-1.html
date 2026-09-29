@@ -767,6 +767,7 @@ async function init(){
       showErr('Kad ini belum diaktifkan. Sila selesaikan pembayaran untuk membuka kad. 💳');
       return;
     }
+    if(data.card_data&&data.card_data.tamat){showErr('Kad ini telah tamat tempoh (link aktif 2 bulan). · This card has expired (links stay active for 2 months).');return;}
     D=data.card_data;
     D.theme=normTheme(D.theme); if(routeTheme(D.theme)) return;
     renderCard();
