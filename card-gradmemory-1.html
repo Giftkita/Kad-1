@@ -233,7 +233,7 @@ body.landskap .pil{padding:5px 10px;font-size:10px}
 
 <div id="alat">
   <button id="bMuzik" title="Muzik">♪</button>
-  <button id="bAlbum" title="Album PDF">⤓</button>
+  <button id="bAlbum" title="Download Album">⤓</button>
 </div>
 
 <div id="ui">
@@ -544,15 +544,8 @@ function toggleMuzik(){
 }
 $('#bMuzik').onclick=toggleMuzik;
 
-/* ---------- album PDF ---------- */
-$('#bAlbum').onclick=function(){
-  var g=[]; for(var i=1;i<=JUMLAH_FOTO;i++){ if(D&&D['f'+i]) g.push(D['f'+i]); }
-  if(D&&D.surprise_img) g.push(D.surprise_img);
-  if(!g.length) return;
-  if(typeof buatAlbum==='function') buatAlbum(g,{tajuk:'Graduate Memory',to:D.to||'',from:D.from||''});
-  else if(typeof album==='function') album(g);
-  else alert('album.js tidak dijumpai');
-};
+/* ---------- Download Album (album.js — Premium) ---------- */
+$('#bAlbum').onclick=function(){ if(window.GKAlbum&&GKAlbum.open) GKAlbum.open(); };
 
 /* ---------- bahasa ---------- */
 function pakaiBahasa(){
