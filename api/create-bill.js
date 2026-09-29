@@ -51,6 +51,7 @@ module.exports = async (req, res) => {
       billEmail:       buyerEmail || 'noemail@giftkita.my',
       billPhone:       buyerPhone || '0000000000',
       billPaymentChannel: '0',
+      billExpiryDays:  '3',                             // bil luput 3 hari — kad tak bayar dipadam auto selepas 7 hari (docs/sql-bersih-kad.sql)
       enableDuitNowQR: DNQR_ENABLE,
       chargeDuitNowQR: DNQR_CHARGE
     });
