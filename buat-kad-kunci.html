@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Buat Kad Anniversary — Bouquet Berkunci | GiftKita</title>
+<!--GK-SEO-->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#D6547A">
+<link rel="canonical" href="https://www.giftkita.com/buat-kad-kunci.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GiftKita">
+<meta property="og:title" content="Buat Kad Anniversary — Bouquet Berkunci | GiftKita">
+<meta property="og:description" content="Kad anniversary digital: skrin berkunci kod rahsia, hati bunga, sampul, 4 polaroid gosok, kad ucapan, jambangan &amp; lagu. Buat &amp; hantar link kepada orang tersayang.">
+<meta property="og:url" content="https://www.giftkita.com/buat-kad-kunci.html">
+<meta property="og:image" content="https://www.giftkita.com/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ms_MY">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Buat Kad Anniversary — Bouquet Berkunci | GiftKita">
+<meta name="twitter:description" content="Kad anniversary digital: skrin berkunci kod rahsia, hati bunga, sampul, 4 polaroid gosok, kad ucapan, jambangan &amp; lagu. Buat &amp; hantar link kepada orang tersayang.">
+<meta name="twitter:image" content="https://www.giftkita.com/og-image.jpg">
+<!--/GK-SEO-->
+<meta name="description" content="Kad anniversary digital: skrin berkunci kod rahsia, hati bunga, sampul, 4 polaroid gosok, kad ucapan, jambangan & lagu. Buat & hantar link kepada orang tersayang.">
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:repeating-linear-gradient(90deg,#F9F0EA 0 22px,#fff 22px 40px);color:#3a2028;line-height:1.5;padding:0 0 40px}
+.wrap{max-width:560px;margin:0 auto;padding:0 16px}
+header{background:rgba(255,255,255,.75);padding:26px 16px 22px;text-align:center;border-bottom:1px solid rgba(177,13,50,.15);margin-bottom:18px;position:relative}
+header h1{font-family:Georgia,serif;font-size:1.4rem;color:#7a0a1c;margin-bottom:4px}
+header p{font-size:.86rem;color:#8a5c68}
+#lang{position:absolute;top:14px;right:14px;background:#fff;border:1px solid rgba(177,13,50,.3);border-radius:999px;padding:6px 12px;font-size:12px;color:#7a0a1c;cursor:pointer}
+.sec{background:rgba(255,255,255,.92);border:1px solid rgba(177,13,50,.15);border-radius:14px;padding:16px;margin-bottom:14px}
+.sec h2{font-family:Georgia,serif;font-size:1.02rem;margin-bottom:3px;color:#7a0a1c}
+.sec .hint{font-size:.78rem;color:#9a7a84;margin-bottom:12px}
+label{display:block;font-size:.8rem;font-weight:600;color:#6b4a54;margin:10px 0 4px}
+input[type=text],input[type=url],textarea{width:100%;padding:10px 12px;font-size:.92rem;font-family:inherit;border:1px solid rgba(177,13,50,.3);border-radius:10px;background:#fff;color:#3a2028}
+textarea{min-height:110px;resize:vertical;line-height:1.55}
+input:focus,textarea:focus{outline:2px solid #B10D32;outline-offset:1px}
+.row{display:flex;gap:8px}.row>*{flex:1;min-width:0}
+.fotoGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}
+.fotoSlot{aspect-ratio:1;border:1.5px dashed rgba(177,13,50,.4);border-radius:10px;background:#fff7f9;display:grid;place-items:center;cursor:pointer;overflow:hidden;position:relative}
+.fotoSlot img{width:100%;height:100%;object-fit:cover}
+.fotoSlot span{font-size:.7rem;color:#a07a86;text-align:center;padding:4px;line-height:1.25}
+.fotoSlot .del{position:absolute;top:3px;right:3px;background:rgba(0,0,0,.55);color:#fff;border:0;width:20px;height:20px;border-radius:50%;font-size:13px;cursor:pointer;line-height:1}
+.utama{border-color:#B10D32;background:#fdeef2}
+.nota{font-size:.76rem;color:#9a7a84;margin-top:8px}
+.kod{letter-spacing:.5em;font-size:1.3rem!important;text-align:center;font-weight:700}
+.kira{font-size:.72rem;color:#9a7a84;text-align:right;margin-top:4px}
+#gk-pratonton,#gk-bayar{margin-top:16px}
+.amaran{padding:14px 16px;background:#ffebee;border:1.5px solid #ef9a9a;border-radius:12px;font-size:.82rem;color:#c62828}
+</style>
+</head>
+<body>
+<button id="lang">BM / EN</button>
+<header>
+  <h1 id="hTajuk"></h1>
+  <p id="hSub"></p>
+</header>
+
+<div class="wrap">
+  <div class="sec">
+    <h2 id="s1"></h2>
+    <div class="hint" id="s1h"></div>
+    <div class="row">
+      <div><label id="lPengirim"></label><input type="text" id="fDari" maxlength="16" placeholder="Danial"></div>
+      <div><label id="lNama"></label><input type="text" id="fUntuk" maxlength="16" placeholder="Aina"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s2"></h2>
+    <div class="hint" id="s2h"></div>
+    <label id="lKod"></label><input type="text" id="fKod" class="kod" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="1402">
+    <label id="lPetunjuk"></label><input type="text" id="fPetunjuk" maxlength="40" placeholder="">
+  </div>
+
+  <div class="sec">
+    <h2 id="s3"></h2>
+    <div class="hint" id="s3h"></div>
+    <div class="fotoGrid" id="fotoGrid"></div>
+    <input type="file" id="fotoInput" accept="image/*" multiple style="display:none">
+    <div class="nota" id="s3n"></div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s4"></h2>
+    <div class="hint" id="s4h"></div>
+    <textarea id="fKad" maxlength="320"></textarea>
+    <div class="kira"><span id="kiraKad">0</span>/320</div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s5"></h2>
+    <div class="hint" id="s5h"></div>
+    <div class="row">
+      <div><label id="lTag"></label><input type="text" id="fTag" maxlength="20" placeholder="14 · 02 · 2020"></div>
+      <div><label id="lTempat"></label><input type="text" id="fTempat" maxlength="34" placeholder=""></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s6"></h2>
+    <div class="hint" id="s6h"></div>
+    <input type="url" id="fYt" placeholder="https://www.youtube.com/watch?v=...">
+    <div class="row">
+      <div><label id="lLagu"></label><input type="text" id="fLagu" maxlength="30" placeholder="Perfect"></div>
+      <div><label id="lArtis"></label><input type="text" id="fArtis" maxlength="30" placeholder="Ed Sheeran"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 id="s7"></h2>
+    <div class="hint" id="s7h"></div>
+    <input type="url" id="fVideo" placeholder="https://www.youtube.com/watch?v=...">
+  </div>
+
+  <div id="gk-pratonton"></div>
+  <div id="gk-bayar"></div>
+</div>
+
+<script src="gk-bayar.js"></script>
+<script>
+var lang='ms';
+var L={
+ ms:{hTajuk:'Kad Anniversary — Bouquet Berkunci 🔐💐',hSub:'Skrin berkunci kod rahsia, hati bunga, sampul, 4 polaroid gosok, kad ucapan, jambangan & lagu',
+     s1:'Untuk siapa',s1h:'Nama keluar di skrin kunci, hati bunga dan sampul. Nama pengirim jadi tandatangan kad.',lPengirim:'Daripada',lNama:'Untuk (nama penerima)',
+     s2:'Kod rahsia',s2h:'Dia kena taip kod 4 digit ni untuk buka kad. Contoh: tarikh kenal (1402 = 14 Feb). Beritahu dia kod, atau bagi petunjuk.',lKod:'Kod 4 digit',lPetunjuk:'Petunjuk (pilihan)',pPetunjuk:'Tarikh kita mula 💗',
+     s3:'4 gambar "Gosok aku"',s3h:'Setiap gambar tersembunyi bawah lapisan ungu. Dia kena gosok dengan jari untuk nampak.',s3n:'Tekan mana-mana kotak untuk pilih gambar. Boleh pilih beberapa sekali gus.',
+     s4:'Ucapan dalam kad "for you"',s4h:'Kad terbuka (flip) bila ditekan. Kosongkan untuk guna ucapan lalai.',pKad:'Semoga kamu bahagia dalam perkara-perkara kecil...',
+     s5:'Tag & peta',s5h:'Tulisan pada tag peach, dan nama tempat pada kad peta (pilihan).',lTag:'Tulisan tag',lTempat:'Nama tempat',pTempat:'Tempat pertama kita jumpa',
+     s6:'Lagu',s6h:'Main sendiri bila dia tekan kod, dan keluar dalam pemain lagu hitam. Guna link YouTube.',lLagu:'Tajuk lagu',lArtis:'Penyanyi',
+     s7:'Video YouTube',s7h:'Pilihan — keluar sebagai kad video pada papan. Kosongkan untuk sembunyi.',
+     g:['Gambar 1','Gambar 2','Gambar 3','Gambar 4']},
+ en:{hTajuk:'Anniversary Card — Locked Bouquet 🔐💐',hSub:'Passcode lock screen, flower heart, envelope, 4 scratch polaroids, greeting card, bouquet & song',
+     s1:'Who it is for',s1h:'Names appear on the lock screen, flower heart and envelope. The sender name signs the card.',lPengirim:'From',lNama:'For (their name)',
+     s2:'Secret passcode',s2h:'They must type this 4-digit code to open the card. E.g. the day you met (1402 = 14 Feb). Tell them the code, or give a hint.',lKod:'4-digit code',lPetunjuk:'Hint (optional)',pPetunjuk:'The day we started 💗',
+     s3:'4 "Scratch me" photos',s3h:'Each photo hides under a purple layer. They scratch it with a finger to reveal it.',s3n:'Tap any box to choose photos. You can pick several at once.',
+     s4:'Message in the "for you" card',s4h:'The card flips open when tapped. Leave blank to use the default message.',pKad:'Wishing you happiness in the little things...',
+     s5:'Tag & map',s5h:'Text on the peach tag, and a place name on the map card (optional).',lTag:'Tag text',lTempat:'Place name',pTempat:'Where we first met',
+     s6:'Song',s6h:'Plays by itself when they enter the code, and shows in the black music player. Use a YouTube link.',lLagu:'Song title',lArtis:'Artist',
+     s7:'YouTube video',s7h:'Optional — shows as a video card on the board. Leave blank to hide it.',
+     g:['Photo 1','Photo 2','Photo 3','Photo 4']}
+};
+function $(i){return document.getElementById(i);}
+function pasangTeks(){
+  var t=L[lang];
+  Object.keys(t).forEach(function(k){var e=$(k);if(e&&typeof t[k]==='string')e.textContent=t[k];});
+  $('fPetunjuk').placeholder=t.pPetunjuk;$('fKad').placeholder=t.pKad;$('fTempat').placeholder=t.pTempat;
+  binaFoto();
+}
+$('lang').onclick=function(){lang=(lang==='ms')?'en':'ms';try{localStorage.setItem('gk_lang',lang);}catch(e){}pasangTeks();};
+try{var _l=localStorage.getItem('gk_lang');if(_l==='en'||_l==='ms')lang=_l;}catch(e){}
+function val(id){var e=$(id);return e?e.value.trim():'';}
+$('fKod').oninput=function(){this.value=this.value.replace(/\D/g,'').slice(0,4);};
+
+/* gambar */
+var BIL_FOTO=4,fotoData=new Array(BIL_FOTO).fill(''),sasarSlot=0;
+function binaFoto(){var t=L[lang],g=$('fotoGrid'),h='';
+  for(var i=0;i<BIL_FOTO;i++){h+='<div class="fotoSlot" data-i="'+i+'">'+(fotoData[i]?'<img src="'+fotoData[i]+'"><button class="del" data-del="'+i+'">&times;</button>':'<span>'+t.g[i]+'</span>')+'</div>';}
+  g.innerHTML=h;
+  [].forEach.call(g.querySelectorAll('.fotoSlot'),function(s){s.onclick=function(e){if(e.target.hasAttribute('data-del'))return;sasarSlot=+s.getAttribute('data-i');$('fotoInput').click();};});
+  [].forEach.call(g.querySelectorAll('[data-del]'),function(b){b.onclick=function(e){e.stopPropagation();fotoData[+b.getAttribute('data-del')]='';binaFoto();};});}
+$('fotoInput').onchange=function(){var fs=[].slice.call(this.files||[]);if(!fs.length)return;var slot=sasarSlot,sisa=fs.length;
+  fs.forEach(function(f,k){var idx=slot+k;if(idx>=BIL_FOTO){sisa--;return;}kecilkan(f,function(u){fotoData[idx]=u;sisa--;if(sisa<=0)binaFoto();});});this.value='';};
+function kecilkan(file,cb){var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var mx=900,w=im.width,h=im.height;
+  if(w>mx||h>mx){if(w>h){h=Math.round(h*mx/w);w=mx;}else{w=Math.round(w*mx/h);h=mx;}}var c=document.createElement('canvas');c.width=w;c.height=h;c.getContext('2d').drawImage(im,0,0,w,h);cb(c.toDataURL('image/jpeg',0.8));};im.src=r.result;};r.readAsDataURL(file);}
+$('fKad').oninput=function(){$('kiraKad').textContent=this.value.length;};
+
+/* collectData — MESTI sync */
+function collectData(){
+  var d={template:'kunci'};
+  d.dari=val('fDari');d.untuk=val('fUntuk');
+  var k=val('fKod').replace(/\D/g,'');d.kod=k.length===4?k:'1402';d.petunjuk=val('fPetunjuk');
+  for(var i=0;i<4;i++)d['f'+(i+1)]=fotoData[i]||'';
+  d.kad=$('fKad').value.trim();d.tag=val('fTag');d.tempat=val('fTempat');
+  d.yt=val('fYt');d.lagu=val('fLagu');d.artis=val('fArtis');d.video=val('fVideo');d.lang=lang;
+  return d;
+}
+if(window.GKBayar){GKBayar.mount({el:'gk-bayar',previewEl:'gk-pratonton',viewer:'card-kunci-1.html',collect:collectData,produk:'Kad Anniversary Bouquet Berkunci',qr:true});}
+else{$('gk-bayar').innerHTML='<div class="amaran">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia di root repo, bukan dalam folder api.</div>';}
+pasangTeks();
+</script>
+</body>
+</html>
