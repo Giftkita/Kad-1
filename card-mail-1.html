@@ -182,6 +182,9 @@ button{font-family:inherit}
 #s7 .bVid{margin-top:22px;border:0;border-radius:999px;padding:11px 22px;font:600 .88rem Poppins,sans-serif;background:var(--merah);color:#fff;box-shadow:0 6px 16px rgba(177,13,50,.35);cursor:pointer}
 
 /* ── bahasa, lapisan ── */
+#bMuzik{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:112px;z-index:60;width:34px;height:34px;border-radius:50%;border:1.5px solid #e9cdd4;background:#fff;color:var(--merah);font:700 1rem Poppins,sans-serif;cursor:pointer;display:none;box-shadow:0 4px 12px rgba(0,0,0,.12)}
+#bMuzik.on{display:block}#bMuzik.main{animation:putarN 3s linear infinite}#bMuzik.henti{opacity:.5;text-decoration:line-through}
+@keyframes putarN{to{transform:rotate(360deg)}}
 #bhs{position:fixed;top:calc(env(safe-area-inset-top,0px) + 10px);right:12px;z-index:60;display:flex;background:#fff;border:1.5px solid #e9cdd4;border-radius:999px;overflow:hidden;box-shadow:0 4px 12px rgba(0,0,0,.12)}
 #bhs button{border:0;background:#fff;color:#a06;padding:7px 12px;font:700 .68rem Poppins,sans-serif;cursor:pointer}
 #bhs button.on{background:var(--merah);color:#fff}
@@ -201,6 +204,8 @@ button{font-family:inherit}
 </head>
 <body>
 <div id="bhs"><button data-l="ms">BM</button><button data-l="en">EN</button></div>
+<button id="bMuzik" onclick="togolMuzik()" aria-label="muzik">♪</button>
+<div id="yt-root" style="position:fixed;left:-9999px;top:0;width:1px;height:1px;overflow:hidden"></div>
 <button id="bMenu" onclick="keMenu()">‹ Menu</button>
 
 <!-- S0 sampul -->
@@ -473,7 +478,7 @@ function bina(){
   $('pA').src=D.p_akhir||D.p0||'';$('nmA').textContent=D.nama||'';
   if(ytId(D.video))$('bVid').style.display='inline-block';
   teks();
-  $('samp').onclick=bukaSampul;
+  $('samp').onclick=bukaSampul;sediaMuzik();
   [].forEach.call(document.querySelectorAll('#bhs button'),function(b){b.onclick=function(){setBhs(b.getAttribute('data-l'));};});
 }
 function teks(){
@@ -496,7 +501,7 @@ function ke(id,cb){var t=$('tabir');t.classList.add('on');setTimeout(function(){
   var bab=(id==='s3'||id==='s4'||id==='s5'||id==='s6');$('klikFx').style.display=bab?'flex':'none';$('bMenu').classList.toggle('on',bab||id==='s7');
   document.documentElement.style.setProperty('--off',id==='s3'?'-2.7vw':id==='s5'?'1.4vw':'0');
   window.scrollTo(0,0);t.classList.remove('on');if(cb)cb();},420);}
-function bukaSampul(){var s=$('samp');if(s.classList.contains('buka'))return;s.classList.add('buka');
+function bukaSampul(){var s=$('samp');if(s.classList.contains('buka'))return;s.classList.add('buka');mulaMuzik();
   setTimeout(function(){s.classList.add('pergi');$('s0').classList.add('buka');},650);
   setTimeout(function(){ke('s1',function(){main('s1');});},1050);}
 function main(id){var e=$(id);e.classList.remove('main');void e.offsetWidth;e.classList.add('main');}
@@ -533,11 +538,21 @@ function mainKolaj(){var K=$('kolaj'),sl=K.querySelectorAll('.slot');K.classList
   [].forEach.call(sl,function(d,i){setTimeout(function(){d.classList.add('on');},KP[KF[i]].t+640);});
   setTimeout(function(){K.classList.add('siap');},1450);
   setTimeout(function(){$('kSince').classList.add('on');},1000);setTimeout(function(){$('kUcap').classList.add('on');},1300);}
-function mainMuzik(){main('s4');var id=ytId(D.yt),b=$('ytBox');
+function mainMuzik(){main('s4');var id=ytId(D.yt),b=$('ytBox');if(id)hentiMuzik(false);
   if(id)b.innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0&modestbranding=1" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';
   else b.innerHTML='<div class="tiada">♪<span>'+esc(T('tiadaLagu'))+'</span></div>';
   if(!$('eqA').children.length){['eqA','eqB'].forEach(function(k){var h='';for(var i=0;i<14;i++)h+='<i style="--h:'+(30+Math.random()*65)+'%;animation-delay:'+(-Math.random())+'s"></i>';$(k).innerHTML=h;});}}
-function hentiMuzik(){$('ytBox').innerHTML='';}
+function tutupPemain(){if($('ytBox').innerHTML){$('ytBox').innerHTML='';sambungMuzik(false);}}
+/* ═══ MUZIK LATAR — mula bila sampul dibuka (gesture), macam kad lain ═══ */
+var ytp=null,ytOk=false,mulaM=false,dihentiUser=false,mainLagu=false;
+function sediaMuzik(){var id=ytId(D.yt);if(!id)return;
+  var go=function(){ytp=new YT.Player('yt-root',{width:'1',height:'1',videoId:id,playerVars:{autoplay:0,controls:0,disablekb:1,fs:0,rel:0,playsinline:1,loop:1,playlist:id},
+    events:{onReady:function(){ytOk=true;if(mulaM&&!dihentiUser)try{ytp.playVideo();}catch(e){}},onStateChange:function(e){mainLagu=(e.data===1);$('bMuzik').classList.toggle('main',mainLagu);$('bMuzik').classList.toggle('henti',!mainLagu);}}});};
+  if(window.YT&&YT.Player)go();else{window.onYouTubeIframeAPIReady=go;var sc=document.createElement('script');sc.src='https://www.youtube.com/iframe_api';document.head.appendChild(sc);}}
+function mulaMuzik(){if(!ytId(D.yt))return;mulaM=true;$('bMuzik').classList.add('on');if(ytp&&ytOk)try{ytp.playVideo();}catch(e){}}
+function hentiMuzik(user){if(user)dihentiUser=true;if(ytp&&ytOk)try{ytp.pauseVideo();}catch(e){}}
+function sambungMuzik(user){if(user)dihentiUser=false;if(dihentiUser||!mulaM)return;if(ytp&&ytOk)try{ytp.playVideo();}catch(e){}}
+function togolMuzik(){if(mainLagu)hentiMuzik(true);else sambungMuzik(true);}
 function fitTeks(el){var h=el.clientHeight,w=el.clientWidth,fs=h*.62;el.style.whiteSpace='nowrap';el.style.fontSize=fs+'px';
   while(el.scrollWidth>w&&fs>h*.4){fs-=.5;el.style.fontSize=fs+'px';}
   if(el.scrollWidth>w){el.style.whiteSpace='normal';el.style.lineHeight='1.05';fs=h*.46;el.style.fontSize=fs+'px';while((el.scrollWidth>w||el.scrollHeight>h*1.15)&&fs>h*.3){fs-=.5;el.style.fontSize=fs+'px';}}}
@@ -548,7 +563,7 @@ function mainRos(){main('s5');var n=document.querySelectorAll('#ros .tksl');[].f
 var menaip=false,taipT=null;
 function mainSurat(){main('s6');var el=$('sIsi'),s=D.surat||'',i=0;menaip=true;clearTimeout(taipT);el.innerHTML='<span class="kur"></span>';
   taipT=setTimeout(function langkah(){if(i>=s.length){el.textContent=s;menaip=false;return;}i++;el.textContent=s.slice(0,i);el.insertAdjacentHTML('beforeend','<span class="kur"></span>');taipT=setTimeout(langkah,s[i-1]==='\n'?260:34);},800);}
-var _keMenu=keMenu;keMenu=function(){hentiMuzik();clearTimeout(taipT);menaip=false;_keMenu();};
+var _keMenu=keMenu;keMenu=function(){tutupPemain();clearTimeout(taipT);menaip=false;_keMenu();};
 
 /* album / download */
 var albumSiap=false;
@@ -556,9 +571,9 @@ function album(){try{if(window.GKAlbum&&!albumSiap){albumSiap=true;GKAlbum.init(
 
 /* video */
 var vidBuka=false;
-function bukaVideo(){var id=ytId(D.video);if(!id)return;vidBuka=true;$('vidLap').classList.add('on');
+function bukaVideo(){var id=ytId(D.video);if(!id)return;vidBuka=true;hentiMuzik(false);$('vidLap').classList.add('on');
   $('vidKotak').innerHTML='<iframe src="https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1&rel=0" allow="autoplay; encrypted-media; fullscreen" allowfullscreen></iframe>';}
-function tutupVideo(){if(!vidBuka)return;vidBuka=false;$('vidKotak').innerHTML='';$('vidLap').classList.remove('on');}
+function tutupVideo(){if(!vidBuka)return;vidBuka=false;$('vidKotak').innerHTML='';$('vidLap').classList.remove('on');sambungMuzik(false);}
 function tutupLap(id){$(id).classList.remove('on');}
 /* lightbox */
 var LB={s:1,x:0,y:0};
