@@ -47,6 +47,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 .gp-ourstory{background:linear-gradient(160deg,#8e1224,#c9223c 55%,#f26d8f)}
 .gp-suratcinta{background:linear-gradient(160deg,#0a1a2f,#13294b 55%,#4a6fa5)}
 .gp-fiona{background:linear-gradient(160deg,#4f6042,#8fa07d 52%,#e8c5c0)}
+.gp-planet{background:linear-gradient(180deg,#232a62 0,#5b4fa0 55%,#e2a3c8 100%)}
 .gp-payung{background:linear-gradient(180deg,#2F3A6A 0,#6B6FA8 55%,#F2B6CB 100%)}
 .gp-taman{background:radial-gradient(circle at 50% 45%,#fff 0,#e3dffa 55%,#9b8fe0 100%)}
 .gp-kunci{background:radial-gradient(circle at 50% 40%,#fff6f1 0,#f9c9cf 55%,#e98597 100%)}
@@ -91,8 +92,12 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
     <div class="gm"><h3 data-k="n7">Taman Kita</h3><span data-k="d7">Bingkai bunga, surat, kolaj hati &amp; zoom</span></div>
   </a>
   <a class="g-card" href="buat-kad-payung.html">
-    <div class="gp gp-payung"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>☔<div class="g-glow"></div></div>
+    <div class="gp gp-payung"><span class="g-badge" data-k="ada">TERSEDIA</span>☔<div class="g-glow"></div></div>
     <div class="gm"><h3 data-k="n8">Payung Berdua</h3><span data-k="d8">Malam hujan, lopak kenangan &amp; pelangi</span></div>
+  </a>
+  <a class="g-card" href="buat-kad-planet.html">
+    <div class="gp gp-planet"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>🪐<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n9">Planet Kecil Kita</h3><span data-k="d9">Pusing planet, buka kenangan &amp; hati bintang</span></div>
   </a>
   <a class="g-card" href="buat-kad-yinyang.html">
     <div class="gp gp-yinyang"><span class="g-badge" data-k="ada">TERSEDIA</span>☯<div class="g-glow"></div></div>
@@ -104,15 +109,15 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 /* dwibahasa — kongsi pilihan dengan halaman lain melalui localStorage 'gk_lang' */
 var L={
  ms:{title:'Pilih Tema — Anniversary 💑',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Anniversary 💑',
-     sub:'Lapan gaya berbeza — pilih yang paling sesuai dengan cerita korang.',ada:'TERSEDIA',baru:'BARU',
+     sub:'Sembilan gaya berbeza — pilih yang paling sesuai dengan cerita korang.',ada:'TERSEDIA',baru:'BARU',
      n1:'Our Story',d1:'Buku diari — selak macam album',
      n2:'A Special Letter',d2:'Surat cinta — scroll &amp; buka sampul',
-     n3:'Fiona',d3:'Mixtape — sampul, bunga mekar &amp; lagu',n4:'Yin &amp; Yang',d4:'Bunga, sampul &amp; polaroid gosok',n5:'You Got a Mail',d5:'Sampul merah, polaroid, kolaj, lagu &amp; surat',n6:'Bouquet Berkunci',d6:'Kod rahsia, hati bunga, polaroid gosok &amp; lagu',n7:'Taman Kita',d7:'Bingkai bunga, surat, kolaj hati &amp; zoom',n8:'Payung Berdua',d8:'Malam hujan, lopak kenangan &amp; pelangi'},
+     n3:'Fiona',d3:'Mixtape — sampul, bunga mekar &amp; lagu',n4:'Yin &amp; Yang',d4:'Bunga, sampul &amp; polaroid gosok',n5:'You Got a Mail',d5:'Sampul merah, polaroid, kolaj, lagu &amp; surat',n6:'Bouquet Berkunci',d6:'Kod rahsia, hati bunga, polaroid gosok &amp; lagu',n7:'Taman Kita',d7:'Bingkai bunga, surat, kolaj hati &amp; zoom',n8:'Payung Berdua',d8:'Malam hujan, lopak kenangan &amp; pelangi',n9:'Planet Kecil Kita',d9:'Pusing planet, buka kenangan &amp; hati bintang'},
  en:{title:'Choose a Theme — Anniversary 💑',back:'‹ Back to Homepage',tajuk:'Choose an Anniversary Theme 💑',
-     sub:'Eight different styles — pick the one that fits your story.',ada:'AVAILABLE',baru:'NEW',
+     sub:'Nine different styles — pick the one that fits your story.',ada:'AVAILABLE',baru:'NEW',
      n1:'Our Story',d1:'A diary book — flip it like an album',
      n2:'A Special Letter',d2:'A love letter — scroll &amp; open the envelope',
-     n3:'Fiona',d3:'Mixtape — envelope, blooming flowers &amp; a song',n4:'Yin &amp; Yang',d4:'Flowers, envelope &amp; scratch polaroids',n5:'You Got a Mail',d5:'Red envelope, polaroid, collage, song &amp; letter',n6:'Locked Bouquet',d6:'Secret code, flower heart, scratch polaroids &amp; a song',n7:'Our Garden',d7:'Flower frame, letter, heart collages &amp; zoom',n8:'Under One Umbrella',d8:'A rainy night, puddle memories &amp; a rainbow'}
+     n3:'Fiona',d3:'Mixtape — envelope, blooming flowers &amp; a song',n4:'Yin &amp; Yang',d4:'Flowers, envelope &amp; scratch polaroids',n5:'You Got a Mail',d5:'Red envelope, polaroid, collage, song &amp; letter',n6:'Locked Bouquet',d6:'Secret code, flower heart, scratch polaroids &amp; a song',n7:'Our Garden',d7:'Flower frame, letter, heart collages &amp; zoom',n8:'Under One Umbrella',d8:'A rainy night, puddle memories &amp; a rainbow',n9:'Our Little Planet',d9:'Spin the planet, open memories &amp; a heart of stars'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function pakai(){
