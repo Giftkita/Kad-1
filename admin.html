@@ -115,6 +115,11 @@ input,textarea{font-family:inherit}
 .pv-bar .b i{position:absolute;left:0;right:0;bottom:0;background:var(--accent);border-radius:4px 4px 0 0}
 .pv-bar .b span{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font-size:.6rem;color:var(--muted);white-space:nowrap}
 .pv-leg{display:flex;gap:14px;font-size:.7rem;color:var(--ink2);margin-top:6px}.pv-leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+#notifs{position:fixed;top:12px;left:50%;transform:translateX(-50%);width:min(420px,calc(100% - 24px));z-index:200;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.nt{pointer-events:auto;display:flex;gap:12px;align-items:center;background:var(--ink);color:#fff;border-radius:18px;padding:13px 14px;box-shadow:0 14px 40px rgba(43,26,36,.35);cursor:pointer;animation:ntMasuk .45s cubic-bezier(.2,1.3,.4,1)}
+.nt .e{font-size:1.6rem;line-height:1}.nt b{display:block;font-size:.92rem}.nt span{font-size:.76rem;color:#f6c4d6}.nt .x{margin-left:auto;align-self:flex-start;background:none;border:0;color:#ffffff99;font-size:1.1rem;padding:0 2px}
+@keyframes ntMasuk{from{opacity:0;transform:translateY(-16px) scale(.95)}to{opacity:1;transform:none}}
+#b-notif.on{background:var(--tint);color:var(--accent);border-color:var(--accent-soft)}
 .hb{margin-top:12px;display:flex;flex-direction:column;gap:11px}
 .hb-row{display:grid;grid-template-columns:minmax(78px,32%) 1fr auto;align-items:center;gap:10px;font-size:.78rem}
 .hb-row .k{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -207,12 +212,14 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5}
   <div class="err" id="l-err"></div>
 </div>
 
+<div id="notifs"></div>
 <!-- ═══ PANEL ═══ -->
 <div id="panel" class="wrap hide">
   <div class="top">
     <span class="logo">GiftKita</span><span class="tag">Admin</span>
     <span class="sp"></span>
     <span class="tagm" id="tag-maint" onclick="tukarTab('tetapan')">🔧 Notis aktif</span>
+    <button class="ic" id="b-notif" title="Notifikasi jualan" onclick="mintaNotif()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></button>
     <button class="ic" id="b-ref" title="Muat semula" onclick="muat()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
     <button class="ic" title="Log keluar" onclick="keluar()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg></button>
   </div>
@@ -480,6 +487,7 @@ async function masuk(){
     document.getElementById('panel').classList.remove('hide');
     lukisCarta();
     muatNotis();
+    mulaPantau();
   }catch(err){e.textContent='❌ '+err.message;e.style.display='block';ss('gk_admin_t',null)}
   b.disabled=false;b.textContent='Masuk';
 }
@@ -858,6 +866,44 @@ async function resetPass(){
 }
 
 /* auto masuk semula dalam tab yang sama */
+/* ── NOTIFIKASI JUALAN BARU: semak setiap 40 saat selagi admin dibuka ── */
+let TERAKHIR=null,PANTAU=null,BELUM=0;const TAJUK=document.title;
+function mulaPantau(){
+  const ts=(D&&D.sales||[]).map(s=>s.t).filter(Boolean).sort();TERAKHIR=ts.length?ts[ts.length-1]:new Date().toISOString();
+  clearInterval(PANTAU);PANTAU=setInterval(semakBaru,40000);setLoceng();
+  if('serviceWorker' in navigator&&window.Notification&&Notification.permission==='granted')navigator.serviceWorker.register('/sw-admin.js').catch(()=>{});
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden){if(TOKEN&&TERAKHIR)semakBaru();BELUM=0;document.title=TAJUK}});
+async function semakBaru(){
+  let r;try{r=await api({action:'baru',since:TERAKHIR})}catch(e){return}
+  if(!r.sales||!r.sales.length)return;
+  r.sales.forEach(s=>{tunjukJualan(s);if(s.t>TERAKHIR)TERAKHIR=s.t});
+  if(document.hidden){BELUM+=r.sales.length;document.title='('+BELUM+') 💰 '+TAJUK}
+  muat();
+}
+function tunjukJualan(s){
+  const harga=s.gw==='usd'?'$'+nom(s.rm):rm(s.rm,1),isi=namaTpl(s.tpl)+(s.plan?' · '+namaPakej(s.plan):'')+(s.nama?' · '+s.nama:'');
+  const el=document.createElement('div');el.className='nt';
+  el.innerHTML='<div class="e">💰</div><div><b>Jualan baru! '+esc(harga)+'</b><span>'+esc(isi)+'</span></div><button class="x" aria-label="Tutup">✕</button>';
+  el.onclick=e=>{el.remove();if(!e.target.classList.contains('x'))tukarTab('jualan')};
+  document.getElementById('notifs').prepend(el);setTimeout(()=>el.remove(),30000);
+  ting();try{navigator.vibrate&&navigator.vibrate([120,60,120])}catch(e){}
+  if(window.Notification&&Notification.permission==='granted'){
+    const o={body:isi,icon:'/apple-touch-icon.png',badge:'/favicon-32.png',tag:'jualan-'+s.id,vibrate:[120,60,120]};
+    navigator.serviceWorker&&navigator.serviceWorker.getRegistration?navigator.serviceWorker.getRegistration('/').then(reg=>{if(reg)reg.showNotification('💰 Jualan baru — '+harga,o);else try{new Notification('💰 Jualan baru — '+harga,o)}catch(e){}}).catch(()=>{}):0;
+  }
+}
+let AC=null;
+function ting(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;[[880,0],[1318.5,.12]].forEach(([f,d])=>{const o=AC.createOscillator(),g=AC.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(0,t+d);g.gain.linearRampToValueAtTime(.25,t+d+.02);g.gain.exponentialRampToValueAtTime(.001,t+d+.6);o.connect(g).connect(AC.destination);o.start(t+d);o.stop(t+d+.65)})}catch(e){}}
+function setLoceng(){const b=document.getElementById('b-notif'),ok=window.Notification&&Notification.permission==='granted';b.classList.toggle('on',!!ok);b.title=ok?'Notifikasi jualan: HIDUP (tekan untuk uji)':'Hidupkan notifikasi jualan'}
+async function mintaNotif(){
+  try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();AC.resume&&AC.resume()}catch(e){}
+  if(!window.Notification){alert('Browser ni tak sokong notifikasi. Kotak pemberitahuan & bunyi dalam admin tetap jalan selagi page ni dibuka.');tunjukJualan({id:'uji',rm:8,tpl:'flight',plan:'premium',nama:'Contoh',gw:'rm'});return}
+  if(Notification.permission!=='granted'){const p=await Notification.requestPermission();if(p!=='granted'){alert('Notifikasi ditolak. Buka tetapan browser → Notifications → benarkan untuk site ni.');setLoceng();return}}
+  try{await navigator.serviceWorker.register('/sw-admin.js');await navigator.serviceWorker.ready}catch(e){}
+  setLoceng();tunjukJualan({id:'uji',rm:8,tpl:'flight',plan:'premium',nama:'Contoh (ujian)',gw:'rm'});
+}
+
 (function(){const t=ss('gk_admin_t');if(t){document.getElementById('token').value=t;masuk()}})();
 </script>
 </body>
