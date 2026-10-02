@@ -7,6 +7,8 @@
 //  POST {token, action:'get_notice' | 'set_notice', notice} → notis & penyelenggaraan
 //  POST {token, action:'kapasiti'}          → saiz pangkalan data Supabase + trafik Vercel bulan ini
 //  GET  /api/admin?notis=1                    → AWAM: notis semasa (untuk gk-notis.js)
+//  POST {action:'lawat', p,s,d,i,b}           → AWAM: catat 1 lawatan (gk-notis.js / gk-bayar.js)
+//  POST {token, action:'pelawat', hari}       → data lawatan untuk tab Pelawat
 //
 //  Sep 2026: token dibanding secara timing-safe, id dienkod, dan reset
 //  password affiliate kini di sini (tak perlu ADMIN_KEY / affiliate-reset.js).
@@ -34,6 +36,9 @@ module.exports = async (req, res) => {
     return;
   }
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST sahaja' }); return; }
+
+  // ── AWAM: catat lawatan (tanpa token) ──
+  if ((req.body || {}).action === 'lawat') { try { await catatLawatan(req); } catch (e) {} res.status(204).end(); return; }
 
   try {
     const { token, action, id, code } = req.body || {};
@@ -85,6 +90,14 @@ module.exports = async (req, res) => {
     if (action === 'kapasiti') {
       res.status(200).json({ db: await kapasitiDb(), vercel: await kapasitiVercel(), now: new Date().toISOString() });
       return;
+    }
+
+    if (action === 'pelawat') {
+      const hari = Math.min(Math.max(parseInt((req.body || {}).hari, 10) || 30, 1), 366);
+      const dari = new Date(Date.now() - hari * 864e5).toISOString();
+      const rows = await sbAll(`lawatan?select=t,page,sumber,negara,peranti,sesi,baru&t=gte.${encodeURIComponent(dari)}&order=t.desc`);
+      if (!Array.isArray(rows)) { res.status(200).json({ error: 'Jadual "lawatan" belum ada dalam Supabase. Jalankan SQL dalam BACA-SAYA (bahagian Pelawat) sekali sahaja.' }); return; }
+      res.status(200).json({ rows, hari, now: new Date().toISOString() }); return;
     }
 
     if (action === 'dashboard') {
@@ -174,6 +187,21 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: e.message });
   }
 };
+
+// ── PELAWAT: satu baris setiap paparan page (tiada data peribadi: tiada IP, tiada nama) ──
+async function catatLawatan(req) {
+  const ua = String(req.headers['user-agent'] || '');
+  if (!ua || /bot|crawl|spider|slurp|preview|headless|lighthouse|monitor|curl|wget|python|axios/i.test(ua)) return;
+  const b = req.body || {};
+  const page = String(b.p || '/').slice(0, 80);
+  if (!/^\/[a-z0-9._\/-]*$/i.test(page)) return;
+  const sumber = String(b.s || 'terus').toLowerCase().replace(/[^a-z0-9_-]/g, '').slice(0, 20) || 'terus';
+  const sesi = String(b.i || '').replace(/[^a-z0-9]/g, '').slice(0, 16);
+  const row = { page, sumber, negara: String(req.headers['x-vercel-ip-country'] || '').slice(0, 2).toUpperCase(),
+    peranti: b.d === 'mobile' ? 'mobile' : 'desktop', sesi, baru: b.b === true };
+  const { url, key } = SB();
+  await fetch(url + 'lawatan', { method: 'POST', headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(row) });
+}
 
 // ── notis: bersihkan input admin & versi awam ──
 const JADUAL_TIADA = 'Jadual "settings" belum ada dalam Supabase. Jalankan SQL dalam BACA-SAYA (bahagian Notis) sekali sahaja.';
