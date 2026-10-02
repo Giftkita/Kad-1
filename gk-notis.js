@@ -146,3 +146,31 @@
   document.addEventListener('click', lepasKlikFull);
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', mula); else mula();
 })();
+
+/* GK-ANALYTICS — (1) Vercel Web Analytics  (2) kiraan pelawat sendiri → Supabase 'lawatan' (tab Pelawat dalam admin.html).
+   Ada dalam gk-notis.js & gk-bayar.js; dimuat sekali sahaja. Hanya jalan di giftkita.com / *.vercel.app.
+   Lawatan admin sendiri tak dikira (admin.html set localStorage gk_saya=1). */
+(function(){try{if(window.__gkVa)return;window.__gkVa=1;
+  if(!/(^|\.)giftkita\.com$|\.vercel\.app$/.test(location.hostname))return;
+  window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};
+  var s=document.createElement('script');s.defer=true;s.src='/_vercel/insights/script.js';
+  (document.head||document.documentElement).appendChild(s);
+  var ls=function(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){return null;}};
+  var ss=function(k,v){try{if(v===undefined)return sessionStorage.getItem(k);sessionStorage.setItem(k,v);}catch(e){return null;}};
+  if(ls('gk_saya')==='1')return;
+  var ua=navigator.userAgent||'',q=new URLSearchParams(location.search),src=null;
+  var utm=(q.get('utm_source')||'').toLowerCase();
+  if(q.get('ref'))src='affiliate';
+  else if(utm)src=/tiktok/.test(utm)?'tiktok':/insta|ig/.test(utm)?'instagram':/face|fb/.test(utm)?'facebook':/whats|wa/.test(utm)?'whatsapp':utm.slice(0,20);
+  else if(/musical_ly|BytedanceWebview|TikTok/i.test(ua))src='tiktok';
+  else if(/Instagram/i.test(ua))src='instagram';
+  else if(/FBAN|FBAV|FB_IAB/i.test(ua))src='facebook';
+  else if(/WhatsApp/i.test(ua))src='whatsapp';
+  else{var h='';try{h=new URL(document.referrer).hostname;}catch(e){}
+    if(h&&h!==location.hostname)src=/tiktok/.test(h)?'tiktok':/instagram/.test(h)?'instagram':/facebook|fb\.com/.test(h)?'facebook':/wa\.me|whatsapp/.test(h)?'whatsapp':/google\./.test(h)?'google':/bing|yahoo|duckduckgo/.test(h)?'carian':/t\.co|twitter|x\.com/.test(h)?'x':'lain';}
+  if(src)ss('gk_src',src);else src=ss('gk_src')||'terus';
+  var sesi=ss('gk_sesi');if(!sesi){sesi=Math.random().toString(36).slice(2,12);ss('gk_sesi',sesi);}
+  var baru=!ls('gk_pernah');if(baru)ls('gk_pernah','1');
+  fetch('/api/admin',{method:'POST',keepalive:true,headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({action:'lawat',p:location.pathname,s:src,d:/Mobi|Android|iPhone/i.test(ua)?'mobile':'desktop',i:sesi,b:baru})}).catch(function(){});
+}catch(e){}})();

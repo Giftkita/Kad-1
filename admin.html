@@ -110,11 +110,16 @@ input,textarea{font-family:inherit}
 .tip span{color:#d9c3cf}
 
 /* bar mendatar */
+.pv-bar{display:flex;align-items:flex-end;gap:3px;height:150px;margin-top:14px;padding-bottom:18px;position:relative}
+.pv-bar .b{flex:1;min-width:3px;background:var(--accent-soft);border-radius:4px 4px 0 0;position:relative}
+.pv-bar .b i{position:absolute;left:0;right:0;bottom:0;background:var(--accent);border-radius:4px 4px 0 0}
+.pv-bar .b span{position:absolute;bottom:-17px;left:50%;transform:translateX(-50%);font-size:.6rem;color:var(--muted);white-space:nowrap}
+.pv-leg{display:flex;gap:14px;font-size:.7rem;color:var(--ink2);margin-top:6px}.pv-leg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .hb{margin-top:12px;display:flex;flex-direction:column;gap:11px}
 .hb-row{display:grid;grid-template-columns:minmax(78px,32%) 1fr auto;align-items:center;gap:10px;font-size:.78rem}
 .hb-row .k{color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .hb-row .tr{height:10px;background:var(--tint);border-radius:5px;overflow:hidden}
-.hb-row .fl{height:100%;background:var(--accent);border-radius:0 5px 5px 0;min-width:2px}
+.hb-row .fl{margin:0;height:100%;background:var(--accent);border-radius:0 5px 5px 0;min-width:2px}
 .hb-row .v{font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600;text-align:right;white-space:nowrap}
 .hb-row .v small{color:var(--muted);font-weight:400;margin-left:4px}
 
@@ -214,6 +219,7 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5}
 
   <div class="tabs" id="tabs">
     <button class="tab on" data-t="ringkasan">Ringkasan</button>
+    <button class="tab" data-t="pelawat">Pelawat</button>
     <button class="tab" data-t="jualan">Jualan</button>
     <button class="tab" data-t="affiliate">Affiliate</button>
     <button class="tab" data-t="tuntutan">Tuntutan <span class="badge hide" id="bd-wd">0</span></button>
@@ -277,6 +283,40 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5}
         <h3>Jualan terkini <button class="lnk" onclick="tukarTab('jualan')">Lihat semua ›</button></h3>
         <table class="tbl stack"><tbody id="tb-baru"></tbody></table>
       </div>
+    </div>
+  </section>
+
+  <!-- ─── PELAWAT ─── -->
+  <section id="v-pelawat" class="hide">
+    <div class="head">
+      <div><h1>Pelawat <span>website</span></h1><p id="pv-info">Page jualan sahaja (homepage, kategori, borang). Lawatan dari browser admin ni tak dikira.</p></div>
+      <div class="chips" id="pv-hari">
+        <button class="chip" data-h="1">Hari ini</button>
+        <button class="chip" data-h="7">7 Hari</button>
+        <button class="chip on" data-h="30">30 Hari</button>
+        <button class="chip" data-h="90">90 Hari</button>
+      </div>
+    </div>
+    <div class="err" id="pv-err" style="margin-bottom:12px"></div>
+    <div class="grid g-kpi">
+      <div class="card hero"><div class="lbl">Pelawat</div><div class="val" id="pv-unik">0</div><div class="meta"><span id="pv-unik-h"></span></div></div>
+      <div class="card kpi"><div class="lbl">Paparan page</div><div class="val" id="pv-views">0</div><div class="hint">semua page dibuka</div></div>
+      <div class="card kpi"><div class="lbl">Pelawat baru</div><div class="val" id="pv-baru">0</div><div class="hint">kali pertama datang</div></div>
+      <div class="card kpi"><div class="lbl">Buka borang</div><div class="val" id="pv-borang">0</div><div class="hint">pelawat yang buka borang kad</div></div>
+      <div class="card kpi"><div class="lbl">Jadi jualan</div><div class="val" id="pv-conv">0%</div><div class="hint" id="pv-conv-h">jualan ÷ pelawat</div></div>
+    </div>
+    <div class="card" style="margin-top:12px">
+      <h3><span>Pelawat <span id="pv-unit">setiap hari</span></span><small id="pv-jum"></small></h3>
+      <div class="pv-bar" id="pv-chart"></div>
+      <div class="pv-leg"><span><i style="background:var(--accent-soft)"></i>Pelawat</span><span><i style="background:var(--accent)"></i>Pelawat baru</span></div>
+    </div>
+    <div class="grid g-2" style="margin-top:12px">
+      <div class="card"><h3>Datang dari mana</h3><div class="sub">Sumber pertama setiap pelawat</div><div class="hb" id="pv-sumber"></div></div>
+      <div class="card"><h3>Page paling ramai</h3><div class="sub">Bilangan pelawat yang buka</div><div class="hb" id="pv-page"></div></div>
+    </div>
+    <div class="grid g-2" style="margin-top:12px">
+      <div class="card"><h3>Negara</h3><div class="hb" id="pv-negara"></div></div>
+      <div class="card"><h3>Peranti</h3><div class="hb" id="pv-peranti"></div></div>
     </div>
   </section>
 
@@ -435,6 +475,7 @@ async function masuk(){
   try{
     await muat(true);
     ss('gk_admin_t',TOKEN);
+    try{localStorage.setItem('gk_saya','1')}catch(e){}
     document.getElementById('login').classList.add('hide');
     document.getElementById('panel').classList.remove('hide');
     lukisCarta();
@@ -485,6 +526,7 @@ function tukarTab(t){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('on',b.dataset.t===t));
   document.querySelectorAll('section[id^="v-"]').forEach(s=>s.classList.toggle('hide',s.id!=='v-'+t));
   if(t==='ringkasan')lukisCarta();
+  if(t==='pelawat')muatPelawat();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 document.getElementById('tabs').addEventListener('click',e=>{const b=e.target.closest('.tab');if(b)tukarTab(b.dataset.t)});
@@ -727,6 +769,56 @@ function contoh(i){
   N_JENIS=C[2];document.querySelectorAll('#n-jenis .chip').forEach(c=>c.classList.toggle('on',c.dataset.j===N_JENIS));
   if(i===2)document.getElementById('n-tutup').checked=true;
 }
+/* ── PELAWAT (jadual Supabase 'lawatan', dicatat oleh gk-notis.js / gk-bayar.js) ── */
+let PV=null,PV_HARI=30;
+const SUMBER={tiktok:'TikTok',instagram:'Instagram',facebook:'Facebook',whatsapp:'WhatsApp',google:'Google',carian:'Enjin carian lain',x:'X / Twitter',affiliate:'Link affiliate',terus:'Terus / tiada rujukan',lain:'Website lain'};
+const NEGARA={MY:'Malaysia',SG:'Singapura',ID:'Indonesia',BN:'Brunei',TH:'Thailand',PH:'Filipina',US:'Amerika Syarikat',GB:'United Kingdom',AU:'Australia',CA:'Kanada',SA:'Arab Saudi',AE:'UAE',JP:'Jepun',KR:'Korea'};
+const KATEGORI={anniversary:'Kategori Anniversary',cinta:'Kategori Cinta',graduasi:'Kategori Graduasi',wedding:'Kategori Wedding'};
+function namaPage(p){p=String(p||'/').replace(/\.html$/,'').replace(/\/+$/,'')||'/';
+  if(p==='/'||p==='/index')return 'Homepage';if(p==='/buat-kad')return 'Pilih kad';if(p==='/semak-kad')return 'Semak kad';
+  const m=p.match(/^\/buat-kad-(.+)$/);if(m)return KATEGORI[m[1]]||('Borang: '+namaTpl(m[1]));
+  if(p==='/bouquet-muka')return 'Bouquet Muka';return p.replace(/^\//,'')}
+function pvBar(id,rows,kosong){const el=document.getElementById(id);
+  if(!rows.length){el.innerHTML='<div class="sub">'+(kosong||'Tiada data lagi.')+'</div>';return}
+  const mx=Math.max(...rows.map(r=>r.n)),jum=rows.reduce((a,r)=>a+r.n,0);
+  el.innerHTML=rows.map(r=>'<div class="hb-row"><span class="k" title="'+esc(r.k)+'">'+esc(r.k)+'</span><span class="tr"><span class="fl" style="display:block;width:'+(r.n/mx*100)+'%"></span></span><span class="v">'+r.n+'<small>'+Math.round(r.n/jum*100)+'%</small></span></div>').join('')}
+function kiraUnik(rows,f){const m={};rows.forEach(r=>{const k=f(r);if(k==null)return;(m[k]=m[k]||new Set()).add(r.sesi||r.t)});return Object.entries(m).map(([k,v])=>({k,n:v.size})).sort((a,b)=>b.n-a.n)}
+async function muatPelawat(){
+  const e=document.getElementById('pv-err');e.style.display='none';
+  try{PV=await api({action:'pelawat',hari:Math.max(PV_HARI,1)});}catch(err){e.textContent='❌ '+err.message;e.style.display='block';return}
+  const now=Date.now(),mula=PV_HARI===1?Date.parse(hariKey(now)+'T00:00:00+08:00'):now-PV_HARI*864e5;
+  const R=PV.rows.filter(r=>Date.parse(r.t)>=mula);
+  const sesi=new Set(R.map(r=>r.sesi||r.t)),baru=new Set(R.filter(r=>r.baru).map(r=>r.sesi||r.t));
+  const borang=new Set(R.filter(r=>/^\/buat-kad-.+/.test(r.page)&&!KATEGORI[(r.page.match(/buat-kad-([^.\/]+)/)||[])[1]]).map(r=>r.sesi||r.t));
+  document.getElementById('pv-unik').textContent=nom(sesi.size);
+  document.getElementById('pv-unik-h').textContent=PV_HARI===1?'hari ini':PV_HARI+' hari lepas';
+  document.getElementById('pv-views').textContent=nom(R.length);
+  document.getElementById('pv-baru').textContent=nom(baru.size);
+  document.getElementById('pv-borang').textContent=nom(borang.size);
+  const jual=D?D.sales.filter(s=>s.ms>=mula).length:0;
+  document.getElementById('pv-conv').textContent=sesi.size?(Math.round(jual/sesi.size*1000)/10)+'%':'0%';
+  document.getElementById('pv-conv-h').textContent=jual+' jualan ÷ '+sesi.size+' pelawat';
+  // carta
+  const ch=document.getElementById('pv-chart');let tong=[];
+  if(PV_HARI===1){for(let h=0;h<24;h++)tong.push({k:String(h).padStart(2,'0'),a:new Set(),b:new Set()});
+    R.forEach(r=>{const h=new Date(Date.parse(r.t)+MYT).getUTCHours();tong[h].a.add(r.sesi);if(r.baru)tong[h].b.add(r.sesi)});document.getElementById('pv-unit').textContent='setiap jam';}
+  else{for(let i=PV_HARI-1;i>=0;i--){const k=hariKey(now-i*864e5);tong.push({k,a:new Set(),b:new Set()})}const ix={};tong.forEach((t,i)=>ix[t.k]=i);
+    R.forEach(r=>{const i=ix[hariKey(Date.parse(r.t))];if(i==null)return;tong[i].a.add(r.sesi);if(r.baru)tong[i].b.add(r.sesi)});document.getElementById('pv-unit').textContent='setiap hari';}
+  const mx=Math.max(1,...tong.map(t=>t.a.size)),langkah=Math.ceil(tong.length/8);
+  ch.innerHTML=tong.map((t,i)=>{const lbl=PV_HARI===1?t.k:tglPendek(t.k+'T12:00:00Z');return '<div class="b" title="'+esc(lbl)+': '+t.a.size+' pelawat, '+t.b.size+' baru" style="height:'+(t.a.size/mx*100)+'%"><i style="height:'+(t.a.size?t.b.size/t.a.size*100:0)+'%"></i>'+(i%langkah===0?'<span>'+esc(lbl)+'</span>':'')+'</div>'}).join('');
+  document.getElementById('pv-jum').textContent=' · puncak '+mx;
+  // senarai: sumber ikut pelawat (sumber pertama sesi)
+  const pertama={};R.slice().reverse().forEach(r=>{const k=r.sesi||r.t;if(!pertama[k])pertama[k]=r.sumber||'terus'});
+  const sm={};Object.values(pertama).forEach(v=>{sm[v]=(sm[v]||0)+1});
+  pvBar('pv-sumber',Object.entries(sm).map(([k,n])=>({k:SUMBER[k]||k,n})).sort((a,b)=>b.n-a.n));
+  pvBar('pv-page',kiraUnik(R,r=>namaPage(r.page)).slice(0,10));
+  pvBar('pv-negara',kiraUnik(R,r=>NEGARA[r.negara]||r.negara||'Tidak diketahui').slice(0,8));
+  pvBar('pv-peranti',kiraUnik(R,r=>r.peranti==='mobile'?'Telefon':'Komputer'));
+  if(!PV.rows.length){e.innerHTML='ℹ️ Belum ada pelawat direkod. Pastikan fail <b>gk-notis.js</b> & <b>gk-bayar.js</b> baru dah diupload, kemudian buka giftkita.com dari telefon lain (bukan browser admin ni).';e.style.display='block';e.style.background='var(--tint)';e.style.color='var(--ink2)'}
+}
+document.getElementById('pv-hari').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;PV_HARI=+b.dataset.h;
+  document.querySelectorAll('#pv-hari .chip').forEach(c=>c.classList.toggle('on',c===b));muatPelawat()});
+
 async function muatNotis(){
   const e=document.getElementById('n-err');e.style.display='none';
   try{const d=await api({action:'get_notice'});isiNotis(d.notice);
