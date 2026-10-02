@@ -9,6 +9,7 @@
 //  GET  /api/admin?notis=1                    → AWAM: notis semasa (untuk gk-notis.js)
 //  POST {action:'lawat', p,s,d,i,b}           → AWAM: catat 1 lawatan (gk-notis.js / gk-bayar.js)
 //  POST {token, action:'pelawat', hari}       → data lawatan untuk tab Pelawat
+//  POST {token, action:'baru', since}         → jualan selepas 'since' (notifikasi admin)
 //
 //  Sep 2026: token dibanding secara timing-safe, id dienkod, dan reset
 //  password affiliate kini di sini (tak perlu ADMIN_KEY / affiliate-reset.js).
@@ -89,6 +90,19 @@ module.exports = async (req, res) => {
     // ── DASHBOARD: semua data mentah yang ringkas, dikira di browser ──
     if (action === 'kapasiti') {
       res.status(200).json({ db: await kapasitiDb(), vercel: await kapasitiVercel(), now: new Date().toISOString() });
+      return;
+    }
+
+    if (action === 'baru') {
+      const since = String((req.body || {}).since || '');
+      if (isNaN(Date.parse(since))) { res.status(200).json({ sales: [], now: new Date().toISOString() }); return; }
+      const rows = await sbGet(`sales?select=id,card_id,amount,bill_code,created_at&created_at=gt.${encodeURIComponent(new Date(since).toISOString())}&order=created_at.asc&limit=20`);
+      const arr = Array.isArray(rows) ? rows : [];
+      const ids = [...new Set(arr.map(r => r.card_id).filter(Boolean))].map(encodeURIComponent).join(',');
+      const kad = {};
+      if (ids) { const cs = await sbGet(`cards?id=in.(${ids})&select=id,plan,buyer_name,template:card_data->>template,plan_lama:card_data->>plan`); (Array.isArray(cs) ? cs : []).forEach(c => { kad[c.id] = c; }); }
+      res.status(200).json({ now: new Date().toISOString(), sales: arr.map(r => { const c = kad[r.card_id] || {};
+        return { id: r.id, t: r.created_at, rm: Number(r.amount) || 0, tpl: c.template || '', plan: c.plan || c.plan_lama || '', gw: /^cs_/.test(r.bill_code || '') ? 'usd' : 'rm', nama: String(c.buyer_name || '').slice(0, 40) }; }) });
       return;
     }
 
