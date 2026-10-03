@@ -418,6 +418,11 @@ let LANG='ms';
 /* GK-USD: pelawat luar Malaysia (zon masa, sama logik gk-bayar.js) nampak harga USD di homepage. Test: ?cur=usd / ?cur=myr */
 function gkUSD(){try{var q=(new URLSearchParams(location.search).get('cur')||'').toLowerCase();if(q==='usd')return true;if(q==='myr')return false;
   var z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';return !(z===''||z==='Asia/Kuala_Lumpur'||z==='Asia/Kuching');}catch(e){return false;}}
+/* mod test: homepage dibuka dengan ?cur=usd / ?cur=myr → semua link dalaman bawa ?cur sekali */
+function gkBawaCur(){try{var q=(new URLSearchParams(location.search).get('cur')||'').toLowerCase();if(q!=='usd'&&q!=='myr')return;
+  try{localStorage.setItem('gk_cur',q);localStorage.setItem('gk_cur_test','1');}catch(_e){} /* sama macam gk-bayar.js → borang selepas pemilih tema pun ikut, walau link pemilih tak bawa ?cur */
+  document.querySelectorAll('a[href]').forEach(function(a){var h=a.getAttribute('href');if(!h||/^(https?:|mailto:|tel:|#|javascript:)/i.test(h)||!/\.html(\?|$)/.test(h))return;
+    if(/[?&]cur=/.test(h))return;a.setAttribute('href',h+(h.indexOf('?')>=0?'&':'?')+'cur='+q);});}catch(e){}}
 function gkMataWang(){var u=gkUSD(),t=I18N[LANG];
   document.querySelectorAll('.gk-rm').forEach(function(e){e.textContent=u?e.getAttribute('data-usd'):e.getAttribute('data-rm');});
   if(u){document.querySelectorAll('[data-i18n="fee_note"]').forEach(function(e){e.innerHTML=t.fee_note_usd;});
@@ -435,6 +440,7 @@ function renderGrid(){
       <div class="ico">${c.emoji}</div><h3>${c.name[LANG]}</h3><span>${c.sub[LANG]}</span>`;
     grid.appendChild(el);
   });
+  gkBawaCur(); /* grid dibina semula selepas checkCards() → link kad kena tambah ?cur semula */
 }
 
 function setLang(lang){
@@ -449,7 +455,7 @@ function setLang(lang){
   document.getElementById('lang-en').classList.toggle('on',LANG==='en');
   document.getElementById('lang-ms').classList.toggle('on',LANG==='ms');
   document.getElementById('f-wa').href=wa(t.wa_hi);
-  renderGrid();gkMataWang();
+  renderGrid();gkMataWang();gkBawaCur();
   try{localStorage.setItem('gk_lang',LANG)}catch(e){}
 }
 
