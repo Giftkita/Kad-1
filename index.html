@@ -195,7 +195,7 @@ footer p{font-size:.82rem;opacity:.7;margin-bottom:18px}
     <div class="price-grid">
       <div class="plan plan-bq">
         <h3 data-i18n="bq_name">Bouquet Muka</h3>
-        <div class="amt">RM3<small data-i18n="per_img">/gambar</small></div>
+        <div class="amt"><span class="gk-rm" data-rm="RM3" data-usd="$3">RM3</span><small data-i18n="per_img">/gambar</small></div>
         <p class="fee-note" data-i18n="fee_note">+ RM1 jika bayar guna DuitNow QR</p>
         <ul>
           <li data-i18n="bq_f1">Muka anda dalam bouquet bunga</li>
@@ -207,7 +207,7 @@ footer p{font-size:.82rem;opacity:.7;margin-bottom:18px}
       </div>
       <div class="plan">
         <h3 data-i18n="basic_name">Basic</h3>
-        <div class="amt">RM6<small data-i18n="per_card">/kad</small></div>
+        <div class="amt"><span class="gk-rm" data-rm="RM6" data-usd="$8">RM6</span><small data-i18n="per_card">/kad</small></div>
         <p class="fee-note" data-i18n="fee_note">+ RM1 jika bayar guna DuitNow QR</p>
         <ul>
           <li data-i18n="b_f1">Semua tema warna</li>
@@ -219,7 +219,7 @@ footer p{font-size:.82rem;opacity:.7;margin-bottom:18px}
       </div>
       <div class="plan feat" data-popular="PALING POPULAR" id="plan-feat">
         <h3 data-i18n="premium_name">Premium</h3>
-        <div class="amt">RM8<small data-i18n="per_card">/kad</small></div>
+        <div class="amt"><span class="gk-rm" data-rm="RM8" data-usd="$10">RM8</span><small data-i18n="per_card">/kad</small></div>
         <p class="fee-note" data-i18n="fee_note">+ RM1 jika bayar guna DuitNow QR</p>
         <ul>
           <li data-i18n="p_f1">Semua dalam Basic</li>
@@ -299,7 +299,7 @@ const CARDS = [
   {emoji:'💍', name:{ms:'Pernikahan',en:'Wedding'},      sub:{ms:'Wedding',en:'Wedding'},         url:'buat-kad-nikah.html'},
   {emoji:'🎓', name:{ms:'Graduasi & Friends',en:'Graduation & Friends'}, sub:{ms:'Convo',en:'Convo'}, url:'buat-kad-graduasi.html'},
   /* Bouquet Muka bukan kad — produk gambar RM3, download terus, tiada link kongsi */
-  {emoji:'🌸', name:{ms:'Bouquet Muka',en:'Face Bouquet'}, sub:{ms:'Gambar · RM3',en:'Image · RM3'}, url:'bouquet-muka.html'},
+  {emoji:'🌸', name:{ms:'Bouquet Muka',en:'Face Bouquet'}, sub:{ms:gkUSD()?'Gambar · $3':'Gambar · RM3',en:gkUSD()?'Image · $3':'Image · RM3'}, url:'bouquet-muka.html'},
 ];
 
 /* semak sekali sahaja per sesi, disimpan supaya tak lambat bila scroll */
@@ -343,7 +343,8 @@ const I18N = {
     bq_f1:'Muka anda dalam bouquet bunga', bq_f2:'Pilih design, tengok dulu sebelum bayar',
     bq_f3:'Download gambar penuh tanpa tanda air', bq_f4:'Sesuai untuk hadiah, print & WhatsApp Status',
     order_bq:'🌸 Buat Bouquet',
-    fee_note:'+ RM1 jika bayar guna DuitNow QR',
+    fee_note:'+ RM1 jika bayar guna DuitNow QR', fee_note_usd:'Harga dalam USD · bayar guna kad / Apple Pay / Google Pay',
+    price_p_usd:'Bayar sekali, link kad aktif 2 bulan. Pembayaran kad selamat melalui Stripe.',
     b_f1:'Semua tema warna', b_f2:'Muzik YouTube', b_f3:'Slide ucapan & gambar', b_f4:'Link aktif 2 bulan',
     p_f1:'Semua dalam Basic', p_f8:'Link aktif 2 bulan', p_f2:'Upload lagu MP3 sendiri', p_f3:'Tema Scrapbook Aesthetic', p_f4:'Countdown + kotak hadiah', p_f5:'Keutamaan siap cepat', p_f6:'Kod QR untuk kad anda', p_f7:'Download Album — kad kekal dalam phone',
     order_wa:'✨ Buat Kad Basic', order_premium:'💖 Buat Kad Premium',
@@ -363,8 +364,8 @@ const I18N = {
     f_aff:'💰 Jadi Affiliate — komisen RM2 setiap kad terjual',
     f_semak:'🔎 Dah beli? Semak semula link kad anda', f_refund:'Polisi Refund',
     badge_live:'TERSEDIA', badge_soon:'AKAN DATANG',
-    wa_basic:'Hai GiftKita 💕 saya nak order kad *Basic (RM6)*. Boleh bantu?',
-    wa_premium:'Hai GiftKita 💖 saya nak order kad *Premium (RM8)*. Boleh bantu?',
+    wa_basic:'Hai GiftKita 💕 saya nak order kad *Basic (RM6)*. Boleh bantu?', wa_basic_usd:'Hai GiftKita 💕 saya nak order kad *Basic ($8)*. Boleh bantu?',
+    wa_premium:'Hai GiftKita 💖 saya nak order kad *Premium (RM8)*. Boleh bantu?', wa_premium_usd:'Hai GiftKita 💖 saya nak order kad *Premium ($10)*. Boleh bantu?',
     wa_general:'Hai GiftKita 💕 saya nak order kad. Boleh bantu?', wa_hi:'Hai GiftKita 👋'
   },
   en:{
@@ -386,7 +387,8 @@ const I18N = {
     bq_f1:'Your face inside a flower bouquet', bq_f2:'Pick a design, preview before you pay',
     bq_f3:'Download the full image without watermark', bq_f4:'Great as a gift, for print & WhatsApp Status',
     order_bq:'🌸 Make a Bouquet',
-    fee_note:'+ RM1 if paying by DuitNow QR',
+    fee_note:'+ RM1 if paying by DuitNow QR', fee_note_usd:'Prices in USD · pay by card / Apple Pay / Google Pay',
+    price_p_usd:'Pay once, the card link stays active for 2 months. Secure card payments via Stripe.',
     b_f1:'All colour themes', b_f2:'YouTube music', b_f3:'Wishes & photo slides', b_f4:'Link active 2 months',
     p_f1:'Everything in Basic', p_f8:'Link active 2 months', p_f2:'Upload your own MP3', p_f3:'Scrapbook Aesthetic theme', p_f4:'Countdown + gift box', p_f5:'Priority fast delivery', p_f6:'QR code for your card', p_f7:'Download Album — keep the card on your phone',
     order_wa:'✨ Make Basic Card', order_premium:'💖 Make Premium Card',
@@ -406,13 +408,20 @@ const I18N = {
     f_aff:'💰 Become an Affiliate — RM2 commission per card sold',
     f_semak:'🔎 Already bought? Retrieve your card link here', f_refund:'Refund Policy',
     badge_live:'AVAILABLE', badge_soon:'COMING SOON',
-    wa_basic:'Hi GiftKita 💕 I want to order a *Basic (RM6)* card. Can you help?',
-    wa_premium:'Hi GiftKita 💖 I want to order a *Premium (RM8)* card. Can you help?',
+    wa_basic:'Hi GiftKita 💕 I want to order a *Basic (RM6)* card. Can you help?', wa_basic_usd:'Hi GiftKita 💕 I want to order a *Basic ($8)* card. Can you help?',
+    wa_premium:'Hi GiftKita 💖 I want to order a *Premium (RM8)* card. Can you help?', wa_premium_usd:'Hi GiftKita 💖 I want to order a *Premium ($10)* card. Can you help?',
     wa_general:'Hi GiftKita 💕 I want to order a card. Can you help?', wa_hi:'Hi GiftKita 👋'
   }
 };
 
 let LANG='ms';
+/* GK-USD: pelawat luar Malaysia (zon masa, sama logik gk-bayar.js) nampak harga USD di homepage. Test: ?cur=usd / ?cur=myr */
+function gkUSD(){try{var q=(new URLSearchParams(location.search).get('cur')||'').toLowerCase();if(q==='usd')return true;if(q==='myr')return false;
+  var z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';return !(z===''||z==='Asia/Kuala_Lumpur'||z==='Asia/Kuching');}catch(e){return false;}}
+function gkMataWang(){var u=gkUSD(),t=I18N[LANG];
+  document.querySelectorAll('.gk-rm').forEach(function(e){e.textContent=u?e.getAttribute('data-usd'):e.getAttribute('data-rm');});
+  if(u){document.querySelectorAll('[data-i18n="fee_note"]').forEach(function(e){e.innerHTML=t.fee_note_usd;});
+    var pp=document.querySelector('[data-i18n="price_p"]');if(pp)pp.innerHTML=t.price_p_usd;}}
 const wa=(msg)=>`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`;
 
 function renderGrid(){
@@ -440,7 +449,7 @@ function setLang(lang){
   document.getElementById('lang-en').classList.toggle('on',LANG==='en');
   document.getElementById('lang-ms').classList.toggle('on',LANG==='ms');
   document.getElementById('f-wa').href=wa(t.wa_hi);
-  renderGrid();
+  renderGrid();gkMataWang();
   try{localStorage.setItem('gk_lang',LANG)}catch(e){}
 }
 
