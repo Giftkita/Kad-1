@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ms">
 <head>
+<script src="gk-pixel.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Pembayaran — GiftKita 💝</title>
@@ -367,6 +368,10 @@ async function checkNow(manual){
 
 function success(){
   try{localStorage.removeItem('gk_pending');}catch(_e){}
+  /* TikTok Pixel: jualan sah (sekali sahaja setiap kad) */
+  try{var k='gk_px_'+cardId;if(!localStorage.getItem(k)){localStorage.setItem(k,'1');
+    var usdQ=false;try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';usdQ=!(z===''||z==='Asia/Kuala_Lumpur'||z==='Asia/Kuching');}catch(_z){}var harga=PLAN==='bouquet'?3:PLAN==='premium'?(usdQ?10:8):(usdQ?8:6); /* bouquet RM3 / $3 */
+    var tt=function(){if(window.GKPixel){GKPixel.track('CompletePayment',GKPixel.item((PLAN==='bouquet'?'Bouquet Muka':'kad '+PLAN),String(PLAN),harga,usdQ?'USD':'MYR'));return true;}};if(!tt())setTimeout(tt,1500);}}catch(_e){}
   const base=location.href.split('#')[0].split('?')[0].replace(/[^/]*$/,'');
   buildLink(base);
 }

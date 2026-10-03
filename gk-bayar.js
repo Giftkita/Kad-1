@@ -38,6 +38,10 @@
 'use strict';
 
 /* ▼▼▼ Tukar ke true bila Stripe dah test & kunci live dah dimasukkan dalam Vercel ▼▼▼ */
+/* ── TikTok Pixel: muat gk-pixel.js automatik pada semua borang ── */
+(function(){try{if(!document.querySelector('script[src$="gk-pixel.js"]')){var s=document.createElement('script');s.src='gk-pixel.js';s.async=true;document.head.appendChild(s);}}catch(e){}})();
+function gkItem(nama,id,harga,cur){return {contents:[{content_id:String(id||nama),content_type:'product',content_name:nama,price:harga}],value:harga,currency:cur||'MYR'};}
+function gkPx(ev,data){try{var f=function(){if(window.GKPixel){GKPixel.track(ev,data);return true;}};if(!f())setTimeout(f,1500);}catch(e){}}
 var STRIPE_ON = true;
 var TUNJUK_TUKAR = false;   /* true = tunjuk link kecil "Bukan di Malaysia? Bayar dalam USD" */
 /* ▲▲▲ Selagi false: semua customer nampak RM. Mod USD hanya untuk test (?cur=usd). ▲▲▲ */
@@ -370,6 +374,7 @@ function pay(){
 
   var label=btn.innerHTML;
   btn.disabled=true; btn.setAttribute('data-sibuk','1'); btn.textContent=t('sedia');
+  try{gkPx('InitiateCheckout',gkItem((CFG.produk||'kad')+' '+plan(),CFG.viewer||CFG.produk,hargaPlan(plan()),u?'USD':'MYR'));}catch(e){}
 
   var ref=null;
   ref=refAktif();
@@ -475,6 +480,7 @@ window.GKBayar={
       };
     });
     $('gkb-pay').onclick=pay;
+    try{gkPx('ViewContent',gkItem(CFG.produk||'kad',CFG.viewer||CFG.produk,hargaPlan(plan()),usd()?'USD':'MYR'));}catch(e){}
     $('gkb-tukar').onclick=function(){
       CUR = usd() ? 'myr' : 'usd';
       try{ localStorage.setItem('gk_cur',CUR); }catch(e){}
