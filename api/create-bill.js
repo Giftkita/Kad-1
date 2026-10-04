@@ -34,6 +34,9 @@ module.exports = async (req, res) => {
     const amountCents = PRICES[plan];
     const SITE = (process.env.SITE_URL || '').replace(/\/$/, '');
     const TPAY = (process.env.TOYYIBPAY_BASE || 'https://toyyibpay.com').replace(/\/$/, '');
+    // Callback MESTI terus ke domain sebenar (www). Kalau SITE_URL kosong / tanpa www, Vercel
+    // redirect → ToyyibPay tak ikut redirect → kad tak ditanda paid. (4 Okt 2026)
+    const CB_SITE = /^https:\/\/www\./.test(SITE) ? SITE : 'https://www.giftkita.com';
 
     // 1) cipta bill ToyyibPay
     const form = new URLSearchParams({
@@ -45,7 +48,7 @@ module.exports = async (req, res) => {
       billPayorInfo:   '1',                             // prefill maklumat pembeli sebenar
       billAmount:      String(amountCents),             // dalam SEN
       billReturnUrl:   `${SITE}/bayar.html?id=${cardId}`,
-      billCallbackUrl: `${SITE}/api/callback`,
+      billCallbackUrl: `${CB_SITE}/api/callback`,
       billExternalReferenceNo: cardId,
       billTo:          (buyerName  || 'Pelanggan').slice(0, 30),
       billEmail:       buyerEmail || 'noemail@giftkita.my',

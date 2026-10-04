@@ -9,6 +9,8 @@
 //     Nombor luar negara (+1 555…, +44 7…) pun jalan dengan cara yang sama.
 //  Kedua-dua MESTI padan — email sahaja tak cukup (link kad ialah hadiah peribadi).
 //  Hanya kad yang paid=true dipulangkan. Sokong kad RM (ToyyibPay) & USD (Stripe).
+//  PENGAMAN (4 Okt 2026): kad customer yang masih paid=false disemak terus ke
+//  ToyyibPay/Stripe — kalau duit dah masuk, kad diaktifkan & dipulangkan.
 // ════════════════════════════════════════════════════════════
 
 module.exports = async (req, res) => {
@@ -40,6 +42,19 @@ module.exports = async (req, res) => {
       '&order=created_at.desc&limit=50'
     );
 
+    // PENGAMAN: kad customer ni yang belum ditanda bayar (14 hari) → semak terus ke gateway
+    try {
+      const belum = await sbGet(
+        'cards?buyer_email=ilike.' + encodeURIComponent(e) +
+        '&paid=eq.false&bill_code=not.is.null&created_at=gte.' + encodeURIComponent(new Date(Date.now() - 14 * 864e5).toISOString()) +
+        '&select=id,paid,amount,ref_code,bill_code,plan,buyer_phone,created_at,template:card_data->>template,plan_lama:card_data->>plan' +
+        '&order=created_at.desc&limit=10'
+      );
+      for (const c of (Array.isArray(belum) ? belum : []).filter(c => hujungTel(c.buyer_phone) === kunci)) {
+        try { if (await aktifkanJikaBayar(c)) { c.paid = true; rows.unshift(c); } } catch (x) {}
+      }
+    } catch (x) {}
+
     const cards = (Array.isArray(rows) ? rows : [])
       .filter(r => hujungTel(r.buyer_phone) === kunci)
       .slice(0, 20)
@@ -70,3 +85,49 @@ async function sbGet(path) {
   const r = await fetch(url + path, { headers: { apikey: key, Authorization: 'Bearer ' + key } });
   return r.json();
 }
+
+// ════════════════════════════════════════════════════════════
+//  PENGAMAN BAYARAN TERSANGKUT (4 Okt 2026)
+//  Kalau callback ToyyibPay tak sampai & customer tak kembali ke bayar.html,
+//  kad kekal paid=false walaupun duit dah masuk. Fungsi ni semak terus ke
+//  ToyyibPay / Stripe dan aktifkan kad — logik SAMA dengan verify.js.
+// ════════════════════════════════════════════════════════════
+const TIADA_KOMISEN_A = { bouquet: true };
+async function aktifkanJikaBayar(card) {
+  if (!card || card.paid === true || !card.bill_code) return false;
+  let myr = null;
+  if (/^cs_/.test(card.bill_code)) {
+    if (!process.env.STRIPE_SECRET_KEY) return false;
+    const q = 'expand[]=payment_intent.latest_charge.balance_transaction';
+    const r = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(card.bill_code)}?${q}`,
+      { headers: { Authorization: 'Bearer ' + process.env.STRIPE_SECRET_KEY } });
+    const s = await r.json();
+    if (!s || s.payment_status !== 'paid') return false;
+    try { const bt = s.payment_intent.latest_charge.balance_transaction; if (bt && bt.currency === 'myr') myr = Math.round(bt.amount) / 100; } catch (e) {}
+  } else {
+    const TPAY = (process.env.TOYYIBPAY_BASE || 'https://toyyibpay.com').replace(/\/$/, '');
+    const form = new URLSearchParams({ userSecretKey: process.env.TOYYIBPAY_SECRET, billCode: card.bill_code });
+    const r = await fetch(`${TPAY}/index.php/api/getBillTransactions`, {
+      method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: form.toString() });
+    const data = await r.json().catch(() => null);
+    if (!(Array.isArray(data) && data.some(t => String(t.billpaymentStatus) === '1'))) return false;
+  }
+  await sbPatchA(`cards?id=eq.${card.id}`, myr ? { paid: true, amount: myr } : { paid: true });
+  const ada = await sbGetA(`sales?bill_code=eq.${encodeURIComponent(card.bill_code)}&select=id`);
+  if (!Array.isArray(ada) || !ada.length) {
+    const sale = await sbInsertA('sales', { card_id: card.id, ref_code: card.ref_code, amount: myr || card.amount, bill_code: card.bill_code, status: 'paid' });
+    const saleId = Array.isArray(sale) && sale[0] && sale[0].id;
+    const plan = card.plan || card.plan_lama || 'basic';
+    if (card.ref_code && saleId && !TIADA_KOMISEN_A[plan]) {
+      const aff = await sbGetA(`affiliates?code=eq.${encodeURIComponent(card.ref_code)}&active=eq.true&select=code,commission_flat`);
+      if (Array.isArray(aff) && aff.length) {
+        await sbInsertA('commissions', { affiliate_code: card.ref_code, sale_id: saleId, amount: Number(aff[0].commission_flat) || 2, paid_out: false });
+      }
+    }
+  }
+  return true;
+}
+const SBA = () => ({ url: process.env.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/', key: process.env.SUPABASE_SERVICE_KEY });
+async function sbGetA(path) { const { url, key } = SBA(); const r = await fetch(url + path, { headers: { apikey: key, Authorization: 'Bearer ' + key } }); return r.json(); }
+async function sbPatchA(path, body) { const { url, key } = SBA(); await fetch(url + path, { method: 'PATCH', headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(body) }); }
+async function sbInsertA(table, row) { const { url, key } = SBA(); const r = await fetch(url + table, { method: 'POST', headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify(row) }); return r.json(); }
