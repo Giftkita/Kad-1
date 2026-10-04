@@ -393,6 +393,12 @@ textarea.inp{resize:vertical;min-height:70px;line-height:1.5}
   <section id="v-tetapan" class="hide">
     <div class="head"><div><h1>Tetapan</h1><p>Notis kepada customer & akaun affiliate</p></div></div>
     <div class="card" style="margin-bottom:12px">
+      <h3><span>🔄 Bayaran tersangkut</span></h3>
+      <p class="sub">Customer dah bayar tapi kad belum aktif (callback ToyyibPay tak sampai)? Tekan ni — sistem semak terus ke ToyyibPay/Stripe semua kad belum bayar 7 hari lepas dan aktifkan yang duitnya dah masuk. Selamat ditekan bila-bila masa.</p>
+      <button class="btn" id="tt-btn" onclick="semakTertunda()">🔄 Semak &amp; aktifkan sekarang</button>
+      <div id="tt-out" style="margin-top:10px;font-size:13px;line-height:1.6"></div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
       <h3><span>📢 Notis & Penyelenggaraan</span><span id="n-status" class="st-off">Tiada notis</span></h3>
       <p class="sub">Muncul di laman utama, page pilih template, borang, Semak Kad & Affiliate. Page kad penerima dan page bayaran tak terjejas.</p>
       <div class="err" id="n-err"></div>
@@ -466,6 +472,17 @@ function namaTpl(k){return NAMA_TPL[k]||(k?k:'Lain-lain')}
 function namaPakej(k){return NAMA_PAKEJ[k]||(k||'–')}
 function ss(k,v){try{if(v===undefined)return sessionStorage.getItem(k);if(v===null)sessionStorage.removeItem(k);else sessionStorage.setItem(k,v)}catch(e){return null}}
 
+async function semakTertunda(){
+  const btn=document.getElementById('tt-btn'),out=document.getElementById('tt-out');
+  btn.disabled=true;btn.textContent='⏳ Menyemak… (boleh ambil 1 minit)';out.innerHTML='';
+  try{
+    const r=await api({action:'tertunda',hari:7});
+    const A=r.aktif||[];
+    out.innerHTML='Disemak <b>'+r.disemak+'</b> kad belum bayar · <b style="color:var(--good)">'+A.length+' diaktifkan</b>'+
+      (A.length?'<br>'+A.map(k=>'✅ '+esc(namaTpl(k.template))+' · '+esc(k.email||'')+' · <a target="_blank" href="'+API_BASE+'/card-'+esc(k.template||'')+'-1.html?id='+esc(k.id)+'">buka kad</a>').join('<br>'):'');
+  }catch(e){out.textContent='❌ '+e.message}
+  btn.disabled=false;btn.textContent='🔄 Semak & aktifkan sekarang';
+}
 async function api(body){
   const r=await fetch(API_BASE+'/api/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({token:TOKEN},body))});
   const out=await r.json().catch(()=>({error:'Respons tidak sah dari server.'}));
