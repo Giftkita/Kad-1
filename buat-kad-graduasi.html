@@ -52,6 +52,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f3ecdc,
 .gp-skrol{background:linear-gradient(160deg,#0f1e38,#1c3157 45%,#e7c877)}
 .gp-sunflower{background:radial-gradient(ellipse at 50% 55%,#fff3cc,#f6d271 45%,#d9a12a)}
 .gp-gradscrap{background:#d8b98c radial-gradient(circle,rgba(46,58,89,.15) 1.2px,transparent 1.6px) 0 0/14px 14px}
+.gp-stem{background:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px) 0 0/12px 12px,linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px) 0 0/12px 12px,radial-gradient(ellipse at 50% 45%,#8E6CD1,#4A2C6D 70%)}
 .gp-newspaper{background:repeating-linear-gradient(0deg,rgba(60,50,35,.06) 0 1px,transparent 1px 6px),radial-gradient(ellipse at 50% 55%,#f5eedd,#e2d4b2 50%,#a8936a)}
 
 #lang{position:absolute;top:14px;right:14px;background:rgba(255,255,255,.9);border:1px solid rgba(0,0,0,.12);
@@ -90,19 +91,23 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f3ecdc,
     <div class="gp gp-gradscrap"><span class="g-badge" data-k="baru">BARU</span>📸<div class="g-glow"></div></div>
     <div class="gm"><h3 data-k="n6">Photobooth Scrapbook</h3><span data-k="d6">Photobooth kadbod, pelekat &amp; lambung topi</span></div>
   </a>
+  <a class="g-card" href="buat-kad-gradstem.html">
+    <div class="gp gp-stem"><span class="g-badge" data-k="baru">BARU</span>🧪<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n7">Buku Makmal STEM</h3><span data-k="d7">Buku nota makmal · jadual berkala geng · 14 gambar</span></div>
+  </a>
 </div>
 
 <script>
 /* dwibahasa — kongsi pilihan dengan halaman lain melalui localStorage 'gk_lang' */
 var L={
  ms:{title:'Pilih Tema — Kad Graduasi 🎓',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Kad 🎓',
-     sub:'Enam gaya berbeza. Pilih satu untuk mula.',ada:'TERSEDIA',baru:'BARU',
+     sub:'Tujuh gaya berbeza. Pilih satu untuk mula.',ada:'TERSEDIA',baru:'BARU',
      n1:'Skrol Ijazah',d1:'Tarik reben, skrol terbuka',
-     n2:'Navy &amp; Emas',d2:'Rama-rama navy, surat panjang &amp; gambar calar',n3:'Graduate Memory',d3:'Buku scrapbook · selak 8 muka · 14 gambar',n4:'Sunflower',d4:'Bunga matahari, topi terbang &amp; polaroid gosok',n5:'The Graduate Times',d5:'Muka depan akhbar, foto hitam-putih &amp; mesin taip',n6:'Photobooth Scrapbook',d6:'Photobooth kadbod, pelekat &amp; lambung topi'},
+     n2:'Navy &amp; Emas',d2:'Rama-rama navy, surat panjang &amp; gambar calar',n3:'Graduate Memory',d3:'Buku scrapbook · selak 8 muka · 14 gambar',n4:'Sunflower',d4:'Bunga matahari, topi terbang &amp; polaroid gosok',n5:'The Graduate Times',d5:'Muka depan akhbar, foto hitam-putih &amp; mesin taip',n6:'Photobooth Scrapbook',d6:'Photobooth kadbod, pelekat &amp; lambung topi',n7:'Buku Makmal STEM',d7:'Buku nota makmal · jadual berkala geng · 14 gambar'},
  en:{title:'Choose a Theme — Graduation Card 🎓',back:'‹ Back to Homepage',tajuk:'Choose a Card Theme 🎓',
-     sub:'Six different styles. Pick one to start.',ada:'AVAILABLE',baru:'NEW',
+     sub:'Seven different styles. Pick one to start.',ada:'AVAILABLE',baru:'NEW',
      n1:'Degree Scroll',d1:'Pull the ribbon, the scroll unrolls',
-     n2:'Navy &amp; Gold',d2:'Navy butterflies, a long letter &amp; scratch photos',n3:'Graduate Memory',d3:'A scrapbook · 8 flipping pages · 14 photos',n4:'Sunflower',d4:'Sunflowers, a flying cap &amp; scratch polaroids',n5:'The Graduate Times',d5:'A newspaper front page, black &amp; white photos &amp; a typewriter',n6:'Scrapbook Photobooth',d6:'A cardboard photobooth, stickers &amp; a cap toss'}
+     n2:'Navy &amp; Gold',d2:'Navy butterflies, a long letter &amp; scratch photos',n3:'Graduate Memory',d3:'A scrapbook · 8 flipping pages · 14 photos',n4:'Sunflower',d4:'Sunflowers, a flying cap &amp; scratch polaroids',n5:'The Graduate Times',d5:'A newspaper front page, black &amp; white photos &amp; a typewriter',n6:'Scrapbook Photobooth',d6:'A cardboard photobooth, stickers &amp; a cap toss',n7:'STEM Lab Notebook',d7:'A lab notebook · periodic table of friends · 14 photos'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function pakai(){
