@@ -143,7 +143,7 @@ var BQ={
    eWebGL:'Telefon/pelayar ini tak dapat proses gambar (WebGL). Cuba: tutup tab lain & cuba lagi, buka link ini dalam Chrome, atau guna gambar lebih kecil.',
    eSlot:'Template ini tiada slot muka. Edit template dan tanda slot dulu.',
    saiz:'Saiz bouquet: ',
-   qrH:'💌 Ucapan &amp; lagu rahsia (pilihan)',qrHint:'Gambar yang anda download ada kod QR kecil di bucu. Bila orang scan, keluar ucapan &amp; lagu ni — sesuai kalau bouquet nak di-print atau dibingkaikan.',qrTo:'Untuk',qrFrom:'Daripada',qrUcap:'Ucapan',qrYt:'Link lagu YouTube',qrPrev:'👀 Pratonton bila QR di-scan'},
+   qrH:'💌 Ucapan &amp; lagu rahsia (pilihan)',qrHint:'Lepas bayar anda dapat kod QR &amp; link kejutan — hantar pada si dia. Bila dibuka, keluar bouquet, ucapan &amp; lagu ni sebagai kejutan 💝',qrTo:'Untuk',qrFrom:'Daripada',qrUcap:'Ucapan',qrYt:'Link lagu YouTube',qrPrev:'👀 Pratonton kejutan'},
  en:{title:'Bouquet Muka — Pick a Design & Upload a Photo',
    sub:'Pick a bouquet design, upload a photo — ready in seconds, download straight away.',
    st1:'1 · Design',st2:'2 · Upload',st3:'3 · Generate',st4:'4 · Pay',
@@ -175,7 +175,7 @@ var BQ={
    eWebGL:'This phone/browser could not process the photo (WebGL). Try: close other tabs & retry, open this link in Chrome, or use a smaller photo.',
    eSlot:'This template has no face slots. Edit the template and mark the slots first.',
    saiz:'Bouquet size: ',
-   qrH:'💌 Secret message &amp; song (optional)',qrHint:'Your downloaded image has a small QR code in the corner. When someone scans it, this message &amp; song appear — perfect if the bouquet will be printed or framed.',qrTo:'To',qrFrom:'From',qrUcap:'Message',qrYt:'YouTube song link',qrPrev:'👀 Preview what shows when scanned'}
+   qrH:'💌 Secret message &amp; song (optional)',qrHint:'After payment you get a surprise QR code &amp; link — send it to them. When opened, your bouquet, message &amp; song appear as a surprise 💝',qrTo:'To',qrFrom:'From',qrUcap:'Message',qrYt:'YouTube song link',qrPrev:'👀 Preview the surprise'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function TB(k){ var d=BQ[lang]; return (d&&d[k]!=null)?d[k]:(BQ.ms[k]||''); }
@@ -274,14 +274,14 @@ function TB(k){ var d=BQ[lang]; return (d&&d[k]!=null)?d[k]:(BQ.ms[k]||''); }
     <div id="saizJumlah" class="hint" style="text-align:center;margin-bottom:10px"></div>
     <div class="qrSec" style="margin-bottom:14px">
       <h2 style="margin:0 0 4px;font-size:16px" data-k="qrH">💌 Ucapan &amp; lagu rahsia (pilihan)</h2>
-      <div class="hint" data-k="qrHint">Gambar yang anda download ada kod QR kecil di bucu. Bila orang scan, keluar ucapan &amp; lagu ni — sesuai kalau bouquet nak di-print atau dibingkaikan.</div>
+      <div class="hint" data-k="qrHint">Lepas bayar anda dapat kod QR &amp; link kejutan — hantar pada si dia. Bila dibuka, keluar bouquet, ucapan &amp; lagu ni sebagai kejutan 💝</div>
       <div class="dua">
         <div><label data-k="qrTo">Untuk</label><input type="text" id="qrTo" maxlength="30"></div>
         <div><label data-k="qrFrom">Daripada</label><input type="text" id="qrFrom" maxlength="30"></div>
       </div>
       <label data-k="qrUcap">Ucapan</label><textarea id="qrUcap" maxlength="400"></textarea>
       <label data-k="qrYt">Link lagu YouTube</label><input type="url" id="qrYt" placeholder="https://www.youtube.com/watch?v=...">
-      <div style="text-align:center;margin-top:12px"><button type="button" class="btn ghost" id="qrPrev" data-k="qrPrev">👀 Pratonton bila QR di-scan</button></div>
+      <div style="text-align:center;margin-top:12px"><button type="button" class="btn ghost" id="qrPrev" data-k="qrPrev">👀 Pratonton kejutan</button></div>
     </div>
     <div id="qrModal" style="position:fixed;inset:0;z-index:9999;background:rgba(40,20,30,.78);display:none;align-items:center;justify-content:center;padding:14px">
       <div style="position:relative;width:100%;max-width:430px;height:min(86vh,820px);background:#fff;border-radius:18px;overflow:hidden">
@@ -920,7 +920,7 @@ function mountBayar(){
     viewer:'card-bouquet-1.html',  /* corak card-<template>-1.html (Seksyen 6) */
     produk:'Bouquet Muka',
     qr:true,   // papar chip DuitNow QR dalam "Cara bayaran diterima"
-    plans:{ bouquet:{ rm:3, nm:'Bouquet Muka', ds:'Gambar penuh tanpa tanda air · kod QR ucapan & lagu · download terus' } },
+    plans:{ bouquet:{ rm:3, nm:'Bouquet Muka', ds:'Gambar penuh tanpa tanda air · kod QR kejutan (ucapan & lagu) · download terus' } },
     btn:'Bayar RM3 &amp; download',
     collect:collectData
   });
