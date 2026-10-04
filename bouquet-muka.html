@@ -71,6 +71,10 @@
   .cropwrap .ring{position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(255,255,255,.7);pointer-events:none}
   label.l{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
   input[type=range]{width:100%;accent-color:var(--pink-d)}
+  .qrSec textarea,.qrSec input[type=url]{width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid #eed7dd;font-size:14px;background:#fff;font-family:inherit}
+  .qrSec textarea{min-height:90px;resize:vertical;line-height:1.5}
+  .qrSec label{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
+  .qrSec .dua{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
   input[type=text],input[type=password],select{width:100%;padding:10px 12px;border-radius:10px;border:1.5px solid #eed7dd;font-size:14px;background:#fff}
   .mode{display:flex;gap:8px;flex-wrap:wrap}
   .mode label{flex:1;min-width:200px;border:1.5px solid #eed7dd;border-radius:12px;padding:10px 12px;cursor:pointer;font-size:13px}
@@ -138,7 +142,8 @@ var BQ={
    eOrang:'Tak jumpa orang dalam gambar. Guna gambar separuh badan, muka jelas.',
    eWebGL:'Telefon/pelayar ini tak dapat proses gambar (WebGL). Cuba: tutup tab lain & cuba lagi, buka link ini dalam Chrome, atau guna gambar lebih kecil.',
    eSlot:'Template ini tiada slot muka. Edit template dan tanda slot dulu.',
-   saiz:'Saiz bouquet: '},
+   saiz:'Saiz bouquet: ',
+   qrH:'💌 Ucapan &amp; lagu rahsia (pilihan)',qrHint:'Gambar yang anda download ada kod QR kecil di bucu. Bila orang scan, keluar ucapan &amp; lagu ni — sesuai kalau bouquet nak di-print atau dibingkaikan.',qrTo:'Untuk',qrFrom:'Daripada',qrUcap:'Ucapan',qrYt:'Link lagu YouTube'},
  en:{title:'Bouquet Muka — Pick a Design & Upload a Photo',
    sub:'Pick a bouquet design, upload a photo — ready in seconds, download straight away.',
    st1:'1 · Design',st2:'2 · Upload',st3:'3 · Generate',st4:'4 · Pay',
@@ -169,7 +174,8 @@ var BQ={
    eOrang:'Could not find a person in the photo. Use a half-body photo with a clear face.',
    eWebGL:'This phone/browser could not process the photo (WebGL). Try: close other tabs & retry, open this link in Chrome, or use a smaller photo.',
    eSlot:'This template has no face slots. Edit the template and mark the slots first.',
-   saiz:'Bouquet size: '}
+   saiz:'Bouquet size: ',
+   qrH:'💌 Secret message &amp; song (optional)',qrHint:'Your downloaded image has a small QR code in the corner. When someone scans it, this message &amp; song appear — perfect if the bouquet will be printed or framed.',qrTo:'To',qrFrom:'From',qrUcap:'Message',qrYt:'YouTube song link'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function TB(k){ var d=BQ[lang]; return (d&&d[k]!=null)?d[k]:(BQ.ms[k]||''); }
@@ -266,6 +272,16 @@ function TB(k){ var d=BQ[lang]; return (d&&d[k]!=null)?d[k]:(BQ.ms[k]||''); }
   <section class="card" id="step4" style="display:none">
     <div id="bayarNota" class="hint" style="text-align:center;margin-bottom:10px;color:#c0392b"><span data-k="notaBayar">Generate bouquet dulu sebelum boleh bayar.</span></div>
     <div id="saizJumlah" class="hint" style="text-align:center;margin-bottom:10px"></div>
+    <div class="qrSec" style="margin-bottom:14px">
+      <h2 style="margin:0 0 4px;font-size:16px" data-k="qrH">💌 Ucapan &amp; lagu rahsia (pilihan)</h2>
+      <div class="hint" data-k="qrHint">Gambar yang anda download ada kod QR kecil di bucu. Bila orang scan, keluar ucapan &amp; lagu ni — sesuai kalau bouquet nak di-print atau dibingkaikan.</div>
+      <div class="dua">
+        <div><label data-k="qrTo">Untuk</label><input type="text" id="qrTo" maxlength="30"></div>
+        <div><label data-k="qrFrom">Daripada</label><input type="text" id="qrFrom" maxlength="30"></div>
+      </div>
+      <label data-k="qrUcap">Ucapan</label><textarea id="qrUcap" maxlength="400"></textarea>
+      <label data-k="qrYt">Link lagu YouTube</label><input type="url" id="qrYt" placeholder="https://www.youtube.com/watch?v=...">
+    </div>
     <div id="gk-bayar"></div>
   </section>
 </main>
@@ -474,7 +490,7 @@ async function generate(){
       return;
     }
     setStatusK('sMenyusun');
-    cleanImage=await compositeLocal(selTpl,faceSquare);
+    cleanImage=await compositeLocal(selTpl,faceSquare); buatKecil(cleanImage);
     showResult(await addWatermark(cleanImage));
     kiraSaiz(); kemasBayar();
     setStatusK('sSiap','ok');
@@ -753,7 +769,7 @@ document.querySelectorAll('.toolbar button').forEach(btn=>btn.onclick=()=>{
 async function kemasSekarang(){
   if(!SUS) return; $('#kemas').disabled=true; setStatusK('sKemas');
   try{
-    cleanImage=renderFinal();
+    cleanImage=renderFinal(); buatKecil(cleanImage);
     showResult(await addWatermark(cleanImage)); $('#susun').style.display='none';
     kiraSaiz(); kemasBayar();
     setStatusK('sSiap','ok');
@@ -838,9 +854,17 @@ function collectData(){
     template:'bouquet',          /* WAJIB — padan dengan card-bouquet-1.html */
     jenis:'bouquet',
     design: selTpl ? selTpl.name : '',
-    img: cleanImage || ''
+    img: cleanImage || '',
+    kecil: kecilImage || '',     /* versi kecil — kekal untuk halaman QR selepas link 2 bulan tamat */
+    to: nilaiQR('qrTo'), from: nilaiQR('qrFrom'), ucapan: nilaiQR('qrUcap'), yt: nilaiQR('qrYt')
   };
 }
+function nilaiQR(id){ var e=document.getElementById(id); return e&&e.value?e.value.trim():''; }
+/* gambar kecil (lebar 480px) untuk halaman QR */
+let kecilImage='';
+function buatKecil(src){ kecilImage=''; if(!src) return; var im=new Image(); im.onload=function(){ try{
+  var w=480, h=Math.round(im.height*w/im.width), c=document.createElement('canvas'); c.width=w; c.height=h;
+  var x=c.getContext('2d'); x.fillStyle='#fff'; x.fillRect(0,0,w,h); x.drawImage(im,0,0,w,h); kecilImage=c.toDataURL('image/jpeg',0.72); }catch(e){} }; im.src=src; }
 /* gk-bayar.js tak semak sama ada data sedia — dia terus insert baris ke Supabase.
    Jadi kita sendiri matikan butang sampai bouquet betul-betul dijana. */
 function kemasBayar(){
@@ -872,7 +896,7 @@ function mountBayar(){
     viewer:'card-bouquet-1.html',  /* corak card-<template>-1.html (Seksyen 6) */
     produk:'Bouquet Muka',
     qr:true,   // papar chip DuitNow QR dalam "Cara bayaran diterima"
-    plans:{ bouquet:{ rm:3, nm:'Bouquet Muka', ds:'Gambar penuh tanpa tanda air · download terus' } },
+    plans:{ bouquet:{ rm:3, nm:'Bouquet Muka', ds:'Gambar penuh tanpa tanda air · kod QR ucapan & lagu · download terus' } },
     btn:'Bayar RM3 &amp; download',
     collect:collectData
   });

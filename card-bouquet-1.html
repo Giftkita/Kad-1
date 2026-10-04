@@ -29,6 +29,201 @@
 <meta property="og:description" content="Satu bouquet istimewa dari GiftKita">
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<script>
+/* penjana kod QR (sama dengan semak-kad.html) */
+var GKQR=(function(){
+  // ── GF(256) ──
+  var EXP=new Array(512),LOG=new Array(256);
+  (function(){var x=1;for(var i=0;i<255;i++){EXP[i]=x;LOG[x]=i;x<<=1;if(x&0x100)x^=0x11d;}
+   for(var i=255;i<512;i++)EXP[i]=EXP[i-255];})();
+  function mul(a,b){return (a===0||b===0)?0:EXP[LOG[a]+LOG[b]];}
+
+  function rsPoly(n){var p=[1];for(var i=0;i<n;i++){var q=[1,EXP[i]],r=new Array(p.length+1).fill(0);
+    for(var j=0;j<p.length;j++){r[j]^=mul(p[j],q[0]);r[j+1]^=mul(p[j],q[1]);}p=r;}return p;}
+  function rsEnc(data,n){var gen=rsPoly(n),res=data.concat(new Array(n).fill(0));
+    for(var i=0;i<data.length;i++){var c=res[i];if(c!==0)for(var j=1;j<gen.length;j++)res[i+j]^=mul(gen[j],c);}
+    return res.slice(data.length);}
+
+  // ── jadual versi (EC level M): [jumlah codeword, ec per blok, blok grup1, dc grup1, blok grup2, dc grup2] ──
+  var V={
+   1:[26,10,1,16,0,0], 2:[44,16,1,28,0,0], 3:[70,26,1,44,0,0], 4:[100,18,2,32,0,0],
+   5:[134,24,2,43,0,0], 6:[172,16,4,27,0,0], 7:[196,18,4,31,0,0], 8:[242,22,2,38,2,39],
+   9:[292,22,3,36,2,37], 10:[346,26,4,43,1,44]
+  };
+  // EC level H (30% pemulihan) — untuk QR berlogo
+  var VH={
+   1:[26,17,1,9,0,0], 2:[44,28,1,16,0,0], 3:[70,22,2,13,0,0], 4:[100,16,4,9,0,0],
+   5:[134,22,2,11,2,12], 6:[172,28,4,15,0,0], 7:[196,26,4,13,1,14], 8:[242,26,4,14,2,15],
+   9:[292,24,4,12,4,13], 10:[346,28,6,15,2,16]
+  };
+  var ALIGN={1:[],2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50]};
+
+  function tbl(ecl){return ecl==='H'?VH:V;}
+  function capacity(v,ecl){var t=tbl(ecl)[v];return t[2]*t[3]+t[4]*t[5];}
+
+  function encode(str,ecl){
+    var bytes=[],i;
+    for(i=0;i<str.length;i++){var c=str.charCodeAt(i);
+      if(c<0x80)bytes.push(c);
+      else if(c<0x800){bytes.push(0xc0|c>>6,0x80|c&63);}
+      else{bytes.push(0xe0|c>>12,0x80|(c>>6)&63,0x80|c&63);}}
+
+    var ver=0,v;
+    for(v=1;v<=10;v++){var cci=(v<10)?8:16;
+      var need=Math.ceil((4+cci+bytes.length*8)/8);
+      if(need<=capacity(v,ecl)){ver=v;break;}}
+    if(!ver)throw new Error('teks terlalu panjang');
+
+    var t=tbl(ecl)[ver],total=capacity(ver,ecl),bits=[];
+    function put(val,len){for(var k=len-1;k>=0;k--)bits.push((val>>k)&1);}
+    put(4,4); put(bytes.length,(ver<10)?8:16);
+    for(i=0;i<bytes.length;i++)put(bytes[i],8);
+    var cap=total*8;
+    for(i=0;i<4&&bits.length<cap;i++)bits.push(0);
+    while(bits.length%8)bits.push(0);
+    var dc=[];for(i=0;i<bits.length;i+=8){var b=0;for(var k=0;k<8;k++)b=(b<<1)|bits[i+k];dc.push(b);}
+    var pad=[0xEC,0x11],pi=0;while(dc.length<total)dc.push(pad[pi++%2]);
+
+    // pecah blok
+    var blocks=[],idx=0,g;
+    for(g=0;g<t[2];g++){blocks.push(dc.slice(idx,idx+t[3]));idx+=t[3];}
+    for(g=0;g<t[4];g++){blocks.push(dc.slice(idx,idx+t[5]));idx+=t[5];}
+    var ecs=blocks.map(function(b){return rsEnc(b,t[1]);});
+
+    // interleave
+    var out=[],maxD=Math.max.apply(null,blocks.map(function(b){return b.length;}));
+    for(i=0;i<maxD;i++)for(g=0;g<blocks.length;g++)if(i<blocks[g].length)out.push(blocks[g][i]);
+    for(i=0;i<t[1];i++)for(g=0;g<ecs.length;g++)out.push(ecs[g][i]);
+    return {ver:ver,codewords:out,dataCodewords:dc,ecTest:ecs};
+  }
+
+  // ── bina matriks ──
+  function build(str,ecl){
+    var e=encode(str,ecl),ver=e.ver,size=ver*4+17;
+    var m=[],res=[],r,c,i,a,b;
+    for(r=0;r<size;r++){m.push(new Array(size).fill(0));res.push(new Array(size).fill(0));}
+    function setF(r,c,v){m[r][c]=v;res[r][c]=1;}
+
+    function finder(r0,c0){
+      for(r=-1;r<=7;r++)for(c=-1;c<=7;c++){
+        var rr=r0+r,cc=c0+c; if(rr<0||cc<0||rr>=size||cc>=size)continue;
+        var v=(r>=0&&r<=6&&(c===0||c===6))||(c>=0&&c<=6&&(r===0||r===6))||(r>=2&&r<=4&&c>=2&&c<=4)?1:0;
+        setF(rr,cc,v);}
+    }
+    finder(0,0);finder(0,size-7);finder(size-7,0);
+
+    var al=ALIGN[ver];
+    for(a=0;a<al.length;a++)for(b=0;b<al.length;b++){
+      var ar=al[a],ac=al[b];
+      if((ar<=8&&ac<=8)||(ar<=8&&ac>=size-9)||(ar>=size-9&&ac<=8))continue;
+      for(r=-2;r<=2;r++)for(c=-2;c<=2;c++)
+        setF(ar+r,ac+c,(Math.abs(r)===2||Math.abs(c)===2||(r===0&&c===0))?1:0);
+    }
+    for(i=8;i<size-8;i++){setF(6,i,i%2===0?1:0);setF(i,6,i%2===0?1:0);}
+    setF(size-8,8,1);
+
+    // rizab format
+    for(i=0;i<9;i++){if(!res[8][i])setF(8,i,0);if(!res[i][8])setF(i,8,0);}
+    for(i=0;i<8;i++){if(!res[8][size-1-i])setF(8,size-1-i,0);if(!res[size-1-i][8])setF(size-1-i,8,0);}
+    if(ver>=7){for(i=0;i<6;i++)for(var j=0;j<3;j++){setF(size-11+j,i,0);setF(i,size-11+j,0);}}
+
+    // letak data
+    var dbits=[];
+    e.codewords.forEach(function(b){for(var k=7;k>=0;k--)dbits.push((b>>k)&1);});
+    var di=0,up=true,col=size-1;
+    while(col>0){
+      if(col===6)col--;
+      for(var n=0;n<size;n++){
+        var rr=up?size-1-n:n;
+        for(var k=0;k<2;k++){var cc=col-k;
+          if(res[rr][cc])continue;
+          m[rr][cc]=di<dbits.length?dbits[di++]:0;}
+      }
+      up=!up;col-=2;
+    }
+    return {m:m,size:size,ver:ver,res:res,enc:e};
+  }
+
+  // ── mask + format ──
+  function maskFn(k,r,c){
+    switch(k){case 0:return (r+c)%2===0;case 1:return r%2===0;case 2:return c%3===0;
+      case 3:return (r+c)%3===0;case 4:return (Math.floor(r/2)+Math.floor(c/3))%2===0;
+      case 5:return (r*c)%2+(r*c)%3===0;case 6:return ((r*c)%2+(r*c)%3)%2===0;
+      default:return ((r+c)%2+(r*c)%3)%2===0;}
+  }
+  function penalty(m,size){
+    var p=0,r,c,i;
+    for(r=0;r<size;r++){var run=1;for(c=1;c<size;c++){if(m[r][c]===m[r][c-1])run++;else{if(run>=5)p+=3+(run-5);run=1;}}if(run>=5)p+=3+(run-5);}
+    for(c=0;c<size;c++){var run2=1;for(r=1;r<size;r++){if(m[r][c]===m[r-1][c])run2++;else{if(run2>=5)p+=3+(run2-5);run2=1;}}if(run2>=5)p+=3+(run2-5);}
+    for(r=0;r<size-1;r++)for(c=0;c<size-1;c++){var s=m[r][c]+m[r][c+1]+m[r+1][c]+m[r+1][c+1];if(s===0||s===4)p+=3;}
+    var dark=0;for(r=0;r<size;r++)for(c=0;c<size;c++)dark+=m[r][c];
+    p+=10*Math.floor(Math.abs(dark*100/(size*size)-50)/5);
+    return p;
+  }
+  function fmtBits(ec,mask){
+    var d=(ec<<3)|mask,v=d<<10,g=0x537;
+    for(var i=4;i>=0;i--)if(v&(1<<(i+10)))v^=g<<i;
+    return ((d<<10)|v)^0x5412;
+  }
+  function verBits(ver){
+    var v=ver<<12,g=0x1f25;
+    for(var i=5;i>=0;i--)if(v&(1<<(i+12)))v^=g<<i;
+    return (ver<<12)|v;
+  }
+
+  function make(str,ecl){
+    ecl=ecl||'M';
+    var B=build(str,ecl),size=B.size,best=null;
+    for(var k=0;k<8;k++){
+      var mm=B.m.map(function(row){return row.slice();});
+      for(var r=0;r<size;r++)for(var c=0;c<size;c++)
+        if(!B.res[r][c]&&maskFn(k,r,c))mm[r][c]^=1;
+      // format (EC M = 0)
+      var f=fmtBits(ecl==='H'?2:0,k);
+      for(var i=0;i<15;i++){
+        var b=(f>>i)&1;
+        /* salinan menegak (lajur 8) */
+        if(i<6){mm[i][8]=b;}
+        else if(i<8){mm[i+1][8]=b;}
+        else {mm[size-15+i][8]=b;}
+        /* salinan mendatar (baris 8) */
+        if(i<8){mm[8][size-i-1]=b;}
+        else if(i===8){mm[8][7]=b;}
+        else {mm[8][14-i]=b;}
+      }
+      mm[size-8][8]=1;
+      if(B.ver>=7){var vb=verBits(B.ver);
+        for(i=0;i<18;i++){var bb=(vb>>i)&1,rr=Math.floor(i/3),cc=i%3;
+          mm[size-11+cc][rr]=bb;mm[rr][size-11+cc]=bb;}}
+      var p=penalty(mm,size);
+      if(!best||p<best.p)best={p:p,m:mm};
+    }
+    return {size:size,modules:best.m,ver:B.ver,enc:B.enc};
+  }
+  return {make:make,_encode:encode,_rs:rsEnc};
+})();
+
+
+/* lukis QR ke canvas — quiet zone 4 modul; logo GiftKita (perlu level H) */
+function gkDrawQR(canvas,text,opt){
+  opt=opt||{};
+  var logo=false;
+  var q=GKQR.make(text, logo?'H':'M'), n=q.size, quiet=4, total=n+quiet*2;
+  var px=Math.max(6,Math.round((opt.size||560)/total));
+  var W=total*px;
+  canvas.width=W; canvas.height=W;
+  var ctx=canvas.getContext('2d');
+  var dark=opt.dark||'#a8121c', light=opt.light||'#ffffff';
+
+  ctx.fillStyle=light; ctx.fillRect(0,0,W,W);
+  ctx.fillStyle=dark;
+  for(var r=0;r<n;r++)for(var c=0;c<n;c++)
+    if(q.modules[r][c]) ctx.fillRect((c+quiet)*px,(r+quiet)*px,px,px);
+
+  return q;
+}
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Fredoka:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{--pink:#f3b8c6;--pink-d:#d98a9f;--ink:#3b2a22;--muted:#8b7a72}
   *{box-sizing:border-box}
@@ -44,8 +239,8 @@
   .btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:12px;border:0;
        cursor:pointer;font-size:14px;font-weight:600;background:var(--pink-d);color:#fff;text-decoration:none}
   .btn.ghost{background:#fff;border:1.5px solid #e9c3cd;color:var(--pink-d)}
-  .btn.wa{background:#25d366}
-  .msg{margin-top:22px;color:var(--muted);font-size:13px;text-align:center;max-width:420px}
+  .pautan{display:block;margin-top:12px;text-align:center;font-size:12.5px;color:var(--pink-d)}
+  .msg{margin-top:22px;color:var(--muted);font-size:13px;text-align:center;max-width:420px;line-height:1.55}
   .err{background:#fff;border-radius:16px;padding:22px;max-width:420px;text-align:center;box-shadow:0 8px 30px rgba(217,138,159,.15);line-height:1.6}
   footer{margin-top:30px;color:var(--muted);font-size:11px}
   .spin{width:28px;height:28px;border:3px solid var(--pink);border-right-color:transparent;border-radius:50%;
@@ -54,27 +249,51 @@
   #badge{position:fixed;top:12px;left:12px;background:#d98a9f;color:#fff;font:700 10px/1 "Segoe UI",sans-serif;
          letter-spacing:.12em;padding:7px 10px;border-radius:999px;display:none}
   #lang{position:fixed;top:12px;right:12px;background:#fff;border:1px solid #e9c3cd;border-radius:999px;
-        padding:6px 12px;font-size:12px;color:var(--pink-d);cursor:pointer}
+        padding:6px 12px;font-size:12px;color:var(--pink-d);cursor:pointer;z-index:5}
+  /* ---- halaman QR (bila orang scan) ---- */
+  #qrv{display:none;flex-direction:column;align-items:center;width:100%;max-width:460px}
+  #qrv .untuk{font:600 13px/1 Fredoka,sans-serif;letter-spacing:.18em;color:var(--pink-d);text-transform:uppercase;margin:4px 0 6px}
+  #qrv .nama{font:400 34px/1.1 "Patrick Hand",cursive;color:var(--ink);margin-bottom:16px;text-align:center}
+  #qrv .frame{transform:rotate(-1.5deg)}
+  .surat{position:relative;margin-top:22px;width:100%;background:#fffdf7;border-radius:14px;padding:22px 20px 18px;
+    box-shadow:0 10px 30px rgba(217,138,159,.2);font:400 19px/1.55 "Patrick Hand",cursive;white-space:pre-wrap;
+    background-image:repeating-linear-gradient(to bottom,transparent 0,transparent 28.5px,rgba(226,140,160,.28) 28.5px,rgba(226,140,160,.28) 29.5px);background-position:0 16px}
+  .surat .dari{text-align:right;color:#b0305a;margin-top:6px}
+  .lagu{margin-top:18px;width:100%}
+  .lagu .btn{width:100%;justify-content:center;background:#e9418a}
+  .lagu iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:12px;display:none;margin-top:10px}
+  .kelopak{position:fixed;top:-30px;font-size:18px;pointer-events:none;z-index:1;animation:jatuh linear forwards}
+  @keyframes jatuh{to{transform:translateY(110vh) rotate(540deg)}}
 </style>
 </head>
 <body>
   <div id="badge">PRATONTON</div>
   <button id="lang">BM / EN</button>
-  <h1>🌸 Bouquet <span>Muka</span></h1>
+  <h1 id="tajuk">🌸 Bouquet <span>Muka</span></h1>
   <p class="sub" id="sub"></p>
   <div class="spin" id="spin"></div>
+  <!-- mod pemilik (lepas bayar): download -->
   <div class="frame" id="frame" style="display:none"><img id="img" alt="Bouquet"></div>
   <div class="btns" id="btns" style="display:none">
     <a class="btn" id="dl" download="bouquet-muka.jpg"></a>
   </div>
+  <a class="pautan" id="dl2" download="bouquet-muka-tanpa-qr.jpg" style="display:none"></a>
+  <a class="pautan" id="lihatQr" target="_blank" style="display:none"></a>
   <p class="msg" id="msg" style="display:none"></p>
+  <!-- mod QR (orang scan) -->
+  <div id="qrv">
+    <div class="untuk" id="qUntuk"></div>
+    <div class="nama" id="qNama"></div>
+    <div class="frame"><img id="qImg" alt="Bouquet"></div>
+    <div class="surat" id="qSurat" style="display:none"><div id="qIsi"></div><div class="dari" id="qDari"></div></div>
+    <div class="lagu" id="qLagu" style="display:none"><button class="btn" id="qMain"></button><iframe id="qFr" allow="autoplay; encrypted-media" allowfullscreen></iframe></div>
+  </div>
   <div class="err" id="err" style="display:none"></div>
   <footer>GiftKita · www.giftkita.com</footer>
 
 <script>
 /* ============================================================
-   Sambungan database — SAMA dengan semua viewer GiftKita lain
-   (card-butterfly-1.html, card-skrol-1.html, dsb).
+   Sambungan database — SAMA dengan semua viewer GiftKita lain.
    JANGAN tukar ke /api/... — endpoint tu tak wujud.
    ============================================================ */
 var SB_URL='https://lejpuajafuenlfvlovfg.supabase.co';
@@ -83,54 +302,109 @@ var db=null; try{ if(window.supabase&&window.supabase.createClient) db=window.su
 
 var D=null, lang='ms';
 var TXT={
- ms:{siap:'Bayaran diterima — bouquet anda dah siap!', design:'Design: ', dl:'⬇️ Download gambar', wa:'💬 Kongsi di WhatsApp',
-     copy:'🔗 Salin link', disalin:'✓ Disalin!',
-     msg:'Tekan Download — gambar penuh tanpa tanda air masuk terus ke galeri telefon anda. Simpan link halaman ni kalau nak download semula.',
-     share:'Tengok bouquet ni 🌸 ',
+ ms:{siap:'Bayaran diterima — bouquet anda dah siap!', design:'Design: ', dl:'⬇️ Download gambar (dengan QR)', dl2:'Download tanpa kod QR',
+     lihatQr:'👀 Tengok apa keluar bila QR di-scan',
+     msg:'Gambar ni ada kod QR kecil di bucu bawah — bila di-scan, keluar ucapan & lagu anda. Sesuai untuk print atau bingkai. Simpan link halaman ni kalau nak download semula (link download aktif 2 bulan; kod QR terus berfungsi).',
+     scan:'scan saya ♡', untuk:'untuk', sayang:'Dengan sayang 🌸', main:'▶ Main lagu', henti:'■ Henti lagu',
      tiada:'Bouquet tidak dijumpai atau link telah tamat tempoh.',
      belum:'Bouquet ini belum diaktifkan. Sila selesaikan pembayaran untuk membukanya.',
      dbGagal:'Sambungan ke pangkalan data gagal. Sila refresh halaman.',
      takLengkap:'Data bouquet tidak lengkap. Sila hubungi kami di WhatsApp dengan link ini.',
+     tamat:'Link download dah tamat tempoh (aktif 2 bulan). Kod QR pada gambar masih berfungsi.',
      takdePratonton:'Tiada data pratonton. Sila kembali ke halaman bouquet dan tekan Pratonton semula.'},
- en:{siap:'Payment received — your bouquet is ready!', design:'Design: ', dl:'⬇️ Download image', wa:'💬 Share on WhatsApp',
-     copy:'🔗 Copy link', disalin:'✓ Copied!',
-     msg:'Tap Download — the full image without watermark goes straight to your phone gallery. Keep this page link if you need to download again.',
-     share:'Look at this bouquet 🌸 ',
+ en:{siap:'Payment received — your bouquet is ready!', design:'Design: ', dl:'⬇️ Download image (with QR)', dl2:'Download without the QR code',
+     lihatQr:'👀 See what appears when the QR is scanned',
+     msg:'This image has a small QR code in the bottom corner — when scanned, your message & song appear. Great for printing or framing. Keep this page link to download again (download link active 2 months; the QR code keeps working).',
+     scan:'scan me ♡', untuk:'for', sayang:'With love 🌸', main:'▶ Play song', henti:'■ Stop song',
      tiada:'This bouquet was not found or the link has expired.',
      belum:'This bouquet is not active yet. Please complete the payment to open it.',
      dbGagal:'Database connection failed. Please refresh the page.',
      takLengkap:'The bouquet data is incomplete. Please WhatsApp us with this link.',
+     tamat:'The download link has expired (active 2 months). The QR code on the image still works.',
      takdePratonton:'No preview data. Please go back to the bouquet page and tap Preview again.'}
 };
 function T(k){ return TXT[lang][k]; }
 var $ = function(s){ return document.querySelector(s); };
 var params = new URLSearchParams(location.search);
 var id = params.get('id') || params.get('kad') || location.hash.replace('#','');
+var modQR = params.get('q')==='1';
+function ytId(u){ if(!u) return ''; var m=String(u).match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/); return m?m[1]:''; }
 
 function ralat(t){
   $('#spin').style.display='none'; $('#sub').style.display='none';
-  $('#frame').style.display='none'; $('#btns').style.display='none'; $('#msg').style.display='none';
+  ['#frame','#btns','#msg','#dl2','#lihatQr'].forEach(function(s){ $(s).style.display='none'; }); $('#qrv').style.display='none';
   $('#err').style.display=''; $('#err').innerHTML=t;
 }
+/* link QR — sentiasa domain utama supaya kekal walau dibuka dari mana */
+function linkQR(){ return 'https://www.giftkita.com/card-bouquet-1.html?q=1&id='+encodeURIComponent(id||''); }
+
+/* tampal kod QR di bucu kanan bawah gambar */
+var gambarQR='';
+function tampalQR(src,cb){
+  var im=new Image(); im.onload=function(){
+    try{
+      var W=im.naturalWidth, H=im.naturalHeight, c=document.createElement('canvas'); c.width=W; c.height=H;
+      var x=c.getContext('2d'); x.drawImage(im,0,0);
+      var s=Math.round(Math.min(W,H)*0.2), pad=Math.round(s*0.07), lbl=Math.round(s*0.17), m=Math.round(Math.min(W,H)*0.03);
+      var bw=s+pad*2, bh=s+pad*2+lbl, bx=W-bw-m, by=H-bh-m;
+      x.save(); x.shadowColor='rgba(60,20,30,.28)'; x.shadowBlur=Math.round(s*0.08); x.shadowOffsetY=Math.round(s*0.03);
+      x.fillStyle='#ffffff'; bulat(x,bx,by,bw,bh,Math.round(s*0.09)); x.fill(); x.restore();
+      var q=document.createElement('canvas'); gkDrawQR(q,linkQR(),{size:s,dark:'#8a1c3c',light:'#ffffff',logo:false});
+      x.imageSmoothingEnabled=false; x.drawImage(q,bx+pad,by+pad,s,s); x.imageSmoothingEnabled=true;
+      x.fillStyle='#b0305a'; x.textAlign='center'; x.textBaseline='middle'; x.font='600 '+Math.round(lbl*0.62)+'px Fredoka, "Segoe UI", sans-serif';
+      x.fillText(T('scan'),bx+bw/2,by+pad+s+lbl*0.45);
+      cb(c.toDataURL('image/jpeg',0.92));
+    }catch(e){ cb(src); }
+  }; im.onerror=function(){ cb(src); }; im.src=src;
+}
+function bulat(x,a,b,w,h,r){ x.beginPath(); x.moveTo(a+r,b); x.arcTo(a+w,b,a+w,b+h,r); x.arcTo(a+w,b+h,a,b+h,r); x.arcTo(a,b+h,a,b,r); x.arcTo(a,b,a+w,b,r); x.closePath(); }
+
 function papar(){
+  if(modQR || (D&&D.tamat)) return paparQR();
   var src = D && (D.img || D.bouquet);
   if(!src) return ralat(T('takLengkap'));
-  $('#err').style.display='none';
-  $('#img').src = src;
-  $('#dl').href = src;
-  $('#spin').style.display='none';
-  $('#frame').style.display=''; $('#btns').style.display=''; $('#msg').style.display='';
-  $('#sub').style.display='';
-  $('#sub').textContent = D.design ? T('design')+D.design : T('siap');
-  $('#dl').textContent = T('dl');
-  $('#msg').textContent = T('msg');
+  $('#err').style.display='none'; $('#spin').style.display='';
+  tampalQR(src,function(qs){
+    gambarQR=qs;
+    $('#img').src = qs; $('#dl').href = qs; $('#dl2').href = src;
+    $('#spin').style.display='none';
+    $('#frame').style.display=''; $('#btns').style.display=''; $('#msg').style.display=''; $('#dl2').style.display='';
+    if(id){ $('#lihatQr').href=linkQR(); $('#lihatQr').style.display=''; }
+    $('#sub').style.display='';
+    $('#sub').textContent = D.design ? T('design')+D.design : T('siap');
+    $('#dl').textContent = T('dl'); $('#dl2').textContent = T('dl2'); $('#lihatQr').textContent = T('lihatQr');
+    $('#msg').textContent = T('msg');
+  });
 }
+/* halaman yang keluar bila kod QR di-scan */
+function paparQR(){
+  var src = D && (D.img || D.kecil || D.bouquet);
+  if(!src) return ralat(T('tiada'));
+  $('#spin').style.display='none'; $('#err').style.display='none'; $('#tajuk').style.display='none';
+  $('#sub').style.display = (D.tamat&&!modQR)?'':'none'; $('#sub').textContent=T('tamat');
+  $('#qrv').style.display='flex';
+  $('#qUntuk').textContent = D.to ? T('untuk') : '';
+  $('#qNama').textContent = D.to || T('sayang');
+  $('#qImg').src = src;
+  if(D.ucapan){ $('#qSurat').style.display=''; $('#qIsi').textContent=D.ucapan; $('#qDari').textContent=D.from?'— '+D.from:''; }
+  else if(D.from){ $('#qSurat').style.display=''; $('#qIsi').textContent=T('sayang'); $('#qDari').textContent='— '+D.from; }
+  var y=ytId(D.yt);
+  if(y){ $('#qLagu').style.display=''; var on=false; $('#qMain').textContent=T('main');
+    $('#qMain').onclick=function(){ on=!on; var f=$('#qFr');
+      if(on){ f.src='https://www.youtube.com/embed/'+y+'?autoplay=1&loop=1&playlist='+y; f.style.display='block'; }
+      else { f.src=''; f.style.display='none'; }
+      this.textContent=on?T('henti'):T('main'); }; }
+  if(!kelopakDah){ kelopakDah=true; for(var i=0;i<16;i++) setTimeout(kelopak,i*260); }
+}
+var kelopakDah=false;
+function kelopak(){ var k=document.createElement('div'); k.className='kelopak'; k.textContent=['🌸','🌷','💗','🌹'][Math.floor(Math.random()*4)];
+  k.style.left=(Math.random()*96)+'vw'; k.style.animationDuration=(4+Math.random()*3)+'s'; document.body.appendChild(k); setTimeout(function(){ k.remove(); },7500); }
+
 $('#lang').onclick=function(){ lang=(lang==='ms')?'en':'ms'; try{localStorage.setItem('gk_lang',lang);}catch(e){} if(D) papar(); };
 try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }catch(e){}
 
 /* ============ muat data — corak SAMA dengan viewer kad lain ============ */
 (function init(){
-  /* mod pratonton: gk-bayar.js simpan data dalam localStorage */
   if(params.get('preview')==='1'){
     try{ D=JSON.parse(localStorage.getItem('gk_preview')); }catch(e){ D=null; }
     if(!D||!D.img) return ralat(T('takdePratonton'));
@@ -140,9 +414,11 @@ try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }
   if(!db) return ralat(T('dbGagal'));
   db.from('cards').select('card_data,paid').eq('id',id).single().then(function(r){
     if(r.error) throw r.error;
-    if(r.data.paid!==true){ ralat(T('belum')); return; }
-    if(r.data.card_data&&r.data.card_data.tamat){ralat('Kad ini telah tamat tempoh (link aktif 2 bulan). · This card has expired (links stay active for 2 months).');return;}   /* WAJIB — tanpa ni sesiapa boleh tengok tanpa bayar */
-    D=r.data.card_data; papar();
+    if(r.data.paid!==true){ ralat(T('belum')); return; }   /* WAJIB — tanpa ni sesiapa boleh tengok tanpa bayar */
+    var cd=r.data.card_data;
+    /* bouquet: lepas 2 bulan gambar penuh dibuang, tapi versi kecil + ucapan + lagu KEKAL untuk kod QR */
+    if(cd&&cd.tamat&&!cd.kecil){ ralat('Kad ini telah tamat tempoh (link aktif 2 bulan). · This card has expired (links stay active for 2 months).'); return; }
+    D=cd; papar();
   }).catch(function(){ ralat(T('tiada')); });
 })();
 </script>
