@@ -290,6 +290,7 @@ function gkLogo(ctx,W,px,dark,light){
       <p style="font-size:.82rem;color:#c2185b;font-weight:600;margin-bottom:10px">📱 Kod QR Kad Anda</p>
       <canvas id="qr-cv" style="width:200px;height:200px;max-width:100%;background:#fff;border-radius:8px;display:block;margin:0 auto"></canvas>
       <p style="font-size:.72rem;color:#8a6d8a;margin-top:8px;line-height:1.5">Print & tampal pada hadiah — penerima scan, kad terus terbuka 💝</p>
+      <p style="font-size:.72rem;color:#a8121c;margin-top:6px;line-height:1.5">📷 Scan guna kamera telefon atau Google Lens — bukan scanner WhatsApp.</p>
       <button class="btn b-copy" style="margin-top:10px" onclick="dlQR()">⬇️ Muat Turun QR</button>
     </div>
   </div>
@@ -456,8 +457,20 @@ async function showQR(link){
 function dlQR(){
   const c=document.getElementById('qr-cv');
   const a=document.createElement('a');
-  a.download='giftkita-qr.png'; a.href=c.toDataURL('image/png'); a.click();
+  a.download='giftkita-qr.png'; a.href=gkQRNota(c); a.click();
 }
+
+/* QR + tulisan kecil di bawah (untuk gambar yang dimuat turun) */
+function gkQRNota(cv){
+  var en=(document.documentElement.lang||'ms').indexOf('en')===0;
+  var t=en?'Scan with phone camera / Google Lens':'Scan guna kamera telefon / Google Lens';
+  var W=cv.width, H=Math.round(W*1.13), c=document.createElement('canvas'); c.width=W; c.height=H;
+  var x=c.getContext('2d'); x.fillStyle='#ffffff'; x.fillRect(0,0,W,H); x.drawImage(cv,0,0);
+  x.fillStyle='#a8121c'; x.textAlign='center'; x.textBaseline='middle';
+  x.font='600 '+Math.round(W*0.045)+'px Poppins, "Segoe UI", sans-serif'; x.fillText(t,W/2,W+(H-W)*0.38);
+  return c.toDataURL('image/png');
+}
+
 
 function copyLink(){
   const l=document.getElementById('card-link').href;
@@ -484,6 +497,7 @@ checkNow(false);
 <div id="gk-langtog" style="position:fixed;bottom:14px;left:14px;z-index:99999;display:inline-flex;border:1.5px solid #ffd6e6;border-radius:50px;overflow:hidden;font-family:Poppins,sans-serif;font-size:.72rem;font-weight:700;background:#fff;box-shadow:0 3px 12px rgba(233,30,99,.28)"><button data-l="en" onclick="gkApply('en')" style="border:none;background:#fff;color:#a07;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">EN</button><button data-l="ms" onclick="gkApply('ms')" style="border:none;background:#fff;color:#a07;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">BM</button></div>
 <script>
 var GK_DICT={
+"📷 Scan guna kamera telefon atau Google Lens — bukan scanner WhatsApp.":"📷 Scan with your phone camera or Google Lens — not the WhatsApp scanner.",
 "⏳ Link kad aktif selama 2 bulan dari hari ini. Simpan gambar / album kamu sebelum tamat tempoh ya 💝":"⏳ Your card link stays active for 2 months from today. Save your photos / album before it expires 💝",
 "Menyemak pembayaran...":"Checking payment...",
 "Sila tunggu sebentar, kami sedang sahkan pembayaran kamu 🙏":"Please wait a moment, we are confirming your payment 🙏",

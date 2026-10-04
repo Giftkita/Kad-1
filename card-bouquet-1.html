@@ -327,6 +327,7 @@ function gkLogo(ctx,W,px,dark,light){
     <h2 id="qrH"></h2>
     <p id="qrP"></p>
     <canvas id="qrCv"></canvas>
+    <p id="qrNota" style="margin:8px 0 0;color:#a8121c;font-size:12px"></p>
     <div class="btns">
       <button class="btn qr" id="qrDl"></button>
       <button class="btn ghost" id="qrSalin"></button>
@@ -361,7 +362,7 @@ var D=null, lang='ms';
 var TXT={
  ms:{siap:'Bayaran diterima — bouquet anda dah siap!', design:'Design: ', dl:'⬇️ Download gambar',
      qrH:'🎁 Kod QR kejutan', qrP:'Hantar kod QR ni (atau link) pada dia. Bila dia scan, dia buka hadiah — nampak bouquet, ucapan & lagu, dan boleh simpan gambar tu sendiri.',
-     qrDl:'⬇️ Download kod QR', salin:'🔗 Salin link', disalin:'✓ Link disalin!', wa:'💬 Hantar di WhatsApp',
+     nota:'📷 Scan guna kamera telefon atau Google Lens — bukan scanner WhatsApp.', qrDl:'⬇️ Download kod QR', salin:'🔗 Salin link', disalin:'✓ Link disalin!', wa:'💬 Hantar di WhatsApp',
      waTeks:'Ada kejutan untuk kamu 🎁 Buka ni: ', lihatQr:'👀 Tengok apa dia nampak bila scan',
      msg:'Simpan link halaman ni kalau nak download semula (link download aktif 2 bulan; kod QR kejutan terus berfungsi).',
      h1:'Ada kejutan untuk kamu 💝', h1n:'Ada kejutan untuk ', h2:'Tekan untuk buka 🎁',
@@ -374,7 +375,7 @@ var TXT={
      takdePratonton:'Tiada data pratonton. Sila kembali ke halaman bouquet dan tekan Pratonton semula.'},
  en:{siap:'Payment received — your bouquet is ready!', design:'Design: ', dl:'⬇️ Download image',
      qrH:'🎁 Surprise QR code', qrP:'Send this QR code (or the link) to them. When they scan it, they open the gift — the bouquet, your message & song — and can save the image themselves.',
-     qrDl:'⬇️ Download QR code', salin:'🔗 Copy link', disalin:'✓ Link copied!', wa:'💬 Send on WhatsApp',
+     nota:'📷 Scan with your phone camera or Google Lens — not the WhatsApp scanner.', qrDl:'⬇️ Download QR code', salin:'🔗 Copy link', disalin:'✓ Link copied!', wa:'💬 Send on WhatsApp',
      waTeks:'There is a surprise for you 🎁 Open it: ', lihatQr:'👀 See what they see when they scan',
      msg:'Keep this page link to download again (download link active 2 months; the surprise QR code keeps working).',
      h1:'There is a surprise for you 💝', h1n:'A surprise for ', h2:'Tap to open 🎁',
@@ -411,7 +412,7 @@ function papar(){
   $('#frame').style.display=''; $('#btns').style.display=''; $('#msg').style.display='';
   $('#sub').style.display=''; $('#sub').textContent = D.design ? T('design')+D.design : T('siap');
   $('#msg').textContent = T('msg');
-  $('#qrBox').style.display=''; $('#qrH').textContent=T('qrH'); $('#qrP').textContent=T('qrP');
+  $('#qrBox').style.display=''; $('#qrH').textContent=T('qrH'); $('#qrP').textContent=T('qrP'); $('#qrNota').textContent=T('nota'); document.documentElement.lang=lang;
   $('#qrDl').textContent=T('qrDl'); $('#qrSalin').textContent=T('salin'); $('#qrWa').textContent=T('wa'); $('#lihatQr').textContent=T('lihatQr');
   var L=linkQR();
   $('#qrWa').href='https://wa.me/?text='+encodeURIComponent(T('waTeks')+L);
@@ -423,7 +424,19 @@ async function lukisQR(L){
   for(var w=0;w<15&&!GK_LOGO_IMG;w++){ await new Promise(function(r){setTimeout(r,100);}); }
   try{ gkDrawQR($('#qrCv'),L,{size:560,dark:'#a8121c',light:'#ffffff',logo:true}); }catch(e){}
 }
-$('#qrDl').onclick=function(){ var a=document.createElement('a'); a.download='giftkita-qr-kejutan.png'; a.href=$('#qrCv').toDataURL('image/png'); a.click(); };
+$('#qrDl').onclick=function(){ var a=document.createElement('a'); a.download='giftkita-qr-kejutan.png'; a.href=gkQRNota($('#qrCv')); a.click(); };
+
+/* QR + tulisan kecil di bawah (untuk gambar yang dimuat turun) */
+function gkQRNota(cv){
+  var en=(document.documentElement.lang||'ms').indexOf('en')===0;
+  var t=en?'Scan with phone camera / Google Lens':'Scan guna kamera telefon / Google Lens';
+  var W=cv.width, H=Math.round(W*1.13), c=document.createElement('canvas'); c.width=W; c.height=H;
+  var x=c.getContext('2d'); x.fillStyle='#ffffff'; x.fillRect(0,0,W,H); x.drawImage(cv,0,0);
+  x.fillStyle='#a8121c'; x.textAlign='center'; x.textBaseline='middle';
+  x.font='600 '+Math.round(W*0.045)+'px Poppins, "Segoe UI", sans-serif'; x.fillText(t,W/2,W+(H-W)*0.38);
+  return c.toDataURL('image/png');
+}
+
 $('#qrSalin').onclick=function(){ var L=linkQR(), b=this;
   function ok(){ b.textContent=T('disalin'); setTimeout(function(){ b.textContent=T('salin'); },1800); }
   if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(L).then(ok,function(){ prompt('',L); });
