@@ -405,6 +405,10 @@ try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }
 
 /* ============ muat data — corak SAMA dengan viewer kad lain ============ */
 (function init(){
+  if(params.get('qrpreview')==='1'){   /* pratonton dari borang (gambar bertanda air) */
+    try{ D=JSON.parse(localStorage.getItem('gk_bq_qr')); }catch(e){ D=null; }
+    if(!D) return ralat(T('takdePratonton')); modQR=true; $('#badge').style.display='block'; $('#lang').style.display='none'; papar(); return;
+  }
   if(params.get('preview')==='1'){
     try{ D=JSON.parse(localStorage.getItem('gk_preview')); }catch(e){ D=null; }
     if(!D||!D.img) return ralat(T('takdePratonton'));

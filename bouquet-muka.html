@@ -143,7 +143,7 @@ var BQ={
    eWebGL:'Telefon/pelayar ini tak dapat proses gambar (WebGL). Cuba: tutup tab lain & cuba lagi, buka link ini dalam Chrome, atau guna gambar lebih kecil.',
    eSlot:'Template ini tiada slot muka. Edit template dan tanda slot dulu.',
    saiz:'Saiz bouquet: ',
-   qrH:'💌 Ucapan &amp; lagu rahsia (pilihan)',qrHint:'Gambar yang anda download ada kod QR kecil di bucu. Bila orang scan, keluar ucapan &amp; lagu ni — sesuai kalau bouquet nak di-print atau dibingkaikan.',qrTo:'Untuk',qrFrom:'Daripada',qrUcap:'Ucapan',qrYt:'Link lagu YouTube'},
+   qrH:'💌 Ucapan &amp; lagu rahsia (pilihan)',qrHint:'Gambar yang anda download ada kod QR kecil di bucu. Bila orang scan, keluar ucapan &amp; lagu ni — sesuai kalau bouquet nak di-print atau dibingkaikan.',qrTo:'Untuk',qrFrom:'Daripada',qrUcap:'Ucapan',qrYt:'Link lagu YouTube',qrPrev:'👀 Pratonton bila QR di-scan'},
  en:{title:'Bouquet Muka — Pick a Design & Upload a Photo',
    sub:'Pick a bouquet design, upload a photo — ready in seconds, download straight away.',
    st1:'1 · Design',st2:'2 · Upload',st3:'3 · Generate',st4:'4 · Pay',
@@ -175,7 +175,7 @@ var BQ={
    eWebGL:'This phone/browser could not process the photo (WebGL). Try: close other tabs & retry, open this link in Chrome, or use a smaller photo.',
    eSlot:'This template has no face slots. Edit the template and mark the slots first.',
    saiz:'Bouquet size: ',
-   qrH:'💌 Secret message &amp; song (optional)',qrHint:'Your downloaded image has a small QR code in the corner. When someone scans it, this message &amp; song appear — perfect if the bouquet will be printed or framed.',qrTo:'To',qrFrom:'From',qrUcap:'Message',qrYt:'YouTube song link'}
+   qrH:'💌 Secret message &amp; song (optional)',qrHint:'Your downloaded image has a small QR code in the corner. When someone scans it, this message &amp; song appear — perfect if the bouquet will be printed or framed.',qrTo:'To',qrFrom:'From',qrUcap:'Message',qrYt:'YouTube song link',qrPrev:'👀 Preview what shows when scanned'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function TB(k){ var d=BQ[lang]; return (d&&d[k]!=null)?d[k]:(BQ.ms[k]||''); }
@@ -281,6 +281,13 @@ function TB(k){ var d=BQ[lang]; return (d&&d[k]!=null)?d[k]:(BQ.ms[k]||''); }
       </div>
       <label data-k="qrUcap">Ucapan</label><textarea id="qrUcap" maxlength="400"></textarea>
       <label data-k="qrYt">Link lagu YouTube</label><input type="url" id="qrYt" placeholder="https://www.youtube.com/watch?v=...">
+      <div style="text-align:center;margin-top:12px"><button type="button" class="btn ghost" id="qrPrev" data-k="qrPrev">👀 Pratonton bila QR di-scan</button></div>
+    </div>
+    <div id="qrModal" style="position:fixed;inset:0;z-index:9999;background:rgba(40,20,30,.78);display:none;align-items:center;justify-content:center;padding:14px">
+      <div style="position:relative;width:100%;max-width:430px;height:min(86vh,820px);background:#fff;border-radius:18px;overflow:hidden">
+        <button type="button" id="qrTutup" style="position:absolute;top:8px;right:10px;z-index:2;border:0;background:#fff;border-radius:50%;width:34px;height:34px;font-size:20px;color:#d98a9f;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.15)">&times;</button>
+        <iframe id="qrFr" style="width:100%;height:100%;border:0"></iframe>
+      </div>
     </div>
     <div id="gk-bayar"></div>
   </section>
@@ -859,6 +866,23 @@ function collectData(){
     to: nilaiQR('qrTo'), from: nilaiQR('qrFrom'), ucapan: nilaiQR('qrUcap'), yt: nilaiQR('qrYt')
   };
 }
+/* pratonton halaman QR — guna gambar BERTANDA AIR (kecil) supaya gambar bersih tak bocor */
+function bukaPratontonQR(){
+  var src=($('#resImg')&&$('#resImg').src)||'';
+  if(!cleanImage||!src){ alert(TB('notaBayar')); return; }
+  var im=new Image(); im.onload=function(){
+    var w=480,h=Math.round(im.height*w/im.width),c=document.createElement('canvas'); c.width=w; c.height=h;
+    c.getContext('2d').drawImage(im,0,0,w,h);
+    var d={template:'bouquet',kecil:c.toDataURL('image/jpeg',0.75),to:nilaiQR('qrTo'),from:nilaiQR('qrFrom'),ucapan:nilaiQR('qrUcap'),yt:nilaiQR('qrYt')};
+    try{ localStorage.setItem('gk_bq_qr',JSON.stringify(d)); }catch(e){}
+    document.getElementById('qrFr').src='card-bouquet-1.html?qrpreview=1&t='+Date.now();
+    document.getElementById('qrModal').style.display='flex';
+  }; im.src=src;
+}
+document.addEventListener('click',function(e){
+  if(e.target&&e.target.id==='qrPrev') bukaPratontonQR();
+  if(e.target&&(e.target.id==='qrTutup'||e.target.id==='qrModal')){ document.getElementById('qrModal').style.display='none'; document.getElementById('qrFr').src='about:blank'; }
+});
 function nilaiQR(id){ var e=document.getElementById(id); return e&&e.value?e.value.trim():''; }
 /* gambar kecil (lebar 480px) untuk halaman QR */
 let kecilImage='';
