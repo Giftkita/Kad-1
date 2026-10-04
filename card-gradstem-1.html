@@ -316,7 +316,7 @@ function buatSlot(s){
     var p=D.pos&&D.pos[s.k];
     if(p){ g.style.transform='translate('+(p.x||0)+'%,'+(p.y||0)+'%) scale('+(p.s||1)+')'; }
     el.appendChild(g);
-    el.onclick=function(e){ e.stopPropagation(); if(window.lightbox) lightbox(src); };
+    el.onclick=function(e){ e.stopPropagation(); gkZoom(src); };
   }else{
     el.innerHTML='<div class="kosong"><b>📷</b>'+T('kosong')+' '+s.k.slice(1)+'</div>';
   }
@@ -646,6 +646,7 @@ function mula(){
     D=r.data.card_data||{}; mula();
   }).catch(function(){ ralat(T('tiada')); });
 })();
+function gkZoom(s){ if(!window.GKLightbox||!s) return; GKLightbox.attach(); var a=document.querySelectorAll('img[data-gklb]'); for(var i=0;i<a.length;i++) if(a[i].src===s){ a[i].click(); return; } }
 </script>
 </body>
 </html>

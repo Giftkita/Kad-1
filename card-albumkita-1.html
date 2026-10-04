@@ -287,6 +287,7 @@ function TEKS(s){
 }
 
 
+function gkZoom(s){ if(!window.GKLightbox||!s) return; GKLightbox.attach(); var a=document.querySelectorAll('img[data-gklb]'); for(var i=0;i<a.length;i++) if(a[i].src===s){ a[i].click(); return; } }
 TXT.ms.utk='— untuk —'; TXT.en.utk='— for —'; TXT.ms.dari='daripada'; TXT.en.dari='from';
 TXT.ms.pusing='Pusing telefon (landskap)<br>untuk paparan lebih besar'; TXT.en.pusing='Rotate your phone (landscape)<br>for a bigger view';
 var KULIT={"tx": 52.1, "ty": 42.4, "tw": 42, "th": 24, "lx": 52.4, "ly": 71.9, "lw": 36, "lh": 7.4, "cincin": 15};
@@ -321,7 +322,7 @@ function isiHal(a,s){   /* isi halaman s (gambar, slot, teks) ke dalam elemen a 
     var f=fotoUntuk(o.k);
     if(f){ var g=document.createElement('img'); g.src=f.src; g.alt='';
       var p=D&&D.pos&&D.pos[f.k]; if(p) g.style.transform='translate('+(p.x||0)+'%,'+(p.y||0)+'%) scale('+(p.s||1)+')';
-      el.appendChild(g); el.onclick=function(e){ e.stopPropagation(); if(!dahBuka||anim||performance.now()<kunciKlik) return; if(window.lightbox) lightbox(f.src); }; }
+      el.appendChild(g); el.onclick=function(e){ e.stopPropagation(); if(!dahBuka||anim||performance.now()<kunciKlik) return; gkZoom(f.src); }; }
     else el.innerHTML='<div class="kosong">'+T('kosong')+'</div>';
     a.appendChild(el);
   });

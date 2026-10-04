@@ -317,7 +317,7 @@ function satuBukaan(k,jenis){
     var p=D&&D.pos&&D.pos[jenis==='video'?'video':k];
     if(p){ g.style.transform='translate('+(p.x||0)+'%,'+(p.y||0)+'%) scale('+(p.s||1)+')'; }
     b.appendChild(g);
-    if(jenis!=='video') b.onclick=function(e){ e.stopPropagation(); if(window.lightbox) lightbox(src); };
+    if(jenis!=='video') b.onclick=function(e){ e.stopPropagation(); gkZoom(src); };
   }else{
     var ko=document.createElement('div'); ko.className='kosong'; ko.textContent=T('kosong'); b.appendChild(ko);
   }
@@ -620,6 +620,7 @@ function mula(){
     D=r.data.card_data||{}; mula();
   }).catch(function(){ ralat(T('tiada')); });
 })();
+function gkZoom(s){ if(!window.GKLightbox||!s) return; GKLightbox.attach(); var a=document.querySelectorAll('img[data-gklb]'); for(var i=0;i<a.length;i++) if(a[i].src===s){ a[i].click(); return; } }
 </script>
 </body>
 </html>

@@ -289,7 +289,7 @@ function binaAdegan(s){
     var f=fotoUntuk(o.k);
     if(f){ var g=document.createElement('img'); g.src=f.src; g.alt='';
       var p=D&&D.pos&&D.pos[f.k]; if(p) g.style.transform='translate('+(p.x||0)+'%,'+(p.y||0)+'%) scale('+(p.s||1)+')';
-      el.appendChild(g); el.onclick=function(e){ e.stopPropagation(); if(!dahBuka||anim||performance.now()<kunciKlik) return; if(window.lightbox) lightbox(f.src); }; }
+      el.appendChild(g); el.onclick=function(e){ e.stopPropagation(); if(!dahBuka||anim||performance.now()<kunciKlik) return; gkZoom(f.src); }; }
     else el.innerHTML='<div class="kosong">'+T('kosong')+'</div>';
     a.appendChild(el);
   });
@@ -485,6 +485,7 @@ function mula(){ $('#muat').style.display='none'; sediaFoto(); sediaMuzik(); pak
     D=r.data.card_data||{}; mula();
   }).catch(function(){ ralat(T('tiada')); });
 })();
+function gkZoom(s){ if(!window.GKLightbox||!s) return; GKLightbox.attach(); var a=document.querySelectorAll('img[data-gklb]'); for(var i=0;i<a.length;i++) if(a[i].src===s){ a[i].click(); return; } }
 </script>
 </body>
 </html>
