@@ -18,6 +18,7 @@
     imgEl.style.cssText='max-width:100%;max-height:100%;display:block;'+
       'transform-origin:center center;will-change:transform;pointer-events:none';
     box.appendChild(imgEl);
+    imgEl.onerror=function(){ if(!imgEl.getAttribute('src')) return; list.splice(idx,1); if(!list.length){hide();return;} show(Math.min(idx,list.length-1)); };
 
     var close=document.createElement('button');
     close.innerHTML='&#10005;';
@@ -117,38 +118,80 @@
     });
   }
 
+  /* gambar sah? — buang src kosong (src="" = URL page → gambar pecah), thumbnail YouTube, gambar rosak */
+  function sah(im){
+    var a=im.getAttribute('src');
+    if(!a || !a.trim() || a==='#') return false;
+    var s=im.src||''; if(!s) return false;
+    if(s.split('#')[0]===location.href.split('#')[0]) return false;
+    if(/img\.youtube\.com|ytimg\.com/.test(s)) return false;
+    if(im.complete && im.naturalWidth===0) return false;          // gagal dimuat
+    if(im.naturalWidth && im.naturalWidth<60) return false;
+    return true;
+  }
+  /* nampak di skrin? — supaya gambar kejutan yang masih tersembunyi tak bocor bila swipe */
+  function nampak(im){
+    if(!im.getClientRects().length) return false;
+    for(var e=im;e&&e.nodeType===1;e=e.parentElement){
+      var c=getComputedStyle(e);
+      if(c.visibility==='hidden'||c.opacity==='0'||c.display==='none') return false;
+    }
+    return true;
+  }
+  function rahsia(im){
+    for(var e=im;e&&e.nodeType===1;e=e.parentElement){
+      if(/surprise|kejut|secret|rahsia|hadiah|gift/i.test((e.id||'')+' '+(typeof e.className==='string'?e.className:''))) return true;
+    }
+    return false;
+  }
+  function senarai(klik){
+    var a=document.querySelectorAll('img[data-gklb]'),out=[],k=-1;
+    for(var i=0;i<a.length;i++){
+      var im=a[i];
+      if(!sah(im)) continue;
+      if(im!==klik && rahsia(im) && !nampak(im)) continue;   // gambar kejutan tersembunyi tak masuk swipe
+      if(out.indexOf(im.src)>=0){ if(im===klik) k=out.indexOf(im.src); continue; }
+      if(im===klik) k=out.length;
+      out.push(im.src);
+    }
+    return {list:out,k:k};
+  }
+  function bukaDari(im){
+    var r=senarai(im); if(r.k<0) return false;
+    list=r.list; show(r.k); return true;
+  }
+
   /* kumpul semua gambar kad & jadikan boleh ditekan */
   function attach(){
     if(!box) build();
     var imgs=document.querySelectorAll('img');
-    list=[];
     for(var i=0;i<imgs.length;i++){
       var im=imgs[i];
-      if(im.closest('#gk-lb')) continue;
-      if(im.dataset.gklb) { if(im.src) list.push(im.src); continue; }
-      if(!im.src || im.src.indexOf('data:image/webp')===0) continue;  // langkau grafik hiasan
-      if(im.naturalWidth && im.naturalWidth<60) continue;
-      im.dataset.gklb='1';
+      if(im.closest('#gk-lb') || im.dataset.gklbOk) continue;
+      if(!im.dataset.gklb){
+        if(!sah(im)) continue;
+        if(im.src.indexOf('data:image/webp')===0) continue;  // langkau grafik hiasan
+        im.dataset.gklb='1';
+      }
+      im.dataset.gklbOk='1';
       im.style.cursor='zoom-in';
-      list.push(im.src);
-      (function(src){
-        im.addEventListener('click',function(ev){
-          ev.stopPropagation();
-          var k=list.indexOf(src);
-          show(k<0?0:k);
-        });
-      })(im.src);
+      im.addEventListener('click',function(ev){
+        if(!sah(this)) return;          // src dah kosong/rosak → biar klik biasa jalan
+        ev.stopPropagation();
+        bukaDari(this);
+      });
     }
   }
 
-  window.GKLightbox={ attach:attach, open:show };
+  window.GKLightbox={ attach:attach, open:show, buka:bukaDari };
 
   // pasang selepas kad siap dipaparkan, dan bila gambar baru muncul
   function boot(){
     attach();
     var mo=new MutationObserver(function(){ clearTimeout(window._gklbT);
       window._gklbT=setTimeout(attach,250); });
-    mo.observe(document.body,{childList:true,subtree:true});
+    mo.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
+    document.addEventListener('load',function(e){ if(e.target&&e.target.tagName==='IMG'&&!e.target.closest('#gk-lb')){ clearTimeout(window._gklbT); window._gklbT=setTimeout(attach,250);} },true);
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,600);});
   else setTimeout(boot,600);
