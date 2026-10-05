@@ -55,6 +55,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 .gp-kunci{background:radial-gradient(circle at 50% 40%,#fff6f1 0,#f9c9cf 55%,#e98597 100%)}
 .gp-mail{background:repeating-linear-gradient(90deg,#F9F0EA 0 9px,#fff 9px 17px)}
 .gp-yinyang{background:radial-gradient(ellipse at 45% 55%,#f0c7c0,#e0abaa 45%,#c77f82)}
+.gp-wayangcinta{background:radial-gradient(ellipse at 50% 30%,#3a4f86,#0e1a33 60%),#0e1a33;box-shadow:inset 0 -26px 30px -10px rgba(232,160,174,.55)}
 .gp-albumkita{background:linear-gradient(160deg,#7a5a43,#c8934f 50%,#f2a7b9)}
 .g-badge.baru{background:#fff3c4;color:#b86e00;left:8px;right:auto}
 
@@ -110,21 +111,25 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
     <div class="gp gp-albumkita"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>📒<div class="g-glow"></div></div>
     <div class="gm"><h3 data-k="n10">Album Kisah Kita</h3><span data-k="d10">Album scrapbook — poket, pintu, reben &amp; flap · 18 gambar</span></div>
   </a>
+  <a class="g-card" href="buat-kad-wayangcinta.html">
+    <div class="gp gp-wayangcinta"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>🚗<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n11">Wayang Pandu Masuk</h3><span data-k="d11">Tiket ADMIT TWO, skrin bawah bintang &amp; soda kejutan</span></div>
+  </a>
 </div>
 
 <script>
 /* dwibahasa — kongsi pilihan dengan halaman lain melalui localStorage 'gk_lang' */
 var L={
  ms:{title:'Pilih Tema — Anniversary 💑',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Anniversary 💑',
-     sub:'Sepuluh gaya berbeza — pilih yang paling sesuai dengan cerita korang.',ada:'TERSEDIA',baru:'BARU',
+     sub:'Sebelas gaya berbeza — pilih yang paling sesuai dengan cerita korang.',ada:'TERSEDIA',baru:'BARU',
      n1:'Our Story',d1:'Buku diari — selak macam album',
      n2:'A Special Letter',d2:'Surat cinta — scroll &amp; buka sampul',
-     n3:'Fiona',d3:'Mixtape — sampul, bunga mekar &amp; lagu',n4:'Yin &amp; Yang',d4:'Bunga, sampul &amp; polaroid gosok',n5:'You Got a Mail',d5:'Sampul merah, polaroid, kolaj, lagu &amp; surat',n6:'Bouquet Berkunci',d6:'Kod rahsia, hati bunga, polaroid gosok &amp; lagu',n7:'Taman Kita',d7:'Bingkai bunga, surat, kolaj hati &amp; zoom',n8:'Payung Berdua',d8:'Malam hujan, lopak kenangan &amp; pelangi',n9:'Planet Kecil Kita',d9:'Pusing planet, buka kenangan &amp; hati bintang',n10:'Album Kisah Kita',d10:'Album scrapbook — poket, pintu, reben &amp; flap · 18 gambar'},
+     n3:'Fiona',d3:'Mixtape — sampul, bunga mekar &amp; lagu',n4:'Yin &amp; Yang',d4:'Bunga, sampul &amp; polaroid gosok',n5:'You Got a Mail',d5:'Sampul merah, polaroid, kolaj, lagu &amp; surat',n6:'Bouquet Berkunci',d6:'Kod rahsia, hati bunga, polaroid gosok &amp; lagu',n7:'Taman Kita',d7:'Bingkai bunga, surat, kolaj hati &amp; zoom',n8:'Payung Berdua',d8:'Malam hujan, lopak kenangan &amp; pelangi',n9:'Planet Kecil Kita',d9:'Pusing planet, buka kenangan &amp; hati bintang',n10:'Album Kisah Kita',d10:'Album scrapbook — poket, pintu, reben &amp; flap · 18 gambar',n11:'Wayang Pandu Masuk',d11:'Tiket ADMIT TWO, skrin bawah bintang &amp; soda kejutan'},
  en:{title:'Choose a Theme — Anniversary 💑',back:'‹ Back to Homepage',tajuk:'Choose an Anniversary Theme 💑',
-     sub:'Ten different styles — pick the one that fits your story.',ada:'AVAILABLE',baru:'NEW',
+     sub:'Eleven different styles — pick the one that fits your story.',ada:'AVAILABLE',baru:'NEW',
      n1:'Our Story',d1:'A diary book — flip it like an album',
      n2:'A Special Letter',d2:'A love letter — scroll &amp; open the envelope',
-     n3:'Fiona',d3:'Mixtape — envelope, blooming flowers &amp; a song',n4:'Yin &amp; Yang',d4:'Flowers, envelope &amp; scratch polaroids',n5:'You Got a Mail',d5:'Red envelope, polaroid, collage, song &amp; letter',n6:'Locked Bouquet',d6:'Secret code, flower heart, scratch polaroids &amp; a song',n7:'Our Garden',d7:'Flower frame, letter, heart collages &amp; zoom',n8:'Under One Umbrella',d8:'A rainy night, puddle memories &amp; a rainbow',n9:'Our Little Planet',d9:'Spin the planet, open memories &amp; a heart of stars',n10:'Our Story Album',d10:'Scrapbook album — pockets, doors, ribbon &amp; flaps · 18 photos'}
+     n3:'Fiona',d3:'Mixtape — envelope, blooming flowers &amp; a song',n4:'Yin &amp; Yang',d4:'Flowers, envelope &amp; scratch polaroids',n5:'You Got a Mail',d5:'Red envelope, polaroid, collage, song &amp; letter',n6:'Locked Bouquet',d6:'Secret code, flower heart, scratch polaroids &amp; a song',n7:'Our Garden',d7:'Flower frame, letter, heart collages &amp; zoom',n8:'Under One Umbrella',d8:'A rainy night, puddle memories &amp; a rainbow',n9:'Our Little Planet',d9:'Spin the planet, open memories &amp; a heart of stars',n10:'Our Story Album',d10:'Scrapbook album — pockets, doors, ribbon &amp; flaps · 18 photos',n11:'Drive-In Movie Date',d11:'An ADMIT TWO ticket, a screen under the stars &amp; a soda surprise'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function pakai(){
