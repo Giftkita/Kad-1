@@ -209,7 +209,7 @@ body.potret .kaset{width:68vw}
 /* skrin 7 — kejutan */
 .hadiah{width:min(34vmin,54vw);}
 body.potret .hadiah{width:58vw}
-.hadiah{cursor:pointer;animation:pop .7s backwards,goyang 2s ease-in-out 1s infinite}
+.hadiah{cursor:pointer;pointer-events:auto;animation:pop .7s backwards,goyang 2s ease-in-out 1s infinite}
 .hadiah.geleng{animation:geleng .5s}
 .hadiah.buka{animation:bukaH 1s forwards}
 @keyframes bukaH{0%{transform:scale(1)}30%{transform:scale(.85) rotate(-6deg)}60%{transform:scale(1.25) rotate(6deg)}100%{transform:scale(1.1)}}
@@ -275,7 +275,7 @@ var TXT={
    kuponT:'Kupon cinta 🎟️',kuponS:'Gosok kupon untuk tengok hadiah ✨',gosok:'Gosok sini ✨',kupon:'KUPON CINTA',no:'No. ',kuponHabis:'Semua kupon boleh dituntut bila-bila masa 😘',
    kk:['1 pelukan erat percuma 🤗','Dinner aku belanja 🍝','1 hari kau jadi raja / ratu 👑'],
    lvT:'Lagu & video kita 🎵',lvS:'Tekan kaset untuk main / henti lagu ♪ · Tekan TV untuk video ▶',lvS0:'Tekan TV untuk tonton ▶',lagu:'Lagu Kita',tiadaLagu:'Tiada lagu dipilih 🎵',
-   kjT:'Kejutan 🎁',kjS:'Masukkan tarikh anniversary kita untuk buka 🔐',buka:'Buka',salah:'Salah 😝 Cuba lagi!',ptj:'Petunjuk: ',kjBuka:'Buka hadiah 🎁',kejut:'Kejutan! 🎉',betul:'Betul! 💗',kjDah:'Tekan hadiah untuk tengok lagi 🎁',
+   kjT:'Kejutan 🎁',kjS:'Masukkan tarikh anniversary kita untuk buka 🔐',buka:'Buka',salah:'Salah 😝 Cuba lagi!',ptj:'Petunjuk: ',kjBuka:'Buka hadiah 🎁',kejut:'Kejutan! 🎉',betul:'Betul! 💗',kjDah:'Tekan hadiah untuk tengok lagi 🎁',kjLagi:'Tengok kejutan lagi 🎁',
    bulan:['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'],
    c:['Hari pertama kita 💕','Gelak sampai sakit perut 😂','Trip pertama kita ✈️','Kau paling comel 🥰','Sentiasa bersama 🫶','Selamanya, insyaAllah 💍'],
    ucap:'Happy anniversary, sayang!\n\nTerima kasih sebab sentiasa ada — waktu senang, waktu susah, waktu aku merajuk tak tentu pasal. Setiap hari dengan kau rasa macam dapat hadiah.\n\nJom cipta lebih banyak kenangan comel sama-sama. Aku sayang kau, selamanya 💗',
@@ -290,7 +290,7 @@ var TXT={
    kuponT:'Love coupons 🎟️',kuponS:'Scratch the coupons to reveal your gifts ✨',gosok:'Scratch here ✨',kupon:'LOVE COUPON',no:'No. ',kuponHabis:'All coupons can be claimed anytime 😘',
    kk:['1 free big hug 🤗','Dinner is on me 🍝','You are king / queen for a day 👑'],
    lvT:'Our song & video 🎵',lvS:'Tap the cassette to play / pause ♪ · Tap the TV for the video ▶',lvS0:'Tap the TV to watch ▶',lagu:'Our Song',tiadaLagu:'No song selected 🎵',
-   kjT:'Surprise 🎁',kjS:'Enter our anniversary date to unlock 🔐',buka:'Open',salah:'Wrong 😝 Try again!',ptj:'Hint: ',kjBuka:'Open the gift 🎁',kejut:'Surprise! 🎉',betul:'Correct! 💗',kjDah:'Tap the gift to see it again 🎁',
+   kjT:'Surprise 🎁',kjS:'Enter our anniversary date to unlock 🔐',buka:'Open',salah:'Wrong 😝 Try again!',ptj:'Hint: ',kjBuka:'Open the gift 🎁',kejut:'Surprise! 🎉',betul:'Correct! 💗',kjDah:'Tap the gift to see it again 🎁',kjLagi:'See the surprise again 🎁',
    bulan:['January','February','March','April','May','June','July','August','September','October','November','December'],
    c:['Our first day 💕','Laughing till it hurts 😂','Our first trip ✈️','You are the cutest 🥰','Always together 🫶','Forever and always 💍'],
    ucap:'Happy anniversary, love!\n\nThank you for always being here — in the good days, the hard days, and the days I sulk for no reason. Every day with you feels like a gift.\n\nLet us make many more cute memories together. I love you, always 💗',
@@ -449,7 +449,7 @@ function mainVideo(){ var id=ytId(v('video')), sk=$('#tv .skrin');
 /* ---------- 7: kejutan ---------- */
 function lukis7(){ var t=tarikhD();
   var h='<div class="dlm"><div class="tj">'+esc(T('kjT'))+'</div><img class="hadiah" id="hadiah" alt="" src="'+S('S2:3').src+'">';
-  if(kejutDah) h+='<div class="sub">'+esc(T('kjDah'))+'</div>';
+  if(kejutDah) h+='<button class="btn" id="kBtn">'+esc(T('kjLagi'))+'</button><div class="sub">'+esc(T('kjDah'))+'</div>';
   else if(t) h+='<div class="sub" style="font-weight:600;color:#c2456a">'+esc(T('kjS'))+'</div><div class="kunciRow"><input id="kIn" inputmode="numeric" autocomplete="off" placeholder="DD / MM / YYYY" maxlength="14"><button class="btn" id="kBtn">'+esc(T('buka'))+' 🔓</button></div><div class="sub" id="kMsg"></div>';
   else h+='<button class="btn" id="kBtn">'+esc(T('kjBuka'))+'</button>';
   $('#sk7').innerHTML=h+'</div>';
