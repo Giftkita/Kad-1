@@ -269,7 +269,7 @@ addEventListener('resize',ukur);
 
 /* ---------- lukis ---------- */
 function lukis(){
-  var Pb=S('S1:2'); $('#papan').innerHTML='<img class="x" alt="" src="'+Pb.src+'"><div class="pt"><small>'+esc(T('menu'))+'</small><h1>'+esc(T('kedai'))+' '+esc(v('to','—'))+'</h1><p>♡ '+esc(T('hbd'))+' ♡</p></div>';
+  var Pb=S('S1:2'); $('#papan').innerHTML='<img class="x" alt="" src="'+Pb.src+'"><div class="pt"><small>'+esc(T('menu'))+'</small><h1>'+esc(T('kedai'))+(v('to')?' '+esc(v('to')):'')+'</h1><p>♡ '+esc(T('hbd'))+' ♡</p></div>';
   var Pp=S('S1:9'), Lp=Pp.lub; $('#pin').innerHTML='<div class="ft" data-f="0" style="left:'+Lp[0]+'%;top:'+Lp[1]+'%;width:'+Lp[2]+'%;height:'+Lp[3]+'%">'+imgFoto(0)+'</div><img class="x" alt="" src="'+Pp.src+'">';
   var Tv=S('S1:6'), Lt=Tv.lub, id=ytId(v('video'));
   $('#tv').innerHTML='<div class="skrin" style="left:'+Lt[0]+'%;top:'+Lt[1]+'%;width:'+Lt[2]+'%;height:'+Lt[3]+'%">'+(id?'<img alt="" src="https://img.youtube.com/vi/'+id+'/hqdefault.jpg">':imgFoto(13))+'<div class="main"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><img class="x" alt="" src="'+Tv.src+'">';
@@ -378,11 +378,9 @@ function sediaMuzik(){
 }
 var muzikMula=false;
 function mulaMuzik(){ if(audio&&!muzikOn&&!muzikMula){ muzikMula=true; toggleMuzik(); } }
-function toggleMuzik(){ var rk=$('#rekod');
-  if(!audio){ if(fasa>=1){ rk.classList.toggle('jeda'); $('#lengan').className=rk.classList.contains('jeda')?'':'gerak'; } return; }
+function toggleMuzik(){ if(!audio) return;
   muzikOn=!muzikOn; try{ muzikOn?audio.play():audio.pause(); }catch(e){}
-  if(fasa>=2||rk.classList.contains('main')){ rk.classList.toggle('jeda',!muzikOn); $('#lengan').className=muzikOn?'gerak':''; }
-  $('#bMuzik').style.background=muzikOn?'#8e1b2b':'#fffaf0'; $('#bMuzik').style.color=muzikOn?'#fff':'#8e1b2b'; }
+  $('#bMuzik').style.background=muzikOn?'#e0577f':'#fffaf0'; $('#bMuzik').style.color=muzikOn?'#fff':'#e0577f'; }
 $('#bMuzik').onclick=toggleMuzik;
 $('#bAlbum').onclick=function(){ if(window.GKAlbum&&GKAlbum.open) GKAlbum.open(); };
 
