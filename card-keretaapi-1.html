@@ -172,6 +172,11 @@ body.potret .kad{max-width:84vw;background-image:repeating-linear-gradient(#fffa
 @keyframes goyang{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
 @keyframes apungB{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
 @keyframes burung{from{left:-15vw}to{left:115vw}}
+.sl{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1s;animation:kenB 7s ease-in-out infinite alternate}
+.sl.on{opacity:1}
+@keyframes kenB{from{transform:scale(1)}to{transform:scale(1.12) translate(-2%,-1%)}}
+.slB{position:absolute;left:0;right:0;bottom:4%;display:flex;justify-content:center;gap:5px;z-index:2;pointer-events:none}
+.slB i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.5)}.slB i.on{background:#fff}
 .hatiT{position:fixed;z-index:1600;pointer-events:none;font-size:18px;animation:hatiT 1s ease-out forwards}
 @keyframes hatiT{0%{opacity:1;transform:translate(-50%,-50%) scale(.5)}100%{opacity:0;transform:translate(-50%,-160%) scale(1.3)}}
 #alat button{background:#fff;color:#a8324a}
@@ -218,7 +223,7 @@ var TXT={
    stesen:'STESEN',tekanPapan:'Tekan papan stesen 📍',seterus:'Seterusnya 🚂',bergerak:'Choo choo! 🚂💨',sampai:'Dah sampai! ',
    akhirA:'Stesen Selamanya',akhirB:'Stesen Hari Jadi',akhirSA:'Destinasi akhir 💗',akhirSB:'Selamat hari jadi! 🎂',tahun:' Tahun',
    akhirHintA:'Tekan 💌 sampul, ▶ papan jadual & 🎁 hadiah',akhirHintB0:'Kek hari jadi dah sampai! Tekan kek 🎂',tiup:'Tiup lilin! Tekan kek 🕯️',mic:'🎤 Tiup guna mic',dengar:'🎤 Tiup sekarang…',
-   akhirHintB:'Tekan 💌 sampul, ▶ papan jadual & 🎁 gerabak hadiah',dear:'Buat ',dariS:'— ',sayang:'sayang',video:'Video untuk kau',kejut:'Kejutan! 🎉',
+   akhirHintB:'Tekan 💌 sampul, ▶ papan jadual & 🎁 gerabak hadiah',dear:'Buat ',dariS:'— ',sayang:'sayang',video:'Video untuk kau',slaidT:'Kenangan kita',kejut:'Kejutan! 🎉',
    lbA:['2021','2022','2023','2024','2025','2026'],ksA:['Kali pertama kita jumpa — aku terus tahu kau istimewa 💕','Date pertama yang buat aku gugup 😳','Trip pertama kita berdua ✈️','Kita lalui susah senang bersama 🫶','Makin sayang setiap hari 💗','Dan perjalanan kita masih panjang… 🚂'],
    lbB:['Baby 👶','Kanak-kanak 🧸','Sekolah 🎒','Remaja 🎧','Dewasa 🌟','Hari ini 🎂'],ksB:['Si comel yang buat semua orang senyum','Main sampai lupa dunia','Zaman sekolah penuh kenangan','Gila-gila zaman remaja','Makin matang, makin hebat','Hari ni — hari kau! Selamat hari jadi!'],
    ucapA:'Sayang,\n\nTerima kasih sebab sudi jadi teman perjalanan aku. Setiap stesen yang kita lalui — senang atau susah — semuanya lebih indah sebab ada kau.\n\nJom teruskan perjalanan ni sama-sama, sampai bila-bila. Happy anniversary 💗',
@@ -230,7 +235,7 @@ var TXT={
    stesen:'STATION',tekanPapan:'Tap the station sign 📍',seterus:'Next stop 🚂',bergerak:'Choo choo! 🚂💨',sampai:'Arrived! ',
    akhirA:'Forever Station',akhirB:'Birthday Station',akhirSA:'Final destination 💗',akhirSB:'Happy birthday! 🎂',tahun:' Years',
    akhirHintA:'Tap 💌 the envelope, ▶ the board & 🎁 the gift',akhirHintB0:'The birthday cake has arrived! Tap the cake 🎂',tiup:'Blow the candles! Tap the cake 🕯️',mic:'🎤 Blow into the mic',dengar:'🎤 Blow now…',
-   akhirHintB:'Tap 💌 the envelope, ▶ the board & 🎁 the gift wagon',dear:'Dear ',dariS:'— ',sayang:'love',video:'A video for you',kejut:'Surprise! 🎉',
+   akhirHintB:'Tap 💌 the envelope, ▶ the board & 🎁 the gift wagon',dear:'Dear ',dariS:'— ',sayang:'love',video:'A video for you',slaidT:'Our memories',kejut:'Surprise! 🎉',
    lbA:['2021','2022','2023','2024','2025','2026'],ksA:['The day we met — I knew right away you were special 💕','Our first date had me so nervous 😳','Our first trip together ✈️','Through the ups and downs, together 🫶','Loving you more every day 💗','And our journey is still long… 🚂'],
    lbB:['Baby 👶','Kid 🧸','School 🎒','Teen 🎧','Adult 🌟','Today 🎂'],ksB:['The cutie who made everyone smile','Playing till the sun went down','School days full of memories','The wild teenage years','Wiser and more amazing','Today is your day! Happy birthday!'],
    ucapA:'My love,\n\nThank you for being my travel companion. Every station we have passed — easy or hard — has been more beautiful because of you.\n\nLet us keep this journey going, together, forever. Happy anniversary 💗',
@@ -304,7 +309,7 @@ function lukisDunia(){ var h='', n=STN.length;
   ikatAkhir(); kemasDenyut(); }
 function lukisAkhir(c,fy){ var h='', Bd=S(TH.jadual), bh=Math.min(U*1.25,(innerHeight-fy)*.8), bw=bh*Bd.asp, Lb=Bd.lub, id=ytId(v('video'));
   var bx=c-.22*innerWidth-bw/2; if(POT) bx=c-bw*.15;
-  h+='<div class="ob t" id="papanJ" style="left:'+bx+'px;top:'+(fy+U*.02)+'px;width:'+bw+'px;height:'+bh+'px"><div class="skrinD" style="left:'+Lb[0]+'%;top:'+Lb[1]+'%;width:'+Lb[2]+'%;height:'+Lb[3]+'%">'+(id?'<img alt="" src="https://img.youtube.com/vi/'+id+'/hqdefault.jpg">':imgFoto(9))+'<div class="main"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><img alt="" src="'+Bd.src+'" style="position:absolute;inset:0;width:100%;height:100%"></div>';
+  h+='<div class="ob t" id="papanJ" style="left:'+bx+'px;top:'+(fy+U*.02)+'px;width:'+bw+'px;height:'+bh+'px"><div class="skrinD" style="left:'+Lb[0]+'%;top:'+Lb[1]+'%;width:'+Lb[2]+'%;height:'+Lb[3]+'%">'+(id?'<img alt="" src="https://img.youtube.com/vi/'+id+'/hqdefault.jpg">':slaidHTML())+'<div class="main"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div></div><img alt="" src="'+Bd.src+'" style="position:absolute;inset:0;width:100%;height:100%"></div>';
   var nx=c+.06*innerWidth, ny=POT?fy+bh+U*.55:TY+U*1.0;
   if(POT) nx=c-U*.1;
   if(BDAY){ var Hp=S('B2:6'), hh=U*.85; h+='<img class="ob" alt="" src="'+Hp.src+'" style="left:'+(nx+U*.75)+'px;top:'+(ny-hh*.45)+'px;height:'+hh+'px">';
@@ -313,7 +318,7 @@ function lukisAkhir(c,fy){ var h='', Bd=S(TH.jadual), bh=Math.min(U*1.25,(innerH
     h+=im('S3:4','ob t','left:'+(nx-kw*.25)+'px;top:'+(ny-U*.55)+'px;height:'+(U*.58)+'px','sampul');
     h+=im('S3:5','ob t','left:'+(nx+kw*.55)+'px;top:'+(ny-U*.55)+'px;height:'+(U*.6)+'px','hadiahA'); }
   return h; }
-function ikatAkhir(){ var pj=$('#papanJ'); if(pj) pj.onclick=function(e){ e.stopPropagation(); if(idx===STN.length+1&&!bergerak) bukaVideo(); };
+function ikatAkhir(){ var pj=$('#papanJ'); if(pj&&!ytId(v('video'))) mulaSlaid('papan',pj); if(pj) pj.onclick=function(e){ e.stopPropagation(); if(idx===STN.length+1&&!bergerak) bukaVideo(); };
   var sp=$('#sampul'); if(sp) sp.onclick=function(e){ e.stopPropagation(); if(idx===STN.length+1&&!bergerak) bukaSurat(); };
   var hd=$('#hadiahA'); if(hd) hd.onclick=function(e){ e.stopPropagation(); if(idx===STN.length+1&&!bergerak) bukaKejutan(); }; }
 function kemasDenyut(){ document.querySelectorAll('#dunia .denyutT').forEach(function(e){ e.classList.remove('denyutT'); });
@@ -397,11 +402,16 @@ function bukaSurat(){ var K=S('S3:3'), a=K.asp, W=Math.min(innerWidth*.92,innerH
   function habis(){ clearInterval(taipT); taipT=null; b.textContent=teks; b.classList.add('siap'); var f=$('#srIn .f'); if(f) f.classList.add('on'); }
   taipT=setInterval(function(){ if(!b.isConnected){ clearInterval(taipT); return; } k+=2; b.textContent=teks.slice(0,k); if(k%6===0) bTaip(); if(k>=teks.length) habis(); },28);
   $('.surat').onclick=function(e){ e.stopPropagation(); if(taipT) habis(); }; }
+/* tiada video → slaid gambar customer */
+function slaidHTML(titik){ var L=senarai(); if(!L.length) return ''; var h=L.map(function(f,k){ return '<img class="sl'+(k?'':' on')+'" alt="" src="'+esc(f.src)+'">'; }).join('');
+  if(titik&&L.length>1) h+='<div class="slB">'+L.map(function(f,k){ return '<i'+(k?'':' class="on"')+'></i>'; }).join('')+'</div>'; return h; }
+var slaidT={};
+function mulaSlaid(kunci,el){ if(slaidT[kunci]) clearInterval(slaidT[kunci]); var k=0; slaidT[kunci]=setInterval(function(){ if(!el.isConnected){ clearInterval(slaidT[kunci]); return; } var a=el.querySelectorAll('.sl'), b=el.querySelectorAll('.slB i'); if(a.length<2) return; a[k].classList.remove('on'); if(b[k]) b[k].classList.remove('on'); k=(k+1)%a.length; a[k].classList.add('on'); if(b[k]) b[k].classList.add('on'); },2800); }
 function bukaVideo(){ var Bd=S(TH.jadual), Lb=Bd.lub, W=Math.min(innerWidth*.92,innerHeight*.7*Bd.asp), H=W/Bd.asp, id=ytId(v('video'));
-  tayang('<div class="tvB" style="width:'+W+'px;height:'+H+'px;--dx:0vmin;--dy:-20vmin"><div class="skrin" style="left:'+Lb[0]+'%;top:'+Lb[1]+'%;width:'+Lb[2]+'%;height:'+Lb[3]+'%"></div><img alt="" src="'+Bd.src+'" style="position:absolute;inset:0;width:100%;height:100%"></div><div class="capT"><b>▶ '+esc(T('video'))+'</b></div>');
+  tayang('<div class="tvB" style="width:'+W+'px;height:'+H+'px;--dx:0vmin;--dy:-20vmin"><div class="skrin" style="left:'+Lb[0]+'%;top:'+Lb[1]+'%;width:'+Lb[2]+'%;height:'+Lb[3]+'%"></div><img alt="" src="'+Bd.src+'" style="position:absolute;inset:0;width:100%;height:100%"></div><div class="capT"><b>'+(id?'▶ '+esc(T('video')):'📷 '+esc(T('slaidT')))+'</b></div>');
   var sk=$('#tayIsi .skrin');
   if(id){ var f=document.createElement('iframe'); f.src='https://www.youtube.com/embed/'+id+'?autoplay=1&playsinline=1'; f.allow='autoplay; encrypted-media; fullscreen'; f.allowFullscreen=true; sk.appendChild(f); if(muzikOn){ jedaUntukVideo=true; toggleMuzik(); } }
-  else { sk.innerHTML=imgFoto(9); sk.style.cursor='zoom-in'; sk.onclick=function(ev){ ev.stopPropagation(); var x=sk.querySelector('img'); if(x) gkZoom(x.src); }; } }
+  else { sk.innerHTML=slaidHTML(true); mulaSlaid('tayang',sk); sk.style.cursor='zoom-in'; sk.onclick=function(ev){ ev.stopPropagation(); var x=sk.querySelector('.sl.on'); if(x) gkZoom(x.src); }; } }
 function tekanKek(){ if(bergerak) return;
   if(akhirFasa===1){ akhirFasa=2; document.querySelectorAll('.api').forEach(function(a,i){ setTimeout(function(){ a.classList.add('on'); nada(1200+i*120,0,.12,.05,'triangle'); },i*250); }); hint(T('tiup'));
     if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia){ var m=$('#mic'); m.textContent=T('mic'); m.style.display='block'; } kemasDenyut(); return; }
