@@ -58,6 +58,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 .gp-balang{background:radial-gradient(ellipse at 50% 35%,#7a4a52,#3a2232 60%,#1c1220)}
 .gp-flight{background:linear-gradient(180deg,#9fd0f2,#cde8f8 55%,#fde6ee)}
 .gp-lovecapsule{background:radial-gradient(ellipse at 50% 45%,#fff6f0,#fde2ea 50%,#f6a9b8)}
+.gp-mekar{background:radial-gradient(#ffffff66 3px,transparent 3.6px) 0 0/20px 20px,linear-gradient(135deg,#f3e9dc,#e9a3b1 70%,#c9647a)}
 .gp-pujuk{background:radial-gradient(#ffffff55 3px,transparent 3.6px) 0 0/20px 20px,linear-gradient(135deg,#e6e3fb,#ffd9e4)}
 .gp-justforyou{background:radial-gradient(ellipse at 50% 45%,#fff,#fbe3e6 55%,#f2b1b8)}
 .gp-yinyang{background:radial-gradient(ellipse at 45% 55%,#f0c7c0,#e0abaa 45%,#c77f82)}
@@ -76,8 +77,12 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 </div>
 <div class="g-grid">
   <a class="g-card" href="buat-kad-pujuk.html">
-    <div class="gp gp-pujuk"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>😿<div class="g-glow"></div></div>
+    <div class="gp gp-pujuk"><span class="g-badge" data-k="ada">TERSEDIA</span>😿<div class="g-glow"></div></div>
     <div class="gm"><h3 data-k="n1">Pujuk Merajuk</h3><span data-k="d1">Kucing merajuk, meter merajuk, bagi hadiah &amp; gosok kepala sampai dia maafkan</span></div>
+  </a>
+  <a class="g-card" href="buat-kad-mekar.html">
+    <div class="gp gp-mekar"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>🌹<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n2">Mekar Semula</h3><span data-k="d2">Siram mawar layu, kutip kelopak berisi nota maaf sampai bunga mekar semula</span></div>
   </a>
 </div>
 
@@ -86,10 +91,10 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 var L={
  ms:{title:'Pilih Tema — Kad Minta Maaf 🥺',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Kad Minta Maaf 🥺',
      sub:'Buat salah? Pujuk dia dengan kad comel — pilih tema untuk mula.',ada:'TERSEDIA',baru:'BARU',
-     n1:'Pujuk Merajuk',d1:'Kucing merajuk, meter merajuk, bagi hadiah &amp; gosok kepala sampai dia maafkan'},
+     n1:'Pujuk Merajuk',d1:'Kucing merajuk, meter merajuk, bagi hadiah &amp; gosok kepala sampai dia maafkan',n2:'Mekar Semula',d2:'Siram mawar layu, kutip kelopak berisi nota maaf sampai bunga mekar semula'},
  en:{title:'Choose a Theme — Sorry Card 🥺',back:'‹ Back to Homepage',tajuk:'Choose a Sorry Card Theme 🥺',
      sub:'Messed up? Win them back with a cute card — pick a theme to start.',ada:'AVAILABLE',baru:'NEW',
-     n1:'Sulky Kitty',d1:'A sulking kitty, a sulk meter, gifts &amp; head pats until they forgive you'}
+     n1:'Sulky Kitty',d1:'A sulking kitty, a sulk meter, gifts &amp; head pats until they forgive you',n2:'Bloom Again',d2:'Water the wilted roses, pick up petals with sorry notes until they bloom again'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function pakai(){
