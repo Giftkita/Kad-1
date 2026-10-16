@@ -1,4 +1,4 @@
-/* GiftKita — TikTok Pixel (ID DB0I4FBC77UA626ECV4G)
+/* GiftKita — TikTok Pixel (ID DB0I4FBC77UA626ECV4G) + pemuat Meta Pixel (gk-meta.js, ID 2066633493982237)
    Dimuat oleh: index.html, picker (buat-kad*.html), bayar.html, dan automatik oleh gk-bayar.js (semua borang).
    Guna: GKPixel.track('ViewContent',{content_name:'Flight to You'});  GKPixel.track('CompletePayment',{value:8,currency:'USD'}) */
 (function(w,d,t){
@@ -8,7 +8,13 @@
   ttq.page();
 })(window,document,'ttq');
 window.GKPixel={
-  track:function(ev,data){try{window.ttq&&window.ttq.track(ev,data||{});}catch(e){}},
+  track:function(ev,data){
+    try{window.ttq&&window.ttq.track(ev,data||{});}catch(e){}
+    /* GK-META: salin event yang sama ke Meta Pixel (gk-meta.js). Kalau gk-meta.js belum siap dimuat, baris dulu. */
+    try{if(window.GKMeta){GKMeta.track(ev,data||{});}else{(window.__gkMetaQ=window.__gkMetaQ||[]).push([ev,data||{}]);}}catch(e){}
+  },
   /* produk kad: content_type 'product', content_id = template, value & currency */
   item:function(nama,id,harga,cur){return {contents:[{content_id:String(id||nama),content_type:'product',content_name:nama,price:harga}],value:harga,currency:cur||'MYR'};}
 };
+/* GK-META: muat Meta Pixel (gk-meta.js) automatik pada semua page yang muat fail ni */
+(function(){try{if(!window.__gkMeta&&!document.querySelector('script[src$="gk-meta.js"]')){var s=document.createElement('script');s.src='gk-meta.js';s.async=true;document.head.appendChild(s);}}catch(e){}})();
