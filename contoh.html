@@ -32,6 +32,11 @@ body{font-family:'Poppins',sans-serif;--c:#e56b8f}
 #info small{display:block;font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c)}
 #info small.kod{font-size:.78rem;letter-spacing:.02em;text-transform:none;background:#fff1d6;color:#8a5a00;display:inline-block;padding:2px 8px;border-radius:99px;margin-bottom:2px;white-space:nowrap}
 #info b{display:block;font:600 1.02rem/1.15 'Playfair Display',serif;color:#3a2f12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#lagu{flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid #eadccc;background:#fff;color:var(--c);font-size:18px;display:none;align-items:center;justify-content:center;cursor:pointer}
+#lagu.ada{display:flex}
+#lagu.main{background:var(--c);color:#fff;border-color:var(--c);animation:dentum 1s ease-in-out infinite alternate}
+@keyframes dentum{to{transform:scale(1.08)}}
+#ytp{position:fixed;left:-20px;top:-20px;width:2px;height:2px;opacity:0;pointer-events:none}
 #buat{flex:none;border:0;border-radius:99px;padding:12px 18px;font:700 .92rem/1 'Poppins',sans-serif;color:#fff;background:var(--c);box-shadow:0 4px 0 rgba(0,0,0,.18),0 8px 18px rgba(0,0,0,.18);text-decoration:none;white-space:nowrap;animation:denyut 1.6s ease-in-out 3s infinite}
 #buat:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
 @keyframes denyut{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
@@ -49,9 +54,11 @@ body{font-family:'Poppins',sans-serif;--c:#e56b8f}
 <iframe id="kad" title="Contoh kad" allow="autoplay; encrypted-media; fullscreen; microphone" allowfullscreen></iframe>
 <div id="muat"><i></i></div>
 <div id="hint"></div>
+<div id="ytp"><div id="ytpIn"></div></div>
 <div id="bar">
   <a id="balik" href="index.html" aria-label="Kembali">‹</a>
   <div id="info"><small id="label"></small><b id="nama"></b></div>
+  <button id="lagu" type="button" aria-label="Lagu">♪</button>
   <a id="buat" href="#"></a>
 </div>
 <script>
@@ -116,6 +123,39 @@ var KOD={ /* kad yang ada password (kod / tarikh / jawapan / nama) — password 
   suratbudak: ['🔑 Password: Tembam','🔑 Password: Tembam'],
   justforyou: ['🔑 Password: Aina','🔑 Password: Aina']
 };
+var LAGU_ID='2Vv-BfVoq4g';   /* lagu contoh (sama dengan contoh template baru) */
+var HJ='apZ-FtdD4VE', AN='8xg3vE8Ie_E', CT=AN, GR=LAGU_ID;   /* hari jadi / anniversary / cinta / graduasi */
+var TANPA_LAGU={bloom:HJ,lilin:HJ,parti:HJ,pinata:HJ,mixtape:HJ,photobooth:HJ,capit:HJ,
+  ourstory:AN,suratcinta:AN,mail:AN,kunci:AN,taman:AN,payung:AN,planet:AN,yinyang:AN,
+  justforyou:CT,lovecapsule:CT,flight:CT,bintang:CT,balang:CT,y2k:CT,
+  sunflower:GR,newspaper:GR,gradscrap:GR};
+var P=null, siap=false, mahuMain=false, mainLagu=false, jedaVideo=false, mula=false;
+function butang(){ var b=document.getElementById('lagu'); b.classList.toggle('main',mainLagu); b.textContent=mainLagu?'♪':'♪'; }
+function main(){ mahuMain=true; if(siap&&P&&P.playVideo){ try{ P.playVideo(); }catch(e){} } }
+function henti(){ mahuMain=false; if(siap&&P&&P.pauseVideo){ try{ P.pauseVideo(); }catch(e){} } mainLagu=false; butang(); }
+function mulaLaguContoh(f){
+  var tt=(new URLSearchParams(location.search).get('t')||'').toLowerCase(); LAGU_ID=TANPA_LAGU[tt]||LAGU_ID;
+  var b=document.getElementById('lagu'); b.classList.add('ada');
+  b.addEventListener('click',function(){ mula=true; if(mainLagu||mahuMain) henti(); else main(); });
+  window.onYouTubeIframeAPIReady=function(){
+    P=new YT.Player('ytpIn',{width:2,height:2,videoId:LAGU_ID,
+      playerVars:{autoplay:0,controls:0,playsinline:1,loop:1,playlist:LAGU_ID,rel:0},
+      events:{onReady:function(){ siap=true; try{P.setVolume(70);}catch(e){} if(mahuMain&&!jedaVideo) main(); },
+              onStateChange:function(e){ mainLagu=(e.data===1); butang(); }}});
+  };
+  var sc=document.createElement('script'); sc.src='https://www.youtube.com/iframe_api'; document.head.appendChild(sc);
+  /* tekan pertama dalam kad → lagu mula */
+  function ikat(){ try{ var d=f.contentDocument; if(!d) return;
+      d.addEventListener('pointerdown',function(){ if(!mula){ mula=true; main(); } },true);
+      /* kad main video YouTube sendiri → jeda lagu contoh; video ditutup → sambung */
+      var cek=function(){ var ada=!!d.querySelector('iframe[src*="youtube"]');
+        if(ada&&!jedaVideo){ jedaVideo=true; if(mahuMain||mainLagu){ var m=mahuMain; henti(); mahuMain=m; } }
+        else if(!ada&&jedaVideo){ jedaVideo=false; if(mahuMain) main(); } };
+      new MutationObserver(cek).observe(d.documentElement,{childList:true,subtree:true,attributes:true,attributeFilter:['src']});
+    }catch(e){} }
+  f.addEventListener('load',ikat); if(f.contentDocument&&f.contentDocument.readyState==='complete') ikat();
+  document.addEventListener('visibilitychange',function(){ if(document.hidden&&mainLagu){ var m=true; henti(); mahuMain=m; } else if(!document.hidden&&mahuMain&&!jedaVideo) main(); });
+}
 var L={ms:{label:'Contoh kad · cuba tekan',buat:'Buat kad ni 💌',hint:'Ni contoh je — cuba tekan-tekan 👆'},
        en:{label:'Example card · try it',buat:'Make this card 💌',hint:'This is just an example — tap around 👆'}};
 (function(){
@@ -136,6 +176,8 @@ var L={ms:{label:'Contoh kad · cuba tekan',buat:'Buat kad ni 💌',hint:'Ni con
   var it={contents:[{content_id:t,content_type:'product',content_name:nama}]};
   try{ window.GKPixel&&GKPixel.track('ViewContent',it); }catch(e){}
   b.addEventListener('click',function(){ try{ window.GKPixel&&GKPixel.track('ClickButton',it); }catch(e){} });
+  /* ---------- LAGU CONTOH: kad yang data contoh dia tiada lagu → halaman ni yang main lagu ---------- */
+  if(TANPA_LAGU[t]) mulaLaguContoh(f);
 })();
 </script>
 </body>
