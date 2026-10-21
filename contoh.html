@@ -161,17 +161,25 @@ var L={ms:{label:'Contoh kad · cuba tekan',buat:'Buat kad ni 💌',hint:'Ni con
 (function(){
   var q=new URLSearchParams(location.search), t=(q.get('t')||'').toLowerCase();
   if(!/^[a-z0-9]{2,30}$/.test(t)){ location.replace('index.html'); return; }
-  var lang='ms'; try{ if(localStorage.getItem('gk_lang')==='en') lang='en'; }catch(e){}
+  /* bahasa: ?lang= menang → pilihan tersimpan → zon masa (luar Malaysia = EN, sama macam GK-AUTO-EN) */
+  var lang='ms', ql=(q.get('lang')||'').toLowerCase(), sv=null;
+  try{ sv=localStorage.getItem('gk_lang'); }catch(e){}
+  if(ql==='en'||ql==='ms') lang=ql;
+  else if(sv==='en'||sv==='ms') lang=sv;
+  else { try{ var tz=Intl.DateTimeFormat().resolvedOptions().timeZone||''; if(tz&&tz!=='Asia/Kuala_Lumpur'&&tz!=='Asia/Kuching') lang='en'; }catch(e){} }
+  try{ if(ql||!sv) localStorage.setItem('gk_lang',lang); }catch(e){}   /* kad contoh & borang ikut bahasa sama */
   var x=L[lang], m=TEMA[t]||[t,t,'#e56b8f','index.html','card-'+t+'-1.html','buat-kad-'+t+'.html'], nama=lang==='en'?m[1]:m[0];
   document.documentElement.lang=lang; document.body.style.setProperty('--c',m[2]);
   document.title=(lang==='en'?'Example — ':'Contoh — ')+nama+' | GiftKita';
-  var ref=q.get('ref'), sfx=ref?('?ref='+encodeURIComponent(ref)):'';   /* bawa kod affiliate ke borang */
+  /* bawa ref affiliate, cur (harga USD) & utm iklan ke borang / picker */
+  var bw=new URLSearchParams(); ['ref','cur','utm_source','utm_medium','utm_campaign','utm_content','utm_term','fbclid','ttclid'].forEach(function(k){ var v=q.get(k); if(v) bw.set(k,v); });
+  var sfx=bw.toString()?('?'+bw.toString()):'';
   var kd=KOD[t], lb=document.getElementById('label'); lb.textContent=kd?kd[lang==='en'?1:0]:x.label; if(kd) lb.classList.add('kod');
   document.getElementById('nama').textContent=nama;
   var b=document.getElementById('buat'); b.textContent=x.buat; b.href=m[5]+sfx;
   document.getElementById('balik').href=m[3]+sfx;
   var f=document.getElementById('kad'); f.onload=function(){ document.getElementById('muat').classList.add('hilang'); };
-  f.src=m[4]+'?demo=1';
+  f.src=m[4]+'?demo=1&lang='+lang;
   var h=document.getElementById('hint'); h.textContent=kd?(kd[lang==='en'?1:0]+(lang==='en'?' — try it 👆':' — cuba 👆')):x.hint; setTimeout(function(){ h.classList.add('hilang'); },4500);
   var it={contents:[{content_id:t,content_type:'product',content_name:nama}]};
   try{ window.GKPixel&&GKPixel.track('ViewContent',it); }catch(e){}
