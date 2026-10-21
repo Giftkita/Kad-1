@@ -451,6 +451,22 @@ var DEMO={tajuk:'Us',sub:'2021 — 2026',
  ucapan:'Empat tahun.\n\nDari mesej pertama yang aku takut nak hantar, sampai sekarang aku tak boleh bayangkan hidup tanpa kamu.\n\nTerima kasih sebab pilih aku, setiap hari.',
  drp:'Sayang kamu','untuk':'','tarikh':'','tahun':'2026',
  kejut_msg:'Selamat ulang tahun, sayang. Aku janji lagi banyak tahun akan datang.',mtitle:'Lagu Kita'};
+function fotoDemo(n){ var W=720,H=540,c=document.createElement('canvas'); c.width=W; c.height=H; var x=c.getContext('2d');
+  var P=[['#fde2e4','#f4acb7','#9d4edd'],['#e2ece9','#a8d5ba','#2d6a4f'],['#fff1e6','#f8c8a0','#b5651d'],['#dbe7f6','#9cb8e0','#1f3b7a'],['#fbe7ef','#e7a3ae','#8e3b46'],['#f1e8d6','#d9c39a','#5e4b3c']][n%6];
+  var g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,P[0]); g.addColorStop(1,P[1]); x.fillStyle=g; x.fillRect(0,0,W,H);
+  x.fillStyle='rgba(255,255,255,.35)'; x.beginPath(); x.arc(W*(.2+(n%3)*.3),H*.25,90,0,7); x.fill();
+  x.fillStyle='rgba(0,0,0,.08)'; x.fillRect(0,H*.78,W,H*.22);
+  var X=[W*.38,W*.62], K=[P[2],'#1f3b7a'], R=['#3b2a20','#1d1d1d'];
+  for(var i=0;i<2;i++){ var cx=X[i], cy=H*.56, s=i?1.08:1;
+    x.fillStyle=K[i]; x.beginPath(); x.ellipse(cx,cy+150*s,82*s,130*s,0,Math.PI,0); x.fill();
+    x.fillStyle=R[i]; x.beginPath(); x.arc(cx,cy-12*s,46*s,0,7); x.fill(); if(!i){ x.fillRect(cx-46*s,cy-12*s,92*s,60*s); }
+    x.fillStyle='#f2c9a0'; x.beginPath(); x.arc(cx,cy-4*s,36*s,0,7); x.fill(); }
+  x.strokeStyle='#f2c9a0'; x.lineWidth=18; x.lineCap='round'; x.beginPath(); x.moveTo(W*.42,H*.86); x.quadraticCurveTo(W*.5,H*.8,W*.58,H*.86); x.stroke();
+  function hati(hx,hy,hs,c2){ x.fillStyle=c2; x.beginPath(); x.moveTo(hx,hy+hs*.3); x.bezierCurveTo(hx,hy,hx-hs*.5,hy,hx-hs*.5,hy+hs*.3); x.bezierCurveTo(hx-hs*.5,hy+hs*.6,hx,hy+hs*.8,hx,hy+hs); x.bezierCurveTo(hx,hy+hs*.8,hx+hs*.5,hy+hs*.6,hx+hs*.5,hy+hs*.3); x.bezierCurveTo(hx+hs*.5,hy,hx,hy,hx,hy+hs*.3); x.fill(); }
+  hati(W*.5,H*.1,70,'#e8505b'); for(var q=0;q<10;q++) hati(40+Math.random()*(W-80),20+Math.random()*H*.45,14+Math.random()*16,['#fff','#e8505b','#f4acb7'][q%3]);
+  x.fillStyle='rgba(0,0,0,.35)'; x.font='bold 28px sans-serif'; for(var m=0;m<4;m++) x.fillText('♪',60+Math.random()*(W-120),40+Math.random()*H*.4);
+  return c.toDataURL('image/jpeg',0.8); }
+function isiDemo(){ for(var n=1;n<=20;n++) if(!DEMO['f'+n]) DEMO['f'+n]=fotoDemo(n); return DEMO; }
 function esc2(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
 function ytId(u){var m=(u||'').match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/|\/live\/)([a-zA-Z0-9_-]{11})/);return m?m[1]:null;}
 
@@ -611,9 +627,9 @@ function gagal(msg){var l=document.getElementById('load');l.style.display='flex'
 function badge(){var b=document.createElement('div');b.className='tagpv';b.textContent='PRATONTON';document.body.appendChild(b);}
 (function init(){var p=new URLSearchParams(location.search);
   if(p.get('preview')==='1'){ try{D=JSON.parse(localStorage.getItem('gk_preview'))}catch(e){D=null}
-    if(!D||!Object.keys(D).length)D=DEMO; bina(); badge(); return;}
+    if(!D||!Object.keys(D).length)D=isiDemo(); bina(); badge(); return;}
   var id=p.get('id');
-  if(!id){D=DEMO;bina();badge();return;}
+  if(!id){D=isiDemo();bina();badge();return;}
   if(!db){gagal('Sambungan ke pangkalan data gagal. Sila refresh halaman.');return;}
   db.from('cards').select('card_data,paid').eq('id',id).single().then(function(r){
     if(r.error)throw r.error;

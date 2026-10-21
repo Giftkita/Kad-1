@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<script src="gk-pixel.js"></script>
+<meta charset="UTF-8">
+<script>/* GK-AUTO-EN */try{if(!localStorage.getItem('gk_lang')){var _z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';if(_z&&_z!=='Asia/Kuala_Lumpur'&&_z!=='Asia/Kuching')localStorage.setItem('gk_lang','en');}}catch(_e){}</script>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Contoh Kad — GiftKita</title>
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#E56B8F">
+<meta name="description" content="Tengok contoh kad digital interaktif GiftKita — tekan, main & rasa sendiri sebelum buat untuk orang tersayang.">
+<meta property="og:site_name" content="GiftKita">
+<meta property="og:image" content="https://www.giftkita.com/og-image.jpg">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* =====================================================================
+   CONTOH KAD (contoh.html?t=<slug>) — customer tekan tema → nampak & main
+   kad contoh dulu (card-<slug>-1.html?demo=1) → butang "Buat kad ni" → borang.
+   Juga link untuk iklan: www.giftkita.com/contoh.html?t=mekar
+   Tambah tema baru: masukkan dalam TEMA di bawah (tak wajib — t yang tiada
+   dalam TEMA tetap jalan guna card-<t>-1.html & buat-kad-<t>.html).
+   Kad contoh MESTI ada mod demo (?demo=1 → data contoh + gambar contoh).
+   ===================================================================== */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#1b1518;overflow:hidden}
+body{font-family:'Poppins',sans-serif;--c:#e56b8f}
+#kad{position:fixed;left:0;right:0;top:0;bottom:calc(68px + env(safe-area-inset-bottom));width:100%;height:calc(100% - 68px - env(safe-area-inset-bottom));border:0;background:#fff}
+#bar{position:fixed;left:0;right:0;bottom:0;height:calc(68px + env(safe-area-inset-bottom));padding:0 12px env(safe-area-inset-bottom);display:flex;align-items:center;gap:10px;background:#fffaf5;border-top:1px solid rgba(0,0,0,.08);box-shadow:0 -6px 20px rgba(0,0,0,.12);z-index:5}
+#balik{flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid #eadccc;background:#fff;color:#6b4a1e;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;text-decoration:none}
+#info{flex:1;min-width:0;line-height:1.15}
+#info small{display:block;font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c)}
+#info b{display:block;font:600 1.02rem/1.15 'Playfair Display',serif;color:#3a2f12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#buat{flex:none;border:0;border-radius:99px;padding:12px 18px;font:700 .92rem/1 'Poppins',sans-serif;color:#fff;background:var(--c);box-shadow:0 4px 0 rgba(0,0,0,.18),0 8px 18px rgba(0,0,0,.18);text-decoration:none;white-space:nowrap;animation:denyut 1.6s ease-in-out 3s infinite}
+#buat:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
+@keyframes denyut{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+#hint{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:6;background:rgba(30,22,26,.88);color:#fff;font:500 .82rem/1.3 'Poppins',sans-serif;padding:9px 16px;border-radius:99px;white-space:nowrap;pointer-events:none;transition:opacity .6s,transform .6s}
+#hint.hilang{opacity:0;transform:translate(-50%,10px)}
+#muat{position:fixed;inset:0 0 calc(68px + env(safe-area-inset-bottom));display:flex;align-items:center;justify-content:center;background:#fffaf5;z-index:4;transition:opacity .5s}
+#muat.hilang{opacity:0;pointer-events:none}
+#muat i{width:42px;height:42px;border-radius:50%;border:4px solid #f1e4d6;border-top-color:var(--c);animation:pusing .8s linear infinite}
+@keyframes pusing{to{transform:rotate(360deg)}}
+@media (min-width:700px){#bar{padding-left:24px;padding-right:24px}#buat{padding:13px 26px;font-size:1rem}}
+@media (prefers-reduced-motion:reduce){#buat{animation:none}}
+</style>
+</head>
+<body>
+<iframe id="kad" title="Contoh kad" allow="autoplay; encrypted-media; fullscreen; microphone" allowfullscreen></iframe>
+<div id="muat"><i></i></div>
+<div id="hint"></div>
+<div id="bar">
+  <a id="balik" href="index.html" aria-label="Kembali">‹</a>
+  <div id="info"><small id="label"></small><b id="nama"></b></div>
+  <a id="buat" href="#"></a>
+</div>
+<script>
+var TEMA={
+  /* t: [nama BM, nama EN, warna butang, halaman kategori (butang ‹), fail kad contoh, borang] */
+  scrapbook:  ["Scrapbook", "Scrapbook", "#d6547a", "buat-kad.html", "card-befday-1.html", "buat-kad-scrapbook.html"],
+  merah:      ["Merah Klasik", "Classic Red", "#d6547a", "buat-kad.html", "card-merah-1.html", "buat-kad-merah.html"],
+  butterfly:  ["Butterfly", "Butterfly", "#d6547a", "buat-kad.html", "card-butterfly-1.html", "buat-kad-butterfly.html"],
+  bloom:      ["A Bouquet for You", "A Bouquet for You", "#d6547a", "buat-kad.html", "card-bloom-1.html", "buat-kad-bloom.html"],
+  lilin:      ["Tiup Lilin", "Blow the Candles", "#d6547a", "buat-kad.html", "card-lilin-1.html", "buat-kad-lilin.html"],
+  parti:      ["Bilik Parti Kejutan", "Surprise Party Room", "#d6547a", "buat-kad.html", "card-parti-1.html", "buat-kad-parti.html"],
+  pinata:     ["Pinata Parti", "Piñata Party", "#d6547a", "buat-kad.html", "card-pinata-1.html", "buat-kad-pinata.html"],
+  mixtape:    ["Mixtape Hari Jadi", "Birthday Mixtape", "#d6547a", "buat-kad.html", "card-mixtape-1.html", "buat-kad-mixtape.html"],
+  photobooth: ["Photobooth Retro", "Retro Photobooth", "#d6547a", "buat-kad.html", "card-photobooth-1.html", "buat-kad-photobooth.html"],
+  capit:      ["Mesin Capit Teddy", "Teddy Claw Machine", "#d6547a", "buat-kad.html", "card-capit-1.html", "buat-kad-capit.html"],
+  premiere:   ["Birthday Premiere", "Birthday Premiere", "#d6547a", "buat-kad.html", "card-premiere-1.html", "buat-kad-premiere.html"],
+  pasport:    ["Pasport Hari Jadi", "Birthday Passport", "#d6547a", "buat-kad.html", "card-pasport-1.html", "buat-kad-pasport.html"],
+  kedaikek:   ["Kedai Kek", "Cake Shop", "#d6547a", "buat-kad.html", "card-kedaikek-1.html", "buat-kad-kedaikek.html"],
+  keretabday: ["Kereta Api Hari Jadi", "Birthday Train", "#5b9bd8", "buat-kad.html", "card-keretabday-1.html", "buat-kad-keretabday.html"],
+  ourstory:   ["Our Story", "Our Story", "#c2304f", "buat-kad-anniversary.html", "card-anniversary-1.html", "buat-kad-anniversary-ourstory.html"],
+  suratcinta: ["A Special Letter", "A Special Letter", "#c2304f", "buat-kad-anniversary.html", "card-suratcinta-1.html", "buat-kad-suratcinta.html"],
+  fiona:      ["Fiona", "Fiona", "#c2304f", "buat-kad-anniversary.html", "card-fiona-1.html", "buat-kad-fiona.html"],
+  mail:       ["You Got a Mail", "You Got a Mail", "#c2304f", "buat-kad-anniversary.html", "card-mail-1.html", "buat-kad-mail.html"],
+  kunci:      ["Bouquet Berkunci", "Locked Bouquet", "#c2304f", "buat-kad-anniversary.html", "card-kunci-1.html", "buat-kad-kunci.html"],
+  taman:      ["Taman Kita", "Our Garden", "#c2304f", "buat-kad-anniversary.html", "card-taman-1.html", "buat-kad-taman.html"],
+  payung:     ["Payung Berdua", "Under One Umbrella", "#c2304f", "buat-kad-anniversary.html", "card-payung-1.html", "buat-kad-payung.html"],
+  planet:     ["Planet Kecil Kita", "Our Little Planet", "#c2304f", "buat-kad-anniversary.html", "card-planet-1.html", "buat-kad-planet.html"],
+  yinyang:    ["Yin & Yang", "Yin & Yang", "#c2304f", "buat-kad-anniversary.html", "card-yinyang-1.html", "buat-kad-yinyang.html"],
+  albumkita:  ["Album Kisah Kita", "Our Story Album", "#c2304f", "buat-kad-anniversary.html", "card-albumkita-1.html", "buat-kad-albumkita.html"],
+  wayangcinta:["Wayang Pandu Masuk", "Drive-In Movie Date", "#c2304f", "buat-kad-anniversary.html", "card-wayangcinta-1.html", "buat-kad-wayangcinta.html"],
+  albumvintaj:["Album Vintaj Kita", "Our Vintage Album", "#c2304f", "buat-kad-anniversary.html", "card-albumvintaj-1.html", "buat-kad-albumvintaj.html"],
+  annivcomel: ["Anniversary Comel", "Cute Anniversary", "#c2304f", "buat-kad-anniversary.html", "card-annivcomel-1.html", "buat-kad-annivcomel.html"],
+  keretaapi:  ["Kereta Api Kenangan", "Memory Train", "#a8324a", "buat-kad-anniversary.html", "card-keretaapi-1.html", "buat-kad-keretaapi.html"],
+  justforyou: ["Made Just for You", "Made Just for You", "#d6547a", "buat-kad-cinta.html", "card-justforyou-1.html", "buat-kad-justforyou.html"],
+  lovecapsule:["Love Capsule", "Love Capsule", "#d6547a", "buat-kad-cinta.html", "card-lovecapsule-1.html", "buat-kad-lovecapsule.html"],
+  flight:     ["Flight to You", "Flight to You", "#d6547a", "buat-kad-cinta.html", "card-flight-1.html", "buat-kad-flight.html"],
+  bintang:    ["Bintang Kita", "Our Stars", "#d6547a", "buat-kad-cinta.html", "card-bintang-1.html", "buat-kad-bintang.html"],
+  balang:     ["Balang Seribu Sebab", "A Jar of Reasons", "#d6547a", "buat-kad-cinta.html", "card-balang-1.html", "buat-kad-balang.html"],
+  y2k:        ["Telefon Y2K", "Y2K Phone", "#d6547a", "buat-kad-cinta.html", "card-y2k-1.html", "buat-kad-y2k.html"],
+  vinyl:      ["Piring Hitam Lagu Kita", "Our Song on Vinyl", "#d6547a", "buat-kad-cinta.html", "card-vinyl-1.html", "buat-kad-vinyl.html"],
+  kafe:       ["Kafe Kita", "Kafe Kita", "#d6547a", "buat-kad-cinta.html", "card-kafe-1.html", "buat-kad-kafe.html"],
+  suratkucing:["Posmen Kucing Comel", "Kitty Postman", "#d6547a", "buat-kad-cinta.html", "card-suratkucing-1.html", "buat-kad-suratkucing.html"],
+  suratbudak: ["Surat Budak Comel", "Little Love Letters", "#d6547a", "buat-kad-cinta.html", "card-suratbudak-1.html", "buat-kad-suratbudak.html"],
+  skrol:      ["Skrol Ijazah", "Degree Scroll", "#2f4a7d", "buat-kad-graduasi.html", "card-skrol-1.html", "buat-kad-skrol.html"],
+  gradnavy:   ["Navy & Emas", "Navy & Gold", "#2f4a7d", "buat-kad-graduasi.html", "card-gradnavy-1.html", "buat-kad-gradnavy.html"],
+  gradmemory: ["Graduate Memory", "Graduate Memory", "#2f4a7d", "buat-kad-graduasi.html", "card-gradmemory-1.html", "buat-kad-gradmemory.html"],
+  sunflower:  ["Sunflower", "Sunflower", "#2f4a7d", "buat-kad-graduasi.html", "card-sunflower-1.html", "buat-kad-sunflower.html"],
+  newspaper:  ["The Graduate Times", "The Graduate Times", "#2f4a7d", "buat-kad-graduasi.html", "card-newspaper-1.html", "buat-kad-newspaper.html"],
+  gradscrap:  ["Photobooth Scrapbook", "Scrapbook Photobooth", "#2f4a7d", "buat-kad-graduasi.html", "card-gradscrap-1.html", "buat-kad-gradscrap.html"],
+  gradstem:   ["Buku Makmal STEM", "STEM Lab Notebook", "#2f4a7d", "buat-kad-graduasi.html", "card-gradstem-1.html", "buat-kad-gradstem.html"],
+  gradjurnal: ["Jurnal Kenangan", "Memory Journal", "#2f4a7d", "buat-kad-graduasi.html", "card-gradjurnal-1.html", "buat-kad-gradjurnal.html"],
+  gradwayang: ["Tiket Wayang Graduasi", "Graduation Movie Ticket", "#2f4a7d", "buat-kad-graduasi.html", "card-gradwayang-1.html", "buat-kad-gradwayang.html"],
+  gradkolaj:  ["Scrapbook Kolaj", "Collage Scrapbook", "#2f4a7d", "buat-kad-graduasi.html", "card-gradkolaj-1.html", "buat-kad-gradkolaj.html"],
+  gradcomel:  ["Graduasi Comel", "Cute Graduation", "#2f4a7d", "buat-kad-graduasi.html", "card-gradcomel-1.html", "buat-kad-gradcomel.html"],
+  pujuk:      ["Pujuk Merajuk", "Sulky Kitty", "#e56b8f", "buat-kad-maaf.html", "card-pujuk-1.html", "buat-kad-pujuk.html"],
+  mekar:      ["Mekar Semula", "Bloom Again", "#c9647a", "buat-kad-maaf.html", "card-mekar-1.html", "buat-kad-mekar.html"]
+};
+var L={ms:{label:'Contoh kad · cuba tekan',buat:'Buat kad ni 💌',hint:'Ni contoh je — cuba tekan-tekan 👆'},
+       en:{label:'Example card · try it',buat:'Make this card 💌',hint:'This is just an example — tap around 👆'}};
+(function(){
+  var q=new URLSearchParams(location.search), t=(q.get('t')||'').toLowerCase();
+  if(!/^[a-z0-9]{2,30}$/.test(t)){ location.replace('index.html'); return; }
+  var lang='ms'; try{ if(localStorage.getItem('gk_lang')==='en') lang='en'; }catch(e){}
+  var x=L[lang], m=TEMA[t]||[t,t,'#e56b8f','index.html','card-'+t+'-1.html','buat-kad-'+t+'.html'], nama=lang==='en'?m[1]:m[0];
+  document.documentElement.lang=lang; document.body.style.setProperty('--c',m[2]);
+  document.title=(lang==='en'?'Example — ':'Contoh — ')+nama+' | GiftKita';
+  var ref=q.get('ref'), sfx=ref?('?ref='+encodeURIComponent(ref)):'';   /* bawa kod affiliate ke borang */
+  document.getElementById('label').textContent=x.label;
+  document.getElementById('nama').textContent=nama;
+  var b=document.getElementById('buat'); b.textContent=x.buat; b.href=m[5]+sfx;
+  document.getElementById('balik').href=m[3]+sfx;
+  var f=document.getElementById('kad'); f.onload=function(){ document.getElementById('muat').classList.add('hilang'); };
+  f.src=m[4]+'?demo=1';
+  var h=document.getElementById('hint'); h.textContent=x.hint; setTimeout(function(){ h.classList.add('hilang'); },4500);
+  var it={contents:[{content_id:t,content_type:'product',content_name:nama}]};
+  try{ window.GKPixel&&GKPixel.track('ViewContent',it); }catch(e){}
+  b.addEventListener('click',function(){ try{ window.GKPixel&&GKPixel.track('ClickButton',it); }catch(e){} });
+})();
+</script>
+</body>
+</html>

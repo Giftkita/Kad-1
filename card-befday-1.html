@@ -738,6 +738,17 @@ function routeTheme(theme){
   return true;
 }
 
+const DEMO_B={theme:'scrapbook',p1_txt:'Kita 💕',p2_txt:'Best day',p3_txt:'Senyum!',title:'Happy Birthday!',subtitle:'Sayang',quote:'These are for you',author:'Sunflower',
+ wishes:'You are kind in ways that truly matter.\nYou are strong, even when things get difficult.\nYou are capable of achieving your goals.\nYou are unique, and that\u2019s your power.',
+ story:'Happy birthday! Wishing you a day filled with laughter, good vibes, and all the little things that make you genuinely happy.\n\nYou deserve to feel appreciated and celebrated \u2014 not just today, but every day. May this year bring you new opportunities, fun adventures, and moments you\u2019ll always look back on with a smile.\n\nHappy Birthday again!',
+ yt:'https://www.youtube.com/watch?v=kPa7bsKwL-c',video_yt:'https://www.youtube.com/watch?v=kPa7bsKwL-c',mtitle:'Lagu Kita',
+ cake_img:'https://images.unsplash.com/photo-1558301211-0d8c8ddee6ec?q=80&w=600&auto=format&fit=crop',
+ p1_img:'https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=400&auto=format&fit=crop',
+ p2_img:'https://images.unsplash.com/photo-1522673607200-164d1b6ce486?q=80&w=400&auto=format&fit=crop',
+ p3_img:'https://images.unsplash.com/photo-1490750967868-88aa4486c946?q=80&w=400&auto=format&fit=crop',
+ story_img:'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=640&auto=format&fit=crop',
+ surprise_img:'https://images.unsplash.com/photo-1513201099705-a9746e1e201f?q=80&w=900&auto=format&fit=crop',
+ surprise_msg:'I hope this little gift will make you happy'};
 async function init(){
   const p=new URLSearchParams(location.search);
 
@@ -752,6 +763,9 @@ async function init(){
     showPreviewBadge();
     return;
   }
+
+  // ── MOD DEMO: ?demo=1 atau tiada id → kad contoh (untuk contoh.html & iklan) ──
+  if(p.get('demo')==='1'||!p.get('id')){ D=JSON.parse(JSON.stringify(DEMO_B)); renderCard(); showPreviewBadge(); return; }
 
   // ── MOD BIASA: ambil kad dari database ikut id ──
   if(!db){
