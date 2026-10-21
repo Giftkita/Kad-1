@@ -30,6 +30,7 @@ body{font-family:'Poppins',sans-serif;--c:#e56b8f}
 #balik{flex:none;width:40px;height:40px;border-radius:50%;border:1.5px solid #eadccc;background:#fff;color:#6b4a1e;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;text-decoration:none}
 #info{flex:1;min-width:0;line-height:1.15}
 #info small{display:block;font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--c)}
+#info small.kod{font-size:.78rem;letter-spacing:.02em;text-transform:none;background:#fff1d6;color:#8a5a00;display:inline-block;padding:2px 8px;border-radius:99px;margin-bottom:2px;white-space:nowrap}
 #info b{display:block;font:600 1.02rem/1.15 'Playfair Display',serif;color:#3a2f12;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #buat{flex:none;border:0;border-radius:99px;padding:12px 18px;font:700 .92rem/1 'Poppins',sans-serif;color:#fff;background:var(--c);box-shadow:0 4px 0 rgba(0,0,0,.18),0 8px 18px rgba(0,0,0,.18);text-decoration:none;white-space:nowrap;animation:denyut 1.6s ease-in-out 3s infinite}
 #buat:active{transform:translateY(2px);box-shadow:0 2px 0 rgba(0,0,0,.18)}
@@ -108,6 +109,12 @@ var TEMA={
   pujuk:      ["Pujuk Merajuk", "Sulky Kitty", "#e56b8f", "buat-kad-maaf.html", "card-pujuk-1.html", "buat-kad-pujuk.html"],
   mekar:      ["Mekar Semula", "Bloom Again", "#c9647a", "buat-kad-maaf.html", "card-mekar-1.html", "buat-kad-mekar.html"]
 };
+var KOD={ /* kad yang ada kod / soalan rahsia — jawapan contoh ditunjuk dalam bar bawah */
+  kunci:     ['🔑 Kod: 1402','🔑 Code: 1402'],
+  annivcomel:['🔑 Tarikh: 14/02/2021','🔑 Date: 14/02/2021'],
+  suratkucing:['🔑 Jawapan: Tembam','🔑 Answer: Tembam'],
+  suratbudak:['🔑 Jawapan: Tembam','🔑 Answer: Tembam']
+};
 var L={ms:{label:'Contoh kad · cuba tekan',buat:'Buat kad ni 💌',hint:'Ni contoh je — cuba tekan-tekan 👆'},
        en:{label:'Example card · try it',buat:'Make this card 💌',hint:'This is just an example — tap around 👆'}};
 (function(){
@@ -118,13 +125,13 @@ var L={ms:{label:'Contoh kad · cuba tekan',buat:'Buat kad ni 💌',hint:'Ni con
   document.documentElement.lang=lang; document.body.style.setProperty('--c',m[2]);
   document.title=(lang==='en'?'Example — ':'Contoh — ')+nama+' | GiftKita';
   var ref=q.get('ref'), sfx=ref?('?ref='+encodeURIComponent(ref)):'';   /* bawa kod affiliate ke borang */
-  document.getElementById('label').textContent=x.label;
+  var kd=KOD[t], lb=document.getElementById('label'); lb.textContent=kd?kd[lang==='en'?1:0]:x.label; if(kd) lb.classList.add('kod');
   document.getElementById('nama').textContent=nama;
   var b=document.getElementById('buat'); b.textContent=x.buat; b.href=m[5]+sfx;
   document.getElementById('balik').href=m[3]+sfx;
   var f=document.getElementById('kad'); f.onload=function(){ document.getElementById('muat').classList.add('hilang'); };
   f.src=m[4]+'?demo=1';
-  var h=document.getElementById('hint'); h.textContent=x.hint; setTimeout(function(){ h.classList.add('hilang'); },4500);
+  var h=document.getElementById('hint'); h.textContent=kd?(kd[lang==='en'?1:0]+(lang==='en'?' — try it 👆':' — cuba 👆')):x.hint; setTimeout(function(){ h.classList.add('hilang'); },4500);
   var it={contents:[{content_id:t,content_type:'product',content_name:nama}]};
   try{ window.GKPixel&&GKPixel.track('ViewContent',it); }catch(e){}
   b.addEventListener('click',function(){ try{ window.GKPixel&&GKPixel.track('ClickButton',it); }catch(e){} });
