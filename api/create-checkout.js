@@ -14,12 +14,13 @@
 
 // Harga dalam SEN USD ($8 = 800). Server yang tentukan harga, BUKAN client.
 // Kunci pelan MESTI sama dengan create-bill.js.
-const PRICES_USD = { basic: 800, premium: 1000, bouquet: 300 };
-const PLAN_NAME  = { basic: 'GiftKita Basic', premium: 'GiftKita Premium', bouquet: 'GiftKita Photo Bouquet' };
+const PRICES_USD = { basic: 800, premium: 1000, bouquet: 300, kahwin: 1500 };
+const PLAN_NAME  = { basic: 'GiftKita Basic', premium: 'GiftKita Premium', bouquet: 'GiftKita Photo Bouquet', kahwin: 'GiftKita Wedding Invitation' };
 const PLAN_DESC  = {
   basic:   'Personalized digital greeting card · YouTube music · link active 2 months',
   premium: 'Personalized digital greeting card · YouTube music · QR code · download album · link active 2 months',
-  bouquet: 'Personalized photo bouquet image · full resolution, no watermark'
+  bouquet: 'Personalized photo bouquet image · full resolution, no watermark',
+  kahwin:  'Digital wedding invitation · RSVP · guest book · MP4 video · active until 30 days after the event'
 };
 
 // Domain yang dibenarkan untuk URL "kembali ke borang" (elak open-redirect)

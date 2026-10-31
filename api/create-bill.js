@@ -6,9 +6,9 @@
 // Harga dalam SEN (RM8 = 800, RM15 = 1500). Server yang tentukan harga,
 // BUKAN client — supaya tak boleh diubah jadi RM0.
 // Kunci pelan datang dari gk-bayar.js (CFG.plans). Tambah di sini bila ada produk baru.
-const PRICES    = { basic: 600,  premium: 800, bouquet: 300 };
-const PLAN_NAME = { basic: 'GiftKita Basic', premium: 'GiftKita Premium', bouquet: 'GiftKita Bouquet Muka' };
-const PLAN_DESC = { bouquet: 'Bouquet Muka digital GiftKita' };   // lalai: 'Kad ucapan digital GiftKita'
+const PRICES    = { basic: 600,  premium: 800, bouquet: 300, kahwin: 1500 };
+const PLAN_NAME = { basic: 'GiftKita Basic', premium: 'GiftKita Premium', bouquet: 'GiftKita Bouquet Muka', kahwin: 'GiftKita Kad Kahwin' };
+const PLAN_DESC = { bouquet: 'Bouquet Muka digital GiftKita', kahwin: 'Kad jemputan kahwin digital GiftKita' };   // lalai: 'Kad ucapan digital GiftKita'
 
 // ── DuitNow QR ──
 // enableDuitNowQR : '1' hidupkan pilihan QR, '0' matikan

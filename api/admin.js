@@ -8,6 +8,10 @@
 //  POST {token, action:'kapasiti'}          → saiz pangkalan data Supabase + trafik Vercel bulan ini
 //  GET  /api/admin?notis=1                    → AWAM: notis semasa (untuk gk-notis.js)
 //  POST {action:'lawat', p,s,d,i,b}           → AWAM: catat 1 lawatan (gk-notis.js / gk-bayar.js)
+//  POST {action:'kahwin_hantar', id, nama, tel, hadir, bil, ucapan} → AWAM: RSVP / ucapan tetamu (card-pelamin-1.html)
+//  POST {action:'kahwin_ucapan', id}           → AWAM: senarai ucapan tetamu (tanpa no. telefon)
+//  POST {action:'kahwin_urus', id, tel}        → pengantin: semua RSVP + ucapan (tel = no. telefon masa beli)
+//  POST {action:'kahwin_sorok', id, tel, rid, sorok} → pengantin: sorok / papar semula satu ucapan
 //  POST {token, action:'pelawat', hari}       → data lawatan untuk tab Pelawat
 //  POST {token, action:'baru', since}         → jualan selepas 'since' (notifikasi admin)
 //  POST {token, action:'tertunda', hari}      → semak kad belum bayar & aktifkan yang duitnya dah masuk
@@ -38,6 +42,12 @@ module.exports = async (req, res) => {
     return;
   }
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST sahaja' }); return; }
+
+  // ── AWAM: kad kahwin — RSVP, buku tetamu & halaman pengantin (tanpa token admin) ──
+  if (String((req.body || {}).action || '').startsWith('kahwin_')) {
+    try { await kahwin(req, res); } catch (e) { res.status(500).json({ error: 'Ralat server' }); }
+    return;
+  }
 
   // ── AWAM: catat lawatan (tanpa token) ──
   if ((req.body || {}).action === 'lawat') { try { await catatLawatan(req); } catch (e) {} res.status(204).end(); return; }
@@ -366,3 +376,60 @@ const SBA = () => ({ url: process.env.SUPABASE_URL.replace(/\/$/, '') + '/rest/v
 async function sbGetA(path) { const { url, key } = SBA(); const r = await fetch(url + path, { headers: { apikey: key, Authorization: 'Bearer ' + key } }); return r.json(); }
 async function sbPatchA(path, body) { const { url, key } = SBA(); await fetch(url + path, { method: 'PATCH', headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify(body) }); }
 async function sbInsertA(table, row) { const { url, key } = SBA(); const r = await fetch(url + table, { method: 'POST', headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json', Prefer: 'return=representation' }, body: JSON.stringify(row) }); return r.json(); }
+
+
+// ════════════════════════════════════════════════════════════
+//  KAD KAHWIN (template 'pelamin') — jadual Supabase kahwin_rsvp (docs/sql-kahwin.sql)
+// ════════════════════════════════════════════════════════════
+const KAHWIN_TPL = { pelamin: true };
+function digit(x) { return String(x || '').replace(/\D/g, ''); }
+function telSama(a, b) { a = digit(a); b = digit(b); return a.length >= 9 && b.length >= 9 && a.slice(-9) === b.slice(-9); }
+async function kadKahwin(id) {
+  if (!/^[0-9a-zA-Z-]{8,64}$/.test(String(id || ''))) return null;
+  let r = await sbGet(`cards?id=eq.${encodeURIComponent(id)}&select=id,paid,buyer_phone,tpl:card_data->>template,pP:card_data->>pP,pL:card_data->>pL,tarikh:card_data->>tarikh`);
+  if (!Array.isArray(r)) {   // card_data bukan json? ambil penuh
+    r = await sbGet(`cards?id=eq.${encodeURIComponent(id)}&select=id,paid,buyer_phone,card_data`);
+    if (!Array.isArray(r) || !r[0]) return null;
+    let cd = r[0].card_data; if (typeof cd === 'string') { try { cd = JSON.parse(cd); } catch (e) { cd = {}; } }
+    r = [{ id: r[0].id, paid: r[0].paid, buyer_phone: r[0].buyer_phone, tpl: cd && cd.template, pP: cd && cd.pP, pL: cd && cd.pL, tarikh: cd && cd.tarikh }];
+  }
+  const k = r[0];
+  if (!k || k.paid !== true || !KAHWIN_TPL[k.tpl]) return null;
+  return k;
+}
+async function kahwin(req, res) {
+  const b = req.body || {}, A = b.action, { url, key } = SB();
+  const H = { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' };
+  const kad = await kadKahwin(b.id);
+  if (!kad) { res.status(404).json({ error: 'Kad tidak dijumpai.' }); return; }
+  const teks = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, n);
+
+  if (A === 'kahwin_hantar') {
+    const nama = teks(b.nama, 40), ucapan = teks(b.ucapan, 300);
+    const hadir = b.hadir === true ? true : b.hadir === false ? false : null;
+    if (!nama || (hadir === null && !ucapan)) { res.status(400).json({ error: 'Data tak lengkap' }); return; }
+    const bil = hadir ? Math.max(1, Math.min(20, parseInt(b.bil, 10) || 1)) : 0;
+    const row = { card_id: kad.id, nama, tel: teks(digit(b.tel), 16) || null, hadir, bil, ucapan: ucapan || null };
+    const r = await fetch(url + 'kahwin_rsvp', { method: 'POST', headers: { ...H, Prefer: 'return=minimal' }, body: JSON.stringify(row) });
+    if (!r.ok) { res.status(500).json({ error: 'Jadual kahwin_rsvp belum ada? Jalankan docs/sql-kahwin.sql' }); return; }
+    res.status(200).json({ ok: true }); return;
+  }
+  if (A === 'kahwin_ucapan') {
+    const r = await sbGet(`kahwin_rsvp?card_id=eq.${encodeURIComponent(kad.id)}&ucapan=not.is.null&sorok=eq.false&select=nama,ucapan,created_at&order=created_at.desc&limit=300`);
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json({ senarai: Array.isArray(r) ? r.map(x => ({ nama: x.nama, ucapan: x.ucapan, t: x.created_at })) : [] }); return;
+  }
+  // ── pengantin sahaja: sahkan no. telefon pembeli ──
+  if (!telSama(b.tel, kad.buyer_phone)) { await new Promise(r => setTimeout(r, 900)); res.status(401).json({ error: 'No. telefon tidak sepadan dengan pembeli kad.' }); return; }
+  if (A === 'kahwin_urus') {
+    const r = await sbAll(`kahwin_rsvp?card_id=eq.${encodeURIComponent(kad.id)}&select=id,nama,tel,hadir,bil,ucapan,sorok,created_at&order=created_at.desc`);
+    res.setHeader('Cache-Control', 'no-store');
+    res.status(200).json({ kad: { id: kad.id, pP: kad.pP, pL: kad.pL, tarikh: kad.tarikh }, senarai: Array.isArray(r) ? r : [] }); return;
+  }
+  if (A === 'kahwin_sorok') {
+    const rid = parseInt(b.rid, 10); if (!rid) { res.status(400).json({ error: 'rid' }); return; }
+    await sbPatch(`kahwin_rsvp?id=eq.${rid}&card_id=eq.${encodeURIComponent(kad.id)}`, { sorok: b.sorok === true });
+    res.status(200).json({ ok: true }); return;
+  }
+  res.status(400).json({ error: 'Tindakan tidak dikenali' });
+}
