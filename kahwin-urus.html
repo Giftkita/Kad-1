@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Halaman Pengantin — GiftKita</title>
+<!--GK-SEO-->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#7A1F2C">
+<meta name="robots" content="noindex">
+<!--/GK-SEO-->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Pinyon+Script&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Poppins,system-ui,sans-serif;background:#f8f1ec;color:#3f2328;padding-bottom:60px}
+header{text-align:center;padding:42px 16px 18px;background:#fffdfb;border-bottom:1px solid #eedfd6;position:relative}
+#lang{position:absolute;right:14px;top:12px;border:1px solid #e3cfc5;background:#fff;border-radius:99px;padding:6px 12px;font:600 12px Poppins;color:#7a1f2c;cursor:pointer}
+header .nm{font:400 40px/1.1 'Pinyon Script',cursive;color:#7a1f2c}
+header p{font-size:.82rem;color:#9a7a70;margin-top:4px}
+.wrap{max-width:640px;margin:16px auto;padding:0 14px}
+.sec{background:#fffdfb;border:1px solid #eedfd6;border-radius:16px;padding:16px;margin-bottom:12px}
+.sec h2{font-size:1rem;margin-bottom:6px}
+.hint{font-size:.78rem;color:#9a7a70;margin-bottom:10px;line-height:1.5}
+input{width:100%;padding:11px 12px;border:1px solid #e3cfc5;border-radius:11px;font:500 15px Poppins;background:#fff;color:#3f2328}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:0;background:#7a1f2c;color:#fff;font:600 13.5px Poppins;padding:11px 16px;border-radius:11px;cursor:pointer;text-decoration:none}
+.btn.g{background:#fff;color:#7a1f2c;border:1.5px solid #e3cfc5}
+.btn.emas{background:#b8935a}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.row .btn{flex:1;min-width:140px}
+.stat{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat div{background:#fff;border:1px solid #eedfd6;border-radius:12px;padding:10px 4px;text-align:center}
+.stat b{display:block;font-size:1.5rem;color:#7a1f2c;line-height:1.1}
+.stat span{font-size:.68rem;color:#9a7a70}
+.tab{display:flex;gap:6px;margin-bottom:10px;overflow:auto}
+.tab button{flex:none;border:1.5px solid #e3cfc5;background:#fff;color:#7a1f2c;font:600 12.5px Poppins;padding:8px 13px;border-radius:99px;cursor:pointer}
+.tab button.on{background:#7a1f2c;color:#fff;border-color:#7a1f2c}
+.item{border:1px solid #eedfd6;border-radius:12px;padding:10px 12px;margin-bottom:8px;background:#fff}
+.item .a{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.item b{font-size:.95rem}
+.tag{font-size:.7rem;font-weight:600;padding:3px 9px;border-radius:99px;white-space:nowrap}
+.tag.y{background:#e3f4e8;color:#23703f}.tag.n{background:#f7e3e3;color:#9a2a2a}.tag.u{background:#f3ece4;color:#8a6a4a}
+.item .m{font-size:.75rem;color:#9a7a70;margin-top:3px}
+.item .m a{color:#23703f;text-decoration:none;font-weight:600}
+.item .u{font-size:.88rem;margin-top:6px;line-height:1.5;white-space:pre-wrap}
+.item.sorok{opacity:.45}
+.sorokB{border:0;background:none;color:#9a7a70;font:600 11.5px Poppins;cursor:pointer;margin-top:4px}
+#ralat{display:none;background:#fff3cd;border:1px solid #e6d4a1;border-radius:10px;padding:10px;font-size:.82rem;color:#7a5c1a;margin-top:10px}
+.kosong{text-align:center;color:#9a7a70;font-size:.85rem;padding:16px 0}
+#toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:rgba(40,12,18,.9);color:#fff;font-size:.85rem;padding:10px 18px;border-radius:99px;opacity:0;transition:opacity .3s;pointer-events:none}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header><button id="lang">EN</button><div class="nm" id="hNm">💍</div><p id="hS" data-k="hS">Halaman pengantin — senarai RSVP, ucapan &amp; video</p></header>
+<div class="wrap">
+  <div class="sec" id="masuk">
+    <h2 data-k="mT">Log masuk pengantin</h2>
+    <div class="hint" data-k="mH">Masukkan no. telefon yang digunakan semasa membeli kad ni.</div>
+    <input id="tel" inputmode="tel" placeholder="cth: 0123456789">
+    <button class="btn" id="bMasuk" style="width:100%;margin-top:10px" data-k="mB">Masuk</button>
+    <div id="ralat"></div>
+  </div>
+  <div id="isi" style="display:none">
+    <div class="sec">
+      <div class="stat"><div><b id="sH">0</b><span data-k="sH">Keluarga hadir</span></div><div><b id="sO">0</b><span data-k="sO">Jumlah orang</span></div><div><b id="sT">0</b><span data-k="sT">Tidak hadir</span></div><div><b id="sU">0</b><span data-k="sU">Ucapan</span></div></div>
+    </div>
+    <div class="sec">
+      <h2 data-k="kT">Kongsi kad jemputan</h2>
+      <div class="row"><button class="btn" id="bSalin" data-k="kS">🔗 Salin link</button><a class="btn g" id="bWa" target="_blank" rel="noopener" data-k="kW">💬 WhatsApp</a></div>
+      <div class="hint" style="margin-top:12px" data-k="pH">Jemputan peribadi — nama tetamu keluar "Kepada: …" di muka kad.</div>
+      <div class="row"><input id="tamu" maxlength="60" placeholder="cth: Keluarga Encik Ahmad" style="flex:2;min-width:180px"><button class="btn g" id="bTamu" data-k="pB">Salin link peribadi</button></div>
+    </div>
+    <div class="sec">
+      <h2 data-k="vT">🎬 Video jemputan MP4</h2>
+      <div class="hint" data-k="vH">Video 1080×1920 (~34 saat) dijana terus dalam phone anda — sesuai untuk WhatsApp Status, TikTok &amp; IG. Video tanpa lagu: tambah lagu sendiri dalam TikTok / IG / CapCut.</div>
+      <a class="btn emas" id="bVid" style="width:100%" data-k="vB">🎬 Jana &amp; muat turun video</a>
+    </div>
+    <div class="sec">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><h2 data-k="lT">Senarai</h2><button class="btn g" id="bCsv" style="padding:8px 12px" data-k="lC">⬇️ Excel (CSV)</button></div>
+      <div class="tab"><button class="on" data-f="semua" data-k="f1">Semua</button><button data-f="hadir" data-k="f2">Hadir</button><button data-f="tidak" data-k="f3">Tidak hadir</button><button data-f="ucapan" data-k="f4">Ucapan</button></div>
+      <div id="senarai"></div>
+      <div class="row" style="margin-top:8px"><button class="btn g" id="bMuat" data-k="lR">⟳ Muat semula</button></div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+<script>
+var L={ms:{hS:'Halaman pengantin — senarai RSVP, ucapan & video',mT:'Log masuk pengantin',mH:'Masukkan no. telefon yang digunakan semasa membeli kad ni.',mB:'Masuk',sH:'Keluarga hadir',sO:'Jumlah orang',sT:'Tidak hadir',sU:'Ucapan',
+  kT:'Kongsi kad jemputan',kS:'🔗 Salin link',kW:'💬 WhatsApp',pH:'Jemputan peribadi — nama tetamu keluar "Kepada: …" di muka kad.',pB:'Salin link peribadi',
+  vT:'🎬 Video jemputan MP4',vH:'Video 1080×1920 (~34 saat) dijana terus dalam phone anda — sesuai untuk WhatsApp Status, TikTok & IG. Video tanpa lagu: tambah lagu sendiri dalam TikTok / IG / CapCut.',vB:'🎬 Jana & muat turun video',
+  lT:'Senarai',lC:'⬇️ Excel (CSV)',f1:'Semua',f2:'Hadir',f3:'Tidak hadir',f4:'Ucapan',lR:'⟳ Muat semula',
+  hadir:'Hadir',tidak:'Tidak hadir',ucap:'Ucapan',orang:'orang',sorok:'Sorok ucapan',papar:'Papar semula',kosong:'Belum ada respon. Kongsi link kad kepada tetamu 💌',
+  salin:'Link disalin ✓',tiadaId:'Link tidak lengkap. Buka halaman ni dari butang "🔒 Halaman pengantin" di bawah kad anda.',salah:'No. telefon tidak sepadan dengan pembeli kad.',gagal:'Gagal menyambung. Cuba lagi.',jadual:'Ciri RSVP belum diaktifkan (admin perlu jalankan SQL kahwin).',
+  waTeks:'Assalamualaikum & salam sejahtera. Dengan penuh kesyukuran, kami menjemput anda ke majlis perkahwinan kami 💍\n\n'},
+ en:{hS:'Couple\'s page — RSVP list, wishes & video',mT:'Couple login',mH:'Enter the phone number used when buying this card.',mB:'Log in',sH:'Families attending',sO:'Total guests',sT:'Not attending',sU:'Wishes',
+  kT:'Share the invitation',kS:'🔗 Copy link',kW:'💬 WhatsApp',pH:'Personal invite — the guest\'s name shows as "To: …" on the card cover.',pB:'Copy personal link',
+  vT:'🎬 MP4 invitation video',vH:'A 1080×1920 video (~34s) created right on your phone — great for WhatsApp Status, TikTok & IG. No music: add your own song in TikTok / IG / CapCut.',vB:'🎬 Create & download video',
+  lT:'List',lC:'⬇️ Excel (CSV)',f1:'All',f2:'Attending',f3:'Not attending',f4:'Wishes',lR:'⟳ Refresh',
+  hadir:'Attending',tidak:'Not attending',ucap:'Wish',orang:'guests',sorok:'Hide wish',papar:'Show again',kosong:'No replies yet. Share the card link with your guests 💌',
+  salin:'Link copied ✓',tiadaId:'Incomplete link. Open this page from the "🔒 Couple\'s page" button at the bottom of your card.',salah:'The phone number does not match the card buyer.',gagal:'Could not connect. Please try again.',jadual:'RSVP is not enabled yet (admin must run the wedding SQL).',
+  waTeks:'Greetings. With gratitude, we invite you to our wedding reception 💍\n\n'}};
+var lang='ms'; try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }catch(e){}
+function T(k){ return L[lang][k]; }
+function $(q){ return document.querySelector(q); }
+function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+function toast(t){ var e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(function(){ e.classList.remove('on'); },2000); }
+function pakai(){ document.documentElement.lang=lang; $('#lang').textContent=lang==='ms'?'EN':'BM'; document.querySelectorAll('[data-k]').forEach(function(el){ el.textContent=T(el.dataset.k); }); if(DATA) lukis(); }
+$('#lang').onclick=function(){ lang=lang==='ms'?'en':'ms'; try{ localStorage.setItem('gk_lang',lang); }catch(e){} pakai(); };
+var ID=new URLSearchParams(location.search).get('id')||'', DATA=null, TAPIS='semua', TEL='';
+var LINK=location.origin+'/card-pelamin-1.html?id='+encodeURIComponent(ID);
+function salah(t){ var r=$('#ralat'); r.style.display='block'; r.textContent=t; }
+function api(b){ b.id=ID; b.tel=TEL; return fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(function(r){ return r.json().then(function(j){ j._s=r.status; return j; }); }); }
+function masuk(){ TEL=$('#tel').value.trim(); if(!TEL) return; $('#ralat').style.display='none'; $('#bMasuk').disabled=true;
+  api({action:'kahwin_urus'}).then(function(j){ $('#bMasuk').disabled=false;
+    if(j._s===401) return salah(T('salah')); if(j._s!==200) return salah(j.error&&/kahwin_rsvp/.test(j.error)?T('jadual'):(j.error||T('gagal')));
+    try{ localStorage.setItem('gk_kahwin_tel_'+ID,TEL); }catch(e){}
+    DATA=j; $('#masuk').style.display='none'; $('#isi').style.display='block'; lukis(); }).catch(function(){ $('#bMasuk').disabled=false; salah(T('gagal')); }); }
+$('#bMasuk').onclick=masuk;
+function lukis(){ var k=DATA.kad||{}, S=DATA.senarai||[];
+  $('#hNm').textContent=(k.pP||'')+(k.pL?' & '+k.pL:'')||'💍';
+  var hd=S.filter(function(x){ return x.hadir===true; }), td=S.filter(function(x){ return x.hadir===false; }), uc=S.filter(function(x){ return x.ucapan; });
+  $('#sH').textContent=hd.length; $('#sO').textContent=hd.reduce(function(a,x){ return a+(x.bil||0); },0); $('#sT').textContent=td.length; $('#sU').textContent=uc.length;
+  var A=TAPIS==='hadir'?hd:TAPIS==='tidak'?td:TAPIS==='ucapan'?uc:S;
+  if(!A.length){ $('#senarai').innerHTML='<div class="kosong">'+esc(T('kosong'))+'</div>'; return; }
+  $('#senarai').innerHTML=A.map(function(x){ var d=new Date(x.created_at), tg=x.hadir===true?'<span class="tag y">✓ '+esc(T('hadir'))+' · '+x.bil+'</span>':x.hadir===false?'<span class="tag n">'+esc(T('tidak'))+'</span>':'<span class="tag u">💬 '+esc(T('ucap'))+'</span>';
+    var tel=x.tel?' · <a target="_blank" rel="noopener" href="https://wa.me/'+(String(x.tel)[0]==='0'?'6':'')+esc(x.tel)+'">'+esc(x.tel)+'</a>':'';
+    return '<div class="item'+(x.sorok?' sorok':'')+'"><div class="a"><b>'+esc(x.nama)+'</b>'+tg+'</div><div class="m">'+d.toLocaleDateString()+' '+d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+tel+'</div>'+
+      (x.ucapan?'<div class="u">'+esc(x.ucapan)+'</div><button class="sorokB" data-r="'+x.id+'" data-s="'+(x.sorok?0:1)+'">'+esc(x.sorok?T('papar'):T('sorok'))+'</button>':'')+'</div>'; }).join('');
+  document.querySelectorAll('.sorokB').forEach(function(b){ b.onclick=function(){ api({action:'kahwin_sorok',rid:+b.dataset.r,sorok:b.dataset.s==='1'}).then(muatSemula); }; }); }
+function muatSemula(){ api({action:'kahwin_urus'}).then(function(j){ if(j._s===200){ DATA=j; lukis(); } }); }
+$('#bMuat').onclick=muatSemula;
+document.querySelectorAll('.tab button').forEach(function(b){ b.onclick=function(){ TAPIS=b.dataset.f; document.querySelectorAll('.tab button').forEach(function(x){ x.classList.toggle('on',x===b); }); lukis(); }; });
+function salin(t){ try{ navigator.clipboard.writeText(t).then(function(){ toast(T('salin')); },fb); }catch(e){ fb(); } function fb(){ var a=document.createElement('textarea'); a.value=t; document.body.appendChild(a); a.select(); try{ document.execCommand('copy'); toast(T('salin')); }catch(x){} a.remove(); } }
+$('#bSalin').onclick=function(){ salin(LINK); };
+$('#bWa').href='https://wa.me/?text='+encodeURIComponent(T('waTeks')+LINK);
+$('#bTamu').onclick=function(){ var n=$('#tamu').value.trim(); if(!n) return; salin(LINK+'&untuk='+encodeURIComponent(n)); };
+$('#bVid').href='card-pelamin-1.html?id='+encodeURIComponent(ID)+'&jana=1&lang='+lang;
+$('#bCsv').onclick=function(){ var S=(DATA&&DATA.senarai)||[]; var rows=[['Nama','Telefon','Kehadiran','Bilangan','Ucapan','Masa']].concat(S.map(function(x){ return [x.nama,x.tel||'',x.hadir===true?'Hadir':x.hadir===false?'Tidak hadir':'-',x.bil||0,x.ucapan||'',new Date(x.created_at).toLocaleString()]; }));
+  var csv='﻿'+rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\r\n');
+  var u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})), a=document.createElement('a'); a.href=u; a.download='rsvp-perkahwinan.csv'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); },2000); };
+pakai();
+if(!ID){ $('#bMasuk').disabled=true; salah(T('tiadaId')); }
+else { try{ var t=localStorage.getItem('gk_kahwin_tel_'+ID); if(t){ $('#tel').value=t; masuk(); } }catch(e){} }
+</script>
+</body>
+</html>
