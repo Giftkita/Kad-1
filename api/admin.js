@@ -8,7 +8,7 @@
 //  POST {token, action:'kapasiti'}          → saiz pangkalan data Supabase + trafik Vercel bulan ini
 //  GET  /api/admin?notis=1                    → AWAM: notis semasa (untuk gk-notis.js)
 //  POST {action:'lawat', p,s,d,i,b}           → AWAM: catat 1 lawatan (gk-notis.js / gk-bayar.js)
-//  POST {action:'kahwin_hantar', id, nama, tel, hadir, bil, ucapan} → AWAM: RSVP / ucapan tetamu (card-pelamin-1.html)
+//  POST {action:'kahwin_hantar', id, nama, tel, hadir, bil, ucapan} → AWAM: RSVP / ucapan tetamu (card-pelamin-1.html, card-impian-1.html)
 //  POST {action:'kahwin_ucapan', id}           → AWAM: senarai ucapan tetamu (tanpa no. telefon)
 //  POST {action:'kahwin_urus', id, tel}        → pengantin: semua RSVP + ucapan (tel = no. telefon masa beli)
 //  POST {action:'kahwin_sorok', id, tel, rid, sorok} → pengantin: sorok / papar semula satu ucapan
@@ -379,9 +379,9 @@ async function sbInsertA(table, row) { const { url, key } = SBA(); const r = awa
 
 
 // ════════════════════════════════════════════════════════════
-//  KAD KAHWIN (template 'pelamin') — jadual Supabase kahwin_rsvp (docs/sql-kahwin.sql)
+//  KAD KAHWIN (template 'pelamin' / 'impian') — jadual Supabase kahwin_rsvp (docs/sql-kahwin.sql)
 // ════════════════════════════════════════════════════════════
-const KAHWIN_TPL = { pelamin: true };
+const KAHWIN_TPL = { pelamin: true, impian: true };
 function digit(x) { return String(x || '').replace(/\D/g, ''); }
 function telSama(a, b) { a = digit(a); b = digit(b); return a.length >= 9 && b.length >= 9 && a.slice(-9) === b.slice(-9); }
 async function kadKahwin(id) {
@@ -424,7 +424,7 @@ async function kahwin(req, res) {
   if (A === 'kahwin_urus') {
     const r = await sbAll(`kahwin_rsvp?card_id=eq.${encodeURIComponent(kad.id)}&select=id,nama,tel,hadir,bil,ucapan,sorok,created_at&order=created_at.desc`);
     res.setHeader('Cache-Control', 'no-store');
-    res.status(200).json({ kad: { id: kad.id, pP: kad.pP, pL: kad.pL, tarikh: kad.tarikh }, senarai: Array.isArray(r) ? r : [] }); return;
+    res.status(200).json({ kad: { id: kad.id, tpl: kad.tpl, pP: kad.pP, pL: kad.pL, tarikh: kad.tarikh }, senarai: Array.isArray(r) ? r : [] }); return;
   }
   if (A === 'kahwin_sorok') {
     const rid = parseInt(b.rid, 10); if (!rid) { res.status(400).json({ error: 'rid' }); return; }
