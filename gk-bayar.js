@@ -412,6 +412,15 @@ function pendingRedirect(){
 
   var id=null; try{ id=localStorage.getItem('gk_pending'); }catch(e){}
   if(!id) return;
+  /* PENTING: customer yang tekan Bayar tapi TAK bayar (tutup / back dari ToyyibPay) masih ada gk_pending.
+     Dulu terus dibawa ke bayar.html → "Checking payment…" setiap kali buka borang (sangkut).
+     Sekarang semak senyap dulu: hanya bawa ke bayar.html kalau server sahkan DAH bayar; kalau belum → buang tanda. */
+  fetch(API_BASE+'/api/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cardId:id})})
+    .then(function(r){ return r.json(); })
+    .then(function(out){ if(out&&out.paid===true) tunjukPending(id); else { try{ localStorage.removeItem('gk_pending'); }catch(e){} } })
+    .catch(function(){ /* rangkaian gagal → biar, cuba lagi lain kali */ });
+}
+function tunjukPending(id){
   var b=document.createElement('div');
   b.style.cssText='position:fixed;inset:0;z-index:99999;background:#fff;display:flex;flex-direction:column;'
     +'align-items:center;justify-content:center;font-family:inherit;text-align:center;padding:26px;gap:10px';

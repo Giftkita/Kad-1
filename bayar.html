@@ -364,6 +364,8 @@ async function checkNow(manual){
     setTimeout(()=>checkNow(false),jeda);
   }else{
     show('st-fail');
+    /* belum bayar → buang tanda supaya borang tak bawa balik ke sini (dulu jadi sangkut "Checking payment") */
+    try{ if(localStorage.getItem('gk_pending')===cardId) localStorage.removeItem('gk_pending'); }catch(_e){}
   }
 }
 
