@@ -107,17 +107,20 @@ function T(k){ return L[lang][k]; }
 function $(q){ return document.querySelector(q); }
 function esc(x){ return String(x==null?'':x).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
 function toast(t){ var e=$('#toast'); e.textContent=t; e.classList.add('on'); clearTimeout(toast._t); toast._t=setTimeout(function(){ e.classList.remove('on'); },2000); }
-function pakai(){ document.documentElement.lang=lang; $('#lang').textContent=lang==='ms'?'EN':'BM'; document.querySelectorAll('[data-k]').forEach(function(el){ el.textContent=T(el.dataset.k); }); if(DATA) lukis(); }
+function pakai(){ document.documentElement.lang=lang; $('#lang').textContent=lang==='ms'?'EN':'BM'; document.querySelectorAll('[data-k]').forEach(function(el){ el.textContent=T(el.dataset.k); }); if(typeof pasangLink==='function'&&$('#bVid')) pasangLink(); if(DATA) lukis(); }
 $('#lang').onclick=function(){ lang=lang==='ms'?'en':'ms'; try{ localStorage.setItem('gk_lang',lang); }catch(e){} pakai(); };
 var ID=new URLSearchParams(location.search).get('id')||'', DATA=null, TAPIS='semua', TEL='';
-var LINK=location.origin+'/card-pelamin-1.html?id='+encodeURIComponent(ID);
+var KAD_TPL={pelamin:'card-pelamin-1.html',impian:'card-impian-1.html'};
+function kadFail(){ var t=(DATA&&DATA.kad&&DATA.kad.tpl)||new URLSearchParams(location.search).get('t')||'pelamin'; return KAD_TPL[t]||KAD_TPL.pelamin; }
+var LINK='';
+function pasangLink(){ LINK=location.origin+'/'+kadFail()+'?id='+encodeURIComponent(ID); $('#bWa').href='https://wa.me/?text='+encodeURIComponent(T('waTeks')+LINK); $('#bVid').href=kadFail()+'?id='+encodeURIComponent(ID)+'&jana=1&lang='+lang; }
 function salah(t){ var r=$('#ralat'); r.style.display='block'; r.textContent=t; }
 function api(b){ b.id=ID; b.tel=TEL; return fetch('/api/admin',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)}).then(function(r){ return r.json().then(function(j){ j._s=r.status; return j; }); }); }
 function masuk(){ TEL=$('#tel').value.trim(); if(!TEL) return; $('#ralat').style.display='none'; $('#bMasuk').disabled=true;
   api({action:'kahwin_urus'}).then(function(j){ $('#bMasuk').disabled=false;
     if(j._s===401) return salah(T('salah')); if(j._s!==200) return salah(j.error&&/kahwin_rsvp/.test(j.error)?T('jadual'):(j.error||T('gagal')));
     try{ localStorage.setItem('gk_kahwin_tel_'+ID,TEL); }catch(e){}
-    DATA=j; $('#masuk').style.display='none'; $('#isi').style.display='block'; lukis(); }).catch(function(){ $('#bMasuk').disabled=false; salah(T('gagal')); }); }
+    DATA=j; pasangLink(); $('#masuk').style.display='none'; $('#isi').style.display='block'; lukis(); }).catch(function(){ $('#bMasuk').disabled=false; salah(T('gagal')); }); }
 $('#bMasuk').onclick=masuk;
 function lukis(){ var k=DATA.kad||{}, S=DATA.senarai||[];
   $('#hNm').textContent=(k.pP||'')+(k.pL?' & '+k.pL:'')||'💍';
@@ -135,13 +138,11 @@ $('#bMuat').onclick=muatSemula;
 document.querySelectorAll('.tab button').forEach(function(b){ b.onclick=function(){ TAPIS=b.dataset.f; document.querySelectorAll('.tab button').forEach(function(x){ x.classList.toggle('on',x===b); }); lukis(); }; });
 function salin(t){ try{ navigator.clipboard.writeText(t).then(function(){ toast(T('salin')); },fb); }catch(e){ fb(); } function fb(){ var a=document.createElement('textarea'); a.value=t; document.body.appendChild(a); a.select(); try{ document.execCommand('copy'); toast(T('salin')); }catch(x){} a.remove(); } }
 $('#bSalin').onclick=function(){ salin(LINK); };
-$('#bWa').href='https://wa.me/?text='+encodeURIComponent(T('waTeks')+LINK);
 $('#bTamu').onclick=function(){ var n=$('#tamu').value.trim(); if(!n) return; salin(LINK+'&untuk='+encodeURIComponent(n)); };
-$('#bVid').href='card-pelamin-1.html?id='+encodeURIComponent(ID)+'&jana=1&lang='+lang;
 $('#bCsv').onclick=function(){ var S=(DATA&&DATA.senarai)||[]; var rows=[['Nama','Telefon','Kehadiran','Bilangan','Ucapan','Masa']].concat(S.map(function(x){ return [x.nama,x.tel||'',x.hadir===true?'Hadir':x.hadir===false?'Tidak hadir':'-',x.bil||0,x.ucapan||'',new Date(x.created_at).toLocaleString()]; }));
   var csv='﻿'+rows.map(function(r){ return r.map(function(c){ return '"'+String(c).replace(/"/g,'""')+'"'; }).join(','); }).join('\r\n');
   var u=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})), a=document.createElement('a'); a.href=u; a.download='rsvp-perkahwinan.csv'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(u); a.remove(); },2000); };
-pakai();
+pakai(); pasangLink();
 if(!ID){ $('#bMasuk').disabled=true; salah(T('tiadaId')); }
 else { try{ var t=localStorage.getItem('gk_kahwin_tel_'+ID); if(t){ $('#tel').value=t; masuk(); } }catch(e){} }
 </script>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Buat Kad Kahwin — Taman Impian | GiftKita</title>
+<!--GK-SEO-->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#1F3A7A">
+<meta name="description" content="Buat kad ucapan digital interaktif yang cantik — penuh animasi, muzik &amp; kenangan. Hantar link kepada orang tersayang.">
+<link rel="canonical" href="https://www.giftkita.com/buat-kad-impian.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GiftKita">
+<meta property="og:title" content="Buat Kad Kahwin — Taman Impian | GiftKita">
+<meta property="og:description" content="Buat kad ucapan digital interaktif yang cantik — penuh animasi, muzik &amp; kenangan. Hantar link kepada orang tersayang.">
+<meta property="og:url" content="https://www.giftkita.com/buat-kad-impian.html">
+<meta property="og:image" content="https://www.giftkita.com/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ms_MY">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Buat Kad Kahwin — Taman Impian | GiftKita">
+<meta name="twitter:description" content="Buat kad ucapan digital interaktif yang cantik — penuh animasi, muzik &amp; kenangan. Hantar link kepada orang tersayang.">
+<meta name="twitter:image" content="https://www.giftkita.com/og-image.jpg">
+<!--/GK-SEO-->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',system-ui,sans-serif;background:#eef3fb;color:#1d2a4a;padding:0 0 60px;--gk-accent:#1f3a7a;--gk-accent-2:#d987a6}
+header{position:relative;text-align:center;padding:52px 18px 20px;background:#fffdf8;border-bottom:1px solid #e2d7f3}
+.back{position:absolute;left:14px;top:14px;font-size:.8rem;color:#8a6a3f;text-decoration:none}
+#lang{position:absolute;top:12px;right:14px;background:#fff;border:1px solid rgba(150,125,110,.3);
+  border-radius:999px;padding:6px 12px;font-size:12px;color:#6b5a4c;cursor:pointer;font-family:inherit}
+h1{font-size:1.25rem;font-weight:700}
+header p{font-size:.8rem;color:#9a8578;margin-top:4px}
+.wrap{max-width:620px;margin:18px auto;padding:0 14px}
+.sec{background:#fffdf7;border:1px solid rgba(150,125,110,.18);border-radius:14px;padding:16px;margin-bottom:14px}
+.sec h2{font-size:1rem;margin-bottom:3px}
+.sec .hint{font-size:.78rem;color:#9a8578;margin-bottom:12px}
+label.l{display:block;font-size:.78rem;color:#7d6c5e;margin:10px 0 4px}
+input[type=text],input[type=url],textarea,select{width:100%;padding:10px 12px;border:1px solid #e0d4bd;
+  border-radius:10px;font-family:inherit;font-size:.9rem;background:#fff;color:#1d2a4a}
+textarea{min-height:140px;resize:vertical;line-height:1.55}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin-top:8px}
+.fotoSlot{aspect-ratio:1/1;border:1.5px dashed rgba(150,125,110,.45);border-radius:10px;background:#fcf8ee;
+  display:grid;place-items:center;cursor:pointer;overflow:hidden;position:relative}
+.fotoSlot img{width:100%;height:100%;object-fit:cover}
+.fotoSlot .no{position:absolute;left:5px;top:4px;font-size:10px;color:#a4917c;background:rgba(255,255,255,.85);
+  border-radius:4px;padding:1px 5px}
+.fotoSlot .x{position:absolute;right:3px;top:3px;background:#c0392b;color:#fff;border:0;border-radius:50%;
+  width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1}
+.fotoSlot .plus{font-size:20px;color:#c3b39c}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 18px;border-radius:11px;border:0;cursor:pointer;
+  font-family:inherit;font-size:.88rem;font-weight:600;background:#6b4fa3;color:#fff}
+.btn.ghost{background:#fff;border:1.5px solid #d9cbef;color:#6b4fa3}
+.amaran{background:#fff3cd;border:1px solid #e6d4a1;border-radius:10px;padding:12px;font-size:.82rem;color:#7a5c1a}
+.kira{font-size:.75rem;color:#9a8578;text-align:right;margin-top:4px}
+/* pelaras kedudukan */
+.laras{position:fixed;inset:0;background:rgba(30,24,18,.86);z-index:80;display:none;
+  align-items:center;justify-content:center;padding:18px}
+.laras.show{display:flex}
+.larasBox{background:#fffdf7;border-radius:16px;padding:16px;max-width:420px;width:100%}
+.bukaanLaras{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:#e7e0d3;
+  border-radius:8px;touch-action:none;cursor:grab}
+.bukaanLaras img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:center;pointer-events:none}
+.fotoSlot .mk{position:absolute;left:0;right:0;bottom:0;font-size:9px;text-align:center;color:#7a66a8;background:rgba(255,255,255,.85);padding:1px 2px}
+.duaKol{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+input[type=range]{width:100%;margin-top:10px}
+</style>
+<style>/* GiftKita 27 Sep 2026: upload MP3 dibuang — lagu guna pautan YouTube sahaja */
+#tMP3,#pMP3,#tYT,#btnMP3,#panelMP3,#btnYT,#pane-mp3,.mtabs,.sm:has(> #fMp3),.sm:has(> input[data-mp3]),label[data-k="lMp3"],#mp3f,#mp3info{display:none!important}
+</style>
+</head>
+<body>
+
+<header>
+  <a class="back" href="buat-kad-nikah.html" data-k="back">‹ Kembali</a>
+  <button id="lang">BM / EN</button>
+  <h1 data-k="h1">Kad Kahwin — Taman Impian 💍</h1>
+  <p data-k="hs"></p>
+</header>
+
+<div class="wrap">
+
+  <div class="sec">
+    <h2 data-k="s1">Pengantin</h2><div class="hint" data-k="s1h"></div>
+    <div class="duaKol">
+      <div><label class="l" data-k="lpP">Nama panggilan pengantin perempuan</label><input type="text" id="pP" maxlength="16" placeholder="Shafiqah"></div>
+      <div><label class="l" data-k="lpL">Nama panggilan pengantin lelaki</label><input type="text" id="pL" maxlength="16" placeholder="Ammar"></div>
+    </div>
+    <label class="l" data-k="lnP">Nama penuh pengantin perempuan</label><input type="text" id="nP" maxlength="50" placeholder="Nur Shafiqah binti Razak">
+    <label class="l" data-k="lnL">Nama penuh pengantin lelaki</label><input type="text" id="nL" maxlength="50" placeholder="Mohd Ammar bin Amirul">
+    <label class="l" data-k="lGelar">Gelaran di kulit kad</label><input type="text" id="gelaran" maxlength="20" data-ph="phGelar">
+    <label class="l" data-k="lKata">Ayat "akhirnya…"</label><input type="text" id="kata" maxlength="60" data-ph="phKata">
+  </div>
+
+  <div class="sec">
+    <h2 data-k="sIb">Ibu bapa</h2><div class="hint" data-k="sIbh"></div>
+    <div class="duaKol">
+      <div><label class="l" data-k="lbP">Bapa pengantin perempuan</label><input type="text" id="bapaP" maxlength="50" placeholder="Encik Razak bin Abdullah"></div>
+      <div><label class="l" data-k="liP">Ibu pengantin perempuan</label><input type="text" id="ibuP" maxlength="50" placeholder="Puan Fatimah binti Abdul"></div>
+      <div><label class="l" data-k="lbL">Bapa pengantin lelaki</label><input type="text" id="bapaL" maxlength="50" placeholder="Encik Amirul bin Hassan"></div>
+      <div><label class="l" data-k="liL">Ibu pengantin lelaki</label><input type="text" id="ibuL" maxlength="50" placeholder="Puan Aminah binti Yusof"></div>
+    </div>
+    <label class="l" data-k="lHos">Tuan rumah (nama yang menjemput)</label><textarea id="hos" maxlength="160" style="min-height:70px" data-ph="phHos"></textarea>
+    <label class="l" data-k="lJemput">Ayat jemputan</label><textarea id="ucapJemput" maxlength="300" style="min-height:80px"></textarea>
+  </div>
+
+  <div class="sec">
+    <h2 data-k="sM">Majlis</h2><div class="hint" data-k="sMh"></div>
+    <label class="l" data-k="lTarikh">Tarikh majlis</label><input type="date" id="tarikh">
+    <div class="duaKol">
+      <div><label class="l" data-k="lM1">Masa mula</label><input type="time" id="masa1" value="11:00"></div>
+      <div><label class="l" data-k="lM2">Masa tamat</label><input type="time" id="masa2" value="16:00"></div>
+      <div><label class="l" data-k="lSanding">Masa bersanding (pilihan)</label><input type="time" id="sanding"></div>
+      <div><label class="l" data-k="lHijrah">Tarikh Hijrah (pilihan)</label><input type="text" id="hijrah" maxlength="40" data-ph="phHijrah"></div>
+    </div>
+    <label class="l" data-k="lTempat">Nama tempat</label><input type="text" id="tempat" maxlength="60" placeholder="Dewan Seri Melati">
+    <label class="l" data-k="lAlamat">Alamat</label><textarea id="alamat" maxlength="160" style="min-height:70px" placeholder="Jalan …, 47000 Sungai Buloh, Selangor"></textarea>
+    <label class="l" data-k="lPeta">Link Google Maps (pilihan)</label><input type="url" id="peta" maxlength="300" placeholder="https://maps.app.goo.gl/…">
+    <label class="l" data-k="lWaze">Link Waze (pilihan)</label><input type="url" id="waze" maxlength="300" placeholder="https://waze.com/ul/…">
+    <label class="l" data-k="lAtur">Aturcara majlis (pilihan)</label>
+<div style="display:grid;grid-template-columns:110px 1fr;gap:6px;margin-bottom:6px"><input type="time" id="at1"><input type="text" id="a1" maxlength="50" data-ph="phA1"></div><div style="display:grid;grid-template-columns:110px 1fr;gap:6px;margin-bottom:6px"><input type="time" id="at2"><input type="text" id="a2" maxlength="50" data-ph="phA2"></div><div style="display:grid;grid-template-columns:110px 1fr;gap:6px;margin-bottom:6px"><input type="time" id="at3"><input type="text" id="a3" maxlength="50" data-ph="phA3"></div><div style="display:grid;grid-template-columns:110px 1fr;gap:6px;margin-bottom:6px"><input type="time" id="at4"><input type="text" id="a4" maxlength="50" data-ph="phA4"></div><div style="display:grid;grid-template-columns:110px 1fr;gap:6px;margin-bottom:6px"><input type="time" id="at5"><input type="text" id="a5" maxlength="50" data-ph="phA5"></div><div style="display:grid;grid-template-columns:110px 1fr;gap:6px;margin-bottom:6px"><input type="time" id="at6"><input type="text" id="a6" maxlength="50" data-ph="phA6"></div>    <label class="l" data-k="lPakaian">Kod pakaian (pilihan)</label><input type="text" id="pakaian" maxlength="60" data-ph="phPakaian">
+  </div>
+
+  <div class="sec">
+    <h2 data-k="sR">RSVP &amp; buku tetamu</h2><div class="hint" data-k="sRh"></div>
+    <div class="duaKol">
+      <div><label class="l" data-k="lTutup">Tarikh tutup RSVP (pilihan)</label><input type="date" id="rsvpTutup"></div>
+      <div><label class="l" data-k="lMaks">Maksimum orang setiap RSVP</label><input type="number" id="maks" min="1" max="20" value="5"></div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <h2 data-k="sH">Salam kaut / hadiah (pilihan)</h2><div class="hint" data-k="sHh"></div>
+    <div class="duaKol">
+      <div><label class="l" data-k="lBank">Bank</label><input type="text" id="bank" maxlength="30" placeholder="Maybank"></div>
+      <div><label class="l" data-k="lAkaun">No. akaun</label><input type="text" id="akaun" maxlength="30" inputmode="numeric"></div>
+    </div>
+    <label class="l" data-k="lNamaAk">Nama pemegang akaun</label><input type="text" id="namaAkaun" maxlength="50">
+    <label class="l" data-k="lQr">Gambar QR DuitNow (pilihan)</label>
+    <div class="grid" style="grid-template-columns:repeat(2,1fr);max-width:220px"><div class="fotoSlot" id="slotKejut"><span class="plus">+</span></div></div>
+  </div>
+
+  <div class="sec">
+    <h2 data-k="sW">Hubungi wakil (pilihan)</h2><div class="hint" data-k="sWh"></div>
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px"><input type="text" id="w1n" maxlength="30" data-ph="phWn"><input type="text" id="w1h" maxlength="30" data-ph="phWh"><input type="text" id="w1t" maxlength="16" inputmode="tel" data-ph="phWt"></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px"><input type="text" id="w2n" maxlength="30" data-ph="phWn"><input type="text" id="w2h" maxlength="30" data-ph="phWh"><input type="text" id="w2t" maxlength="16" inputmode="tel" data-ph="phWt"></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px"><input type="text" id="w3n" maxlength="30" data-ph="phWn"><input type="text" id="w3h" maxlength="30" data-ph="phWh"><input type="text" id="w3t" maxlength="16" inputmode="tel" data-ph="phWt"></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:6px"><input type="text" id="w4n" maxlength="30" data-ph="phWn"><input type="text" id="w4h" maxlength="30" data-ph="phWh"><input type="text" id="w4t" maxlength="16" inputmode="tel" data-ph="phWt"></div>  </div>
+
+  <div class="sec">
+    <h2 data-k="s2">Doa buat pengantin</h2><div class="hint" data-k="s2h"></div>
+    <textarea id="ucapan" maxlength="600"></textarea>
+    <div class="kira"><span id="kiraUcap">0</span> / 600</div>
+    <div style="margin-top:8px"><button class="btn ghost" id="pulih" data-k="pulih">Guna ayat asal semula</button></div>
+  </div>
+
+  <div class="sec">
+    <h2 data-k="s3">Gambar (sampai 12 keping)</h2>
+    <div class="hint" data-k="s3h">Tekan kotak untuk pilih. Boleh pilih beberapa sekali gus — diisi ikut urutan. Tekan gambar yang dah ada untuk laras kedudukan &amp; zum.</div>
+    <div class="grid" id="grid"></div>
+    <div class="kira"><span id="kiraFoto">0</span> / 6</div>
+  </div>
+
+  <div class="sec">
+    <h2 data-k="s5">Video YouTube</h2><div class="hint" data-k="s5h">Pilihan — main dalam bingkai vintaj (tiada video → slaid semua gambar)</div>
+    <input type="url" id="video" placeholder="https://www.youtube.com/watch?v=...">
+  </div>
+
+  <div class="sec">
+    <h2 data-k="s6">Lagu</h2><div class="hint" data-k="s6h">Main bila buku dibuka. Guna link YouTube.</div>
+    <label class="l" data-k="lYt">Link YouTube</label><input type="url" id="yt" placeholder="https://www.youtube.com/watch?v=...">
+    <label class="l" data-k="lMp3">atau upload MP3</label>
+    <input type="file" id="mp3f" accept="audio/*">
+    <div class="hint" id="mp3info" style="margin-top:6px"></div>
+    <label class="l" data-k="lSong">Tajuk lagu</label><input type="text" id="song" maxlength="60">
+    <label class="l" data-k="lArtist">Penyanyi</label><input type="text" id="artist" maxlength="60">
+  </div>
+
+  <div class="sec">
+    <h2 data-k="s7">Pratonton &amp; bayar</h2>
+    <div class="hint" data-k="s7h">Tekan pratonton untuk tengok buku dulu. Bayaran selepas anda puas hati.</div>
+    <div id="gk-pratonton" style="margin-bottom:10px"></div>
+    <div id="gk-bayar"></div>
+  </div>
+</div>
+
+<div class="laras" id="laras">
+  <div class="larasBox">
+    <h2 style="font-size:1rem;margin-bottom:4px" data-k="lrTajuk">Laras kedudukan gambar</h2>
+    <div class="hint" data-k="lrHint">Seret gambar untuk alih, guna slider untuk zum.</div>
+    <div class="bukaanLaras" id="lrWrap"><img id="lrImg" alt=""></div>
+    <input type="range" id="lrZoom" min="1" max="3" step="0.01" value="1">
+    <div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end">
+      <button class="btn ghost" id="lrBatal" data-k="lrBatal">Batal</button>
+      <button class="btn" id="lrOk" data-k="lrOk">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<script src="gk-bayar.js"></script>
+<script>
+/* ============ dwibahasa ============ */
+var L={"ms": {"title": "Buat Kad Kahwin Digital — Taman Impian | GiftKita", "back": "‹ Kembali", "h1": "Kad Kahwin — Taman Impian 💍", "hs": "Kulit navy \"Raja Sehari\" · kamera terbang sepanjang laluan taman bunga · pengantin berjalan ke depan · tarikh Hijrah automatik · RSVP & buku tetamu · Waze/Maps · salam kaut · video MP4 untuk WhatsApp/TikTok · RM15", "s1": "Pengantin", "s1h": "Nama panggilan keluar besar; nama penuh di bahagian ibu bapa. Gelaran & ayat boleh diubah.", "lpP": "Nama panggilan pengantin perempuan", "lpL": "Nama panggilan pengantin lelaki", "lnP": "Nama penuh pengantin perempuan", "lnL": "Nama penuh pengantin lelaki", "lMono": "Monogram (pilihan)", "phMono": "Kosong = huruf awal (cth SA)", "sIb": "Ibu bapa", "sIbh": "Tuan rumah = nama yang menjemput (biasanya ibu bapa pihak yang buat majlis).", "lbP": "Bapa pengantin perempuan", "liP": "Ibu pengantin perempuan", "lbL": "Bapa pengantin lelaki", "liL": "Ibu pengantin lelaki", "lHos": "Tuan rumah (nama yang menjemput)", "phHos": "Kosong = bapa & ibu pengantin perempuan", "lJemput": "Ayat jemputan", "sM": "Majlis", "sMh": "Tarikh & masa digunakan untuk kiraan detik, kalendar & video.", "lTarikh": "Tarikh majlis", "lM1": "Masa mula", "lM2": "Masa tamat", "lTempat": "Nama tempat", "lAlamat": "Alamat", "lPeta": "Link Google Maps (pilihan)", "lWaze": "Link Waze (pilihan)", "lAtur": "Aturcara majlis (pilihan)", "lPakaian": "Kod pakaian (pilihan)", "phPakaian": "cth: Pastel / tona lembut", "phA1": "Ketibaan tetamu & jamuan", "phA2": "Ketibaan pengantin", "phA3": "Makan beradab", "phA4": "Majlis bersurai", "phA5": "", "phA6": "", "sR": "RSVP & buku tetamu", "sRh": "Tetamu sahkan kehadiran & tulis ucapan dalam kad. Anda tengok senarai penuh + muat turun Excel di \"🔒 Halaman pengantin\" (log masuk guna no. telefon masa bayar).", "lTutup": "Tarikh tutup RSVP (pilihan)", "lMaks": "Maksimum orang setiap RSVP", "sH": "Salam kaut / hadiah (pilihan)", "sHh": "Kosongkan kalau tak nak — bahagian ni takkan keluar.", "lBank": "Bank", "lAkaun": "No. akaun", "lNamaAk": "Nama pemegang akaun", "lQr": "Gambar QR DuitNow (pilihan)", "sW": "Hubungi wakil (pilihan)", "sWh": "Nama · hubungan · no. telefon — tetamu boleh WhatsApp / call terus.", "phWn": "Nama", "phWh": "Hubungan", "phWt": "No. telefon", "s2": "Doa buat pengantin", "s2h": "Ayat dah siap — boleh guna terus atau ubah.", "pulih": "Guna ayat asal semula", "s3": "Galeri pre-wedding (pilihan, sampai 6)", "s3h": "Gambar 1 dalam bingkai bujur bunga biru, selebihnya grid. Tiada gambar → bahagian galeri tak keluar. Tekan gambar yang dah ada untuk laras kedudukan.", "s5": "Video pre-wedding YouTube (pilihan)", "s5h": "Main dalam galeri (tiada video → slaid gambar galeri).", "s6": "Lagu", "s6h": "Main bila tetamu tekan \"Buka Jemputan\". Guna link YouTube.", "lYt": "Link YouTube", "lMp3": "atau upload MP3", "lSong": "Tajuk lagu", "lArtist": "Penyanyi", "s7": "Pratonton & bayar", "s7h": "Tekan pratonton untuk tengok kad dulu. Bayaran selepas anda puas hati. Kad aktif sampai 30 hari selepas tarikh majlis.", "muka": "Gambar", "lrTajuk": "Laras kedudukan gambar", "lrHint": "Seret gambar untuk alih, guna slider untuk zum.", "lrBatal": "Batal", "lrOk": "Simpan", "mp3ok": "MP3 dimuat: ", "mp3besar": "MP3 terlalu besar.", "perluFoto": "", "perluNama": "Sila isi nama panggilan kedua-dua pengantin & tarikh majlis.", "lGelar": "Gelaran di kulit kad", "phGelar": "Kosong = Raja Sehari", "lKata": "Ayat \"akhirnya…\"", "phKata": "Kosong = akhirnya, kita menjadi satu", "lSanding": "Masa bersanding (pilihan)", "lHijrah": "Tarikh Hijrah (pilihan)", "phHijrah": "Kosong = dikira automatik"}, "en": {"title": "Make a Digital Wedding Invitation — Dream Garden | GiftKita", "back": "‹ Back", "h1": "Wedding Invitation — Dream Garden 💍", "hs": "Navy \"Raja Sehari\" cover · camera flies down a flower garden aisle · couple walks forward · automatic Hijri date · RSVP & guest book · Waze/Maps · gift · MP4 video for WhatsApp/TikTok · RM15", "s1": "The couple", "s1h": "Nicknames appear large; full names in the parents section. Title & line can be changed.", "lpP": "Bride's short name", "lpL": "Groom's short name", "lnP": "Bride's full name", "lnL": "Groom's full name", "lMono": "Monogram (optional)", "phMono": "Empty = initials (e.g. SA)", "sIb": "Parents", "sIbh": "Host = who is inviting (usually the parents hosting the reception).", "lbP": "Bride's father", "liP": "Bride's mother", "lbL": "Groom's father", "liL": "Groom's mother", "lHos": "Host (who is inviting)", "phHos": "Empty = the bride's parents", "lJemput": "Invitation sentence", "sM": "The event", "sMh": "Date & time drive the countdown, calendar & video.", "lTarikh": "Event date", "lM1": "Start time", "lM2": "End time", "lTempat": "Venue name", "lAlamat": "Address", "lPeta": "Google Maps link (optional)", "lWaze": "Waze link (optional)", "lAtur": "Programme (optional)", "lPakaian": "Dress code (optional)", "phPakaian": "e.g. Pastel tones", "phA1": "Guests arrive & lunch", "phA2": "Arrival of the couple", "phA3": "Royal feast", "phA4": "Event ends", "phA5": "", "phA6": "", "sR": "RSVP & guest book", "sRh": "Guests confirm attendance & leave wishes in the card. See the full list + Excel download on the \"🔒 Couple's page\" (log in with the phone number used at checkout).", "lTutup": "RSVP closing date (optional)", "lMaks": "Max guests per RSVP", "sH": "Wedding gift (optional)", "sHh": "Leave empty to hide this section.", "lBank": "Bank", "lAkaun": "Account no.", "lNamaAk": "Account holder", "lQr": "DuitNow QR image (optional)", "sW": "Contacts (optional)", "sWh": "Name · relation · phone — guests can WhatsApp / call directly.", "phWn": "Name", "phWh": "Relation", "phWt": "Phone", "s2": "Prayer for the couple", "s2h": "Ready-made text — use as is or edit.", "pulih": "Restore the original text", "s3": "Pre-wedding gallery (optional, up to 6)", "s3h": "Photo 1 in the blue floral oval frame, the rest in a grid. No photos → no gallery. Tap a photo to adjust its position.", "s5": "Pre-wedding YouTube video (optional)", "s5h": "Plays in the gallery (no video → a slideshow of the gallery).", "s6": "Song", "s6h": "Plays when guests tap \"Open Invitation\". Use a YouTube link.", "lYt": "YouTube link", "lMp3": "or upload an MP3", "lSong": "Song title", "lArtist": "Artist", "s7": "Preview & pay", "s7h": "Tap preview to see the card first. Pay once you are happy. The card stays active until 30 days after the event.", "muka": "Photo", "lrTajuk": "Adjust the photo", "lrHint": "Drag to move, use the slider to zoom.", "lrBatal": "Cancel", "lrOk": "Save", "mp3ok": "MP3 loaded: ", "mp3besar": "MP3 too big.", "perluFoto": "", "perluNama": "Please fill in both short names & the event date.", "lGelar": "Cover title", "phGelar": "Empty = Raja Sehari", "lKata": "\"Finally…\" line", "phKata": "Empty = finally, we become one", "lSanding": "Bersanding time (optional)", "lHijrah": "Hijri date (optional)", "phHijrah": "Empty = calculated automatically"}};
+var AYAT={"ms": "Ya Allah, Ya Rahman, Ya Rahim, berkatilah majlis perkahwinan ini. Limpahkanlah baraqah dan rahmat kepada kedua mempelai. Kurniakanlah mereka zuriat yang soleh dan solehah, dan kekalkanlah jodoh mereka hingga ke Jannah. Aamiin.", "en": "O Allah, the Most Gracious, the Most Merciful, bless this marriage. Shower the couple with blessings and mercy, grant them righteous children, and keep them together until Jannah. Aamiin."};
+var JEMPUT={"ms": "Dengan segala hormatnya menjemput Dato' / Datin / Tuan / Puan / Encik / Cik ke majlis perkahwinan anakanda kami", "en": "cordially invite you to the wedding reception of our beloved children"};
+var LBL={"ms": ["Bingkai bujur", "Galeri 2", "Galeri 3", "Galeri 4", "Galeri 5", "Galeri 6"], "en": ["Oval frame", "Gallery 2", "Gallery 3", "Gallery 4", "Gallery 5", "Gallery 6"]};
+var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
+function T(k){ return (L[lang]&&L[lang][k])||L.ms[k]||''; }
+var ucapDiubah=false;
+function pakai(){
+  document.documentElement.lang=lang; document.title=T('title');
+  [].forEach.call(document.querySelectorAll('[data-k]'),function(el){ var v=T(el.getAttribute('data-k')); if(v) el.textContent=v; });
+  [].forEach.call(document.querySelectorAll('[data-ph]'),function(el){ el.placeholder=T(el.getAttribute('data-ph')); });
+  lukisGrid();
+  if(!ucapDiubah){ document.getElementById('ucapan').value=AYAT[lang]; kiraUcap(); }
+  var uj=document.getElementById('ucapJemput'); if(!uj._ubah) uj.value=JEMPUT[lang];
+}
+document.getElementById('lang').onclick=function(){ lang=(lang==='ms')?'en':'ms';
+  try{localStorage.setItem('gk_lang',lang);}catch(e){} pakai(); };
+
+/* ============ gambar ============ */
+var N=6, fotos=new Array(N).fill(null), pos={}, kejut=null;
+/* label & nisbah bukaan setiap slot — sama dengan lubang bingkai dalam card-impian-1.html */
+var MUKA=[0,0,0,0,0,0];
+var ASP=[0.72,1,1,1,1,1];
+var grid=document.getElementById('grid');
+for(var i=0;i<N;i++){
+  var d=document.createElement('div'); d.className='fotoSlot'; d.dataset.i=i;
+  d.innerHTML='<span class="no">'+(i+1)+'</span><span class="plus">+</span>';
+  grid.appendChild(d);
+}
+var pilihFail=document.createElement('input');
+pilihFail.type='file'; pilihFail.accept='image/*'; pilihFail.multiple=true; pilihFail.style.display='none';
+document.body.appendChild(pilihFail);
+var mulaIdx=0, sasarKejut=false;
+grid.onclick=function(e){
+  var s=e.target.closest('.fotoSlot'); if(!s) return;
+  var i=+s.dataset.i;
+  if(e.target.classList.contains('x')){ fotos[i]=null; delete pos['f'+(i+1)]; lukisGrid(); return; }
+  if(fotos[i]) return bukaLaras(i);
+  mulaIdx=i; sasarKejut=false; pilihFail.click();
+};
+document.getElementById('slotKejut').onclick=function(e){
+  if(e.target.classList.contains('x')){ kejut=null; lukisKejut(); return; }
+  sasarKejut=true; pilihFail.click();
+};
+pilihFail.onchange=function(){
+  var fs=[].slice.call(pilihFail.files); if(!fs.length) return;
+  if(sasarKejut){ kecilkan(fs[0],function(u){ kejut=u; lukisKejut(); }); pilihFail.value=''; return; }
+  var idx=mulaIdx;
+  (function seterus(k){
+    if(k>=fs.length||idx>=N){ pilihFail.value=''; lukisGrid(); return; }
+    kecilkan(fs[k],function(u){ while(idx<N&&fotos[idx]) idx++; if(idx<N){ fotos[idx]=u; idx++; } lukisGrid(); seterus(k+1); });
+  })(0);
+};
+function kecilkan(file,cb){
+  var r=new FileReader();
+  r.onload=function(){
+    var im=new Image();
+    im.onload=function(){
+      var mx=900, k=Math.min(1,mx/Math.max(im.width,im.height));
+      var c=document.createElement('canvas'); c.width=Math.round(im.width*k); c.height=Math.round(im.height*k);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      cb(c.toDataURL('image/jpeg',0.78));
+    };
+    im.src=r.result;
+  };
+  r.readAsDataURL(file);
+}
+function lukisGrid(){
+  var n=0;
+  [].forEach.call(grid.children,function(s,i){
+    var mk='<span class="mk">'+((LBL[lang]||LBL.ms)[i])+'</span>';
+    if(fotos[i]){ n++; s.innerHTML='<span class="no">'+(i+1)+'</span><img src="'+fotos[i]+'">'+mk+'<button class="x">&times;</button>'; }
+    else s.innerHTML='<span class="no">'+(i+1)+'</span><span class="plus">+</span>'+mk;
+  });
+  document.getElementById('kiraFoto').textContent=n;
+}
+function lukisKejut(){
+  var s=document.getElementById('slotKejut');
+  s.innerHTML = kejut ? '<img src="'+kejut+'"><button class="x">&times;</button>' : '<span class="plus">+</span>';
+}
+
+/* ---- pelaras kedudukan ---- */
+var lrI=-1, lrS={x:0,y:0,s:1}, lrDrag=null;
+function bukaLaras(i){
+  lrI=i; var p=pos['f'+(i+1)]||{x:0,y:0,s:1}; lrS={x:p.x||0,y:p.y||0,s:p.s||1};
+  document.getElementById('lrImg').src=fotos[i];
+  document.getElementById('lrWrap').style.aspectRatio=String(ASP[i]);
+  document.getElementById('lrZoom').value=lrS.s;
+  kemasLaras(); document.getElementById('laras').classList.add('show');
+}
+function kemasLaras(){
+  var im=document.getElementById('lrImg');
+  im.style.transform='translate('+lrS.x+'%,'+lrS.y+'%) scale('+lrS.s+')';   /* sama macam viewer */
+}
+var lw=document.getElementById('lrWrap');
+lw.addEventListener('pointerdown',function(e){ lrDrag={x:e.clientX,y:e.clientY,ox:lrS.x,oy:lrS.y}; lw.setPointerCapture(e.pointerId); });
+lw.addEventListener('pointermove',function(e){ if(!lrDrag) return;
+  var r=lw.getBoundingClientRect();
+  lrS.x=lrDrag.ox+(e.clientX-lrDrag.x)/r.width*100; lrS.y=lrDrag.oy+(e.clientY-lrDrag.y)/r.height*100; kemasLaras(); });
+['pointerup','pointercancel'].forEach(function(ev){ lw.addEventListener(ev,function(){ lrDrag=null; }); });
+document.getElementById('lrZoom').oninput=function(){ lrS.s=+this.value; kemasLaras(); };
+document.getElementById('lrBatal').onclick=function(){ document.getElementById('laras').classList.remove('show'); };
+document.getElementById('lrOk').onclick=function(){ pos['f'+(lrI+1)]={x:+lrS.x.toFixed(1),y:+lrS.y.toFixed(1),s:+lrS.s.toFixed(2)};
+  document.getElementById('laras').classList.remove('show'); };
+
+/* ---- ucapan ---- */
+var ta=document.getElementById('ucapan');
+function kiraUcap(){ document.getElementById('kiraUcap').textContent=ta.value.length; }
+ta.oninput=function(){ ucapDiubah=true; kiraUcap(); };
+document.getElementById('pulih').onclick=function(){ ta.value=AYAT[lang]; ucapDiubah=false; kiraUcap(); };
+
+/* ---- MP3 ---- */
+var mp3='';
+document.getElementById('mp3f').onchange=function(){
+  var f=this.files[0]; if(!f) return;
+  if(f.size>4*1024*1024){ document.getElementById('mp3info').textContent=T('mp3besar'); this.value=''; return; }
+  var r=new FileReader(); r.onload=function(){ mp3=r.result;
+    document.getElementById('mp3info').textContent=T('mp3ok')+f.name; };
+  r.readAsDataURL(f);
+};
+
+/* ============ collect + bayar ============ */
+document.getElementById('ucapJemput').oninput=function(){ this._ubah=true; };
+function collectData(){
+  var d={ template:'impian' };          /* WAJIB — sama dengan card-impian-1.html */
+  ['pP', 'pL', 'nP', 'nL', 'gelaran', 'kata', 'sanding', 'hijrah', 'bapaP', 'ibuP', 'bapaL', 'ibuL', 'hos', 'ucapJemput', 'tarikh', 'masa1', 'masa2', 'tempat', 'alamat', 'peta', 'waze', 'pakaian', 'rsvpTutup', 'maks', 'bank', 'akaun', 'namaAkaun', 'at1', 'at2', 'at3', 'at4', 'at5', 'at6', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'w1n', 'w1h', 'w1t', 'w2n', 'w2h', 'w2t', 'w3n', 'w3h', 'w3t', 'w4n', 'w4h', 'w4t'].forEach(function(k){ d[k]=document.getElementById(k).value.trim(); });
+  d.doa=ta.value.trim();
+  d.to=(d.pP||'')+' & '+(d.pL||''); d.from='';
+  for(var i=0;i<N;i++){ if(fotos[i]) d['f'+(i+1)]=fotos[i]; }
+  d.pos=pos;
+  if(kejut) d.qr=kejut;
+  d.video=document.getElementById('video').value.trim();
+  d.yt=document.getElementById('yt').value.trim();
+  d.mp3=mp3;
+  d.song=document.getElementById('song').value.trim();
+  d.artist=document.getElementById('artist').value.trim();
+  return d;                                  /* MESTI sync, MESTI objek */
+}
+function mountBayar(){
+  if(typeof GKBayar==='undefined'){
+    document.getElementById('gk-bayar').innerHTML='<div class="amaran">Fail <b>gk-bayar.js</b> tidak dijumpai. Pastikan ia ada di root repo.</div>';
+    return;
+  }
+  GKBayar.mount({ el:'gk-bayar', previewEl:'gk-pratonton', viewer:'card-impian-1.html',
+    collect:collectData, produk:'Kad Kahwin Digital Taman Impian', produk_en:'Digital Wedding Invitation', plans:{ kahwin:{ rm:15, usd:15, nm:'Kad Kahwin Digital', ds:'RSVP · buku tetamu · video MP4 · aktif sampai 30 hari selepas majlis', nm_en:'Digital Wedding Invitation', ds_en:'RSVP · guest book · MP4 video · active until 30 days after the event' } }, qr:true });
+}
+function lengkap(){ return ['pP','pL','tarikh','tempat'].every(function(k){ return document.getElementById(k).value.trim(); }); }
+document.getElementById('gk-bayar').addEventListener('click',function(e){ if(e.target.closest&&e.target.closest('#gkb-pay')&&!lengkap()){ e.stopPropagation(); e.preventDefault(); alert(T('perluNama')); } },true);
+lukisKejut(); pakai(); mountBayar();
+</script>
+<script src="gk-notis.js" defer></script>
+</body>
+</html>

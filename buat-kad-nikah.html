@@ -60,6 +60,7 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 .gp-lovecapsule{background:radial-gradient(ellipse at 50% 45%,#fff6f0,#fde2ea 50%,#f6a9b8)}
 .gp-mekar{background:radial-gradient(#ffffff66 3px,transparent 3.6px) 0 0/20px 20px,linear-gradient(135deg,#f3e9dc,#e9a3b1 70%,#c9647a)}
 .gp-pelamin{background:radial-gradient(ellipse at 50% 40%,#fff6f2,#f4c7cf 45%,#9a2a3a 75%,#5e1420)}
+.gp-impian{background:radial-gradient(ellipse at 50% 38%,#e9f2ff,#a9c4f0 45%,#1f3a7a 78%,#0e1f5b)}
 .gp-pujuk{background:radial-gradient(#ffffff55 3px,transparent 3.6px) 0 0/20px 20px,linear-gradient(135deg,#e6e3fb,#ffd9e4)}
 .gp-justforyou{background:radial-gradient(ellipse at 50% 45%,#fff,#fbe3e6 55%,#f2b1b8)}
 .gp-yinyang{background:radial-gradient(ellipse at 45% 55%,#f0c7c0,#e0abaa 45%,#c77f82)}
@@ -81,6 +82,10 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
     <div class="gp gp-pelamin"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>💍<div class="g-glow"></div></div>
     <div class="gm"><h3 data-k="n1">Pelamin Maroon</h3><span data-k="d1">Langsir terbuka, pengantin turun pelamin · RSVP, buku tetamu, Waze, salam kaut · video MP4 · RM15</span></div>
   </a>
+  <a class="g-card" href="contoh.html?t=impian">
+    <div class="gp gp-impian"><span class="g-badge baru" data-k="baru">BARU</span><span class="g-badge" data-k="ada">TERSEDIA</span>🌸<div class="g-glow"></div></div>
+    <div class="gm"><h3 data-k="n2">Taman Impian</h3><span data-k="d2">Kamera terbang ke taman bunga biru, pengantin berjalan ke depan · tarikh Hijrah · RSVP, Waze, salam kaut · video MP4 · RM15</span></div>
+  </a>
 </div>
 
 <script>
@@ -88,10 +93,12 @@ body{font-family:'Poppins',sans-serif;background:linear-gradient(135deg,#f6ece2,
 var L={
  ms:{title:'Pilih Tema — Kad Kahwin 💍',back:'‹ Kembali ke Homepage',tajuk:'Pilih Tema Kad Kahwin 💍',
      sub:'Kad jemputan kahwin digital — RSVP, buku tetamu, lokasi Waze &amp; video MP4. Pilih tema untuk mula.',ada:'TERSEDIA',baru:'BARU',
-     n1:'Pelamin Maroon',d1:'Langsir terbuka, pengantin turun pelamin · RSVP, buku tetamu, Waze, salam kaut · video MP4 · RM15'},
+     n1:'Pelamin Maroon',d1:'Langsir terbuka, pengantin turun pelamin · RSVP, buku tetamu, Waze, salam kaut · video MP4 · RM15',
+     n2:'Taman Impian',d2:'Kamera terbang ke taman bunga biru, pengantin berjalan ke depan · tarikh Hijrah · RSVP, Waze, salam kaut · video MP4 · RM15'},
  en:{title:'Choose a Theme — Wedding Invitation 💍',back:'‹ Back to Homepage',tajuk:'Choose a Wedding Invitation Theme 💍',
      sub:'Digital wedding invitations — RSVP, guest book, Waze location &amp; MP4 video. Pick a theme to start.',ada:'AVAILABLE',baru:'NEW',
-     n1:'Maroon Dais',d1:'Curtains open, the couple walks down the dais · RSVP, guest book, Waze, wedding gift · MP4 video'}
+     n1:'Maroon Dais',d1:'Curtains open, the couple walks down the dais · RSVP, guest book, Waze, wedding gift · MP4 video',
+     n2:'Dream Garden',d2:'The camera flies into a blue flower garden as the couple walks forward · Hijri date · RSVP, Waze, gift · MP4 video'}
 };
 var lang='ms'; try{var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l;}catch(e){}
 function pakai(){
