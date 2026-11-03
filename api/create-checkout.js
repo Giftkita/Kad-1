@@ -14,13 +14,16 @@
 
 // Harga dalam SEN USD ($8 = 800). Server yang tentukan harga, BUKAN client.
 // Kunci pelan MESTI sama dengan create-bill.js.
-const PRICES_USD = { basic: 800, premium: 1000, bouquet: 300, kahwin: 1500 };
-const PLAN_NAME  = { basic: 'GiftKita Basic', premium: 'GiftKita Premium', bouquet: 'GiftKita Photo Bouquet', kahwin: 'GiftKita Wedding Invitation' };
+const PRICES_USD = { basic: 800, premium: 1000, bouquet: 300, kahwin: 1500, bayi: 3000, bayi_sambung: 3000, bayi_muka: 600 };
+const PLAN_NAME  = { basic: 'GiftKita Basic', premium: 'GiftKita Premium', bouquet: 'GiftKita Photo Bouquet', kahwin: 'GiftKita Wedding Invitation', bayi: 'GiftKita Baby Album', bayi_sambung: 'GiftKita Baby Album Renewal', bayi_muka: 'GiftKita Baby Album +10 Pages' };
 const PLAN_DESC  = {
   basic:   'Personalized digital greeting card · YouTube music · link active 2 months',
   premium: 'Personalized digital greeting card · YouTube music · QR code · download album · link active 2 months',
   bouquet: 'Personalized photo bouquet image · full resolution, no watermark',
-  kahwin:  'Digital wedding invitation · RSVP · guest book · MP4 video · active until 30 days after the event'
+  kahwin:  'Digital wedding invitation · RSVP · guest book · MP4 video · active until 30 days after the event',
+  bayi:    'Digital baby album · edit anytime · share with family · online 1 year · keep the album file forever',
+  bayi_sambung: 'Keep your Baby Album online for 1 more year',
+  bayi_muka: 'Add 10 more pages to your Baby Album'
 };
 
 // Domain yang dibenarkan untuk URL "kembali ke borang" (elak open-redirect)
@@ -37,7 +40,9 @@ module.exports = async (req, res) => {
     const KEY = process.env.STRIPE_SECRET_KEY;
     if (!KEY) { res.status(500).json({ error: 'Card payment is not set up yet. Please try again later.' }); return; }
 
-    const { cardId, plan, buyerName, buyerEmail, returnUrl } = req.body || {};
+    const { cardId, buyerName, buyerEmail, returnUrl } = req.body || {};
+    let plan = (req.body || {}).plan;
+    if (cardId) plan = await pelanSebenar(cardId, plan);
     if (!cardId || !PRICES_USD[plan]) { res.status(400).json({ error: 'Incomplete data' }); return; }
 
     // kad mesti wujud & belum dibayar
@@ -117,4 +122,14 @@ async function sbPatch(path, bodyObj) {
     headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
     body: JSON.stringify(bodyObj)
   });
+}
+
+// Template tertentu WAJIB guna pelan sendiri (elak bayar harga kad biasa untuk produk RM15/RM30).
+const PELAN_TPL = { pelamin: 'kahwin', impian: 'kahwin', bayi: 'bayi', bayi_sambung: 'bayi_sambung', bayi_muka: 'bayi_muka' };
+async function pelanSebenar(cardId, plan) {
+  try {
+    const r = await sbGet(`cards?id=eq.${encodeURIComponent(cardId)}&select=tpl:card_data->>template`);
+    const t = Array.isArray(r) && r[0] && r[0].tpl;
+    return PELAN_TPL[t] || plan;
+  } catch (e) { return plan; }
 }

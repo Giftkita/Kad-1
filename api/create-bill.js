@@ -6,9 +6,9 @@
 // Harga dalam SEN (RM8 = 800, RM15 = 1500). Server yang tentukan harga,
 // BUKAN client — supaya tak boleh diubah jadi RM0.
 // Kunci pelan datang dari gk-bayar.js (CFG.plans). Tambah di sini bila ada produk baru.
-const PRICES    = { basic: 600,  premium: 800, bouquet: 300, kahwin: 1500 };
-const PLAN_NAME = { basic: 'GiftKita Basic', premium: 'GiftKita Premium', bouquet: 'GiftKita Bouquet Muka', kahwin: 'GiftKita Kad Kahwin' };
-const PLAN_DESC = { bouquet: 'Bouquet Muka digital GiftKita', kahwin: 'Kad jemputan kahwin digital GiftKita' };   // lalai: 'Kad ucapan digital GiftKita'
+const PRICES    = { basic: 600,  premium: 800, bouquet: 300, kahwin: 1500, bayi: 3000, bayi_sambung: 3000, bayi_muka: 500 };
+const PLAN_NAME = { basic: 'GiftKita Basic', premium: 'GiftKita Premium', bouquet: 'GiftKita Bouquet Muka', kahwin: 'GiftKita Kad Kahwin', bayi: 'GiftKita Album Baby', bayi_sambung: 'GiftKita Sambung Album Baby', bayi_muka: 'GiftKita Tambah Muka Album' };
+const PLAN_DESC = { bouquet: 'Bouquet Muka digital GiftKita', kahwin: 'Kad jemputan kahwin digital GiftKita', bayi: 'Album baby digital GiftKita', bayi_sambung: 'Sambung Album Baby online 1 tahun', bayi_muka: 'Tambah 10 muka surat Album Baby' };   // lalai: 'Kad ucapan digital GiftKita'
 
 // ── DuitNow QR ──
 // enableDuitNowQR : '1' hidupkan pilihan QR, '0' matikan
@@ -28,7 +28,9 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') { res.status(405).json({ error: 'POST sahaja' }); return; }
 
   try {
-    const { cardId, plan, buyerName, buyerEmail, buyerPhone } = req.body || {};
+    const { cardId, buyerName, buyerEmail, buyerPhone } = req.body || {};
+    let plan = (req.body || {}).plan;
+    if (cardId) plan = await pelanSebenar(cardId, plan);
     if (!cardId || !PRICES[plan]) { res.status(400).json({ error: 'Data tak lengkap' }); return; }
 
     const amountCents = PRICES[plan];
@@ -80,6 +82,11 @@ module.exports = async (req, res) => {
 };
 
 // ── helper Supabase REST (service key) ──
+async function sbGet(path) {
+  const url = process.env.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/', key = process.env.SUPABASE_SERVICE_KEY;
+  const r = await fetch(url + path, { headers: { apikey: key, Authorization: 'Bearer ' + key } });
+  return r.json();
+}
 async function sbPatch(path, body) {
   const url = process.env.SUPABASE_URL.replace(/\/$/, '') + '/rest/v1/' + path;
   const KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -91,4 +98,14 @@ async function sbPatch(path, body) {
     },
     body: JSON.stringify(body)
   });
+}
+
+// Template tertentu WAJIB guna pelan sendiri (elak bayar harga kad biasa untuk produk RM15/RM30).
+const PELAN_TPL = { pelamin: 'kahwin', impian: 'kahwin', bayi: 'bayi', bayi_sambung: 'bayi_sambung', bayi_muka: 'bayi_muka' };
+async function pelanSebenar(cardId, plan) {
+  try {
+    const r = await sbGet(`cards?id=eq.${encodeURIComponent(cardId)}&select=tpl:card_data->>template`);
+    const t = Array.isArray(r) && r[0] && r[0].tpl;
+    return PELAN_TPL[t] || plan;
+  } catch (e) { return plan; }
 }

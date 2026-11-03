@@ -10,6 +10,7 @@
 //  POST {action:'lawat', p,s,d,i,b}           → AWAM: catat 1 lawatan (gk-notis.js / gk-bayar.js)
 //  POST {action:'kahwin_hantar', id, nama, tel, hadir, bil, ucapan} → AWAM: RSVP / ucapan tetamu (card-pelamin-1.html, card-impian-1.html)
 //  POST {action:'kahwin_ucapan', id}           → AWAM: senarai ucapan tetamu (tanpa no. telefon)
+//  POST {action:'bayi_*', id, ...}              → BUKU BAYI (card-bayi-1.html): bayi_ucap/bayi_ucapan AWAM; bayi_masuk/bayi_info/bayi_simpan/bayi_foto/bayi_sorok (no. telefon pembeli). Pakej: bayi_sambung (+1 thn), bayi_muka (+10 muka)
 //  POST {action:'kahwin_urus', id, tel}        → pengantin: semua RSVP + ucapan (tel = no. telefon masa beli)
 //  POST {action:'kahwin_sorok', id, tel, rid, sorok} → pengantin: sorok / papar semula satu ucapan
 //  POST {token, action:'pelawat', hari}       → data lawatan untuk tab Pelawat
@@ -46,6 +47,11 @@ module.exports = async (req, res) => {
   // ── AWAM: kad kahwin — RSVP, buku tetamu & halaman pengantin (tanpa token admin) ──
   if (String((req.body || {}).action || '').startsWith('kahwin_')) {
     try { await kahwin(req, res); } catch (e) { res.status(500).json({ error: 'Ralat server' }); }
+    return;
+  }
+  // ── BUKU KENANGAN BAYI — ucapan keluarga (awam) & edit ibu bapa (no. telefon pembeli) ──
+  if (String((req.body || {}).action || '').startsWith('bayi_')) {
+    try { await bayi(req, res); } catch (e) { res.status(500).json({ error: 'Ralat server' }); }
     return;
   }
 
@@ -430,6 +436,96 @@ async function kahwin(req, res) {
     const rid = parseInt(b.rid, 10); if (!rid) { res.status(400).json({ error: 'rid' }); return; }
     await sbPatch(`kahwin_rsvp?id=eq.${rid}&card_id=eq.${encodeURIComponent(kad.id)}`, { sorok: b.sorok === true });
     res.status(200).json({ ok: true }); return;
+  }
+  res.status(400).json({ error: 'Tindakan tidak dikenali' });
+}
+
+// ════════════════════════════════════════════════════════════
+//  BUKU KENANGAN BAYI (template 'bayi') — docs/sql-bayi.sql
+//  • Online 1 tahun dari tarikh beli (trigger kekal_kad_kahwin halang tamat 2 bulan).
+//  • Gambar → Supabase Storage bucket awam 'bayi' (<id>/<slot>-<masa>.jpg), BUKAN dalam card_data.
+//  • card_data hanya teks + URL gambar + kedudukan pelekat. Ibu bapa simpan "fail buku" sendiri (kekal).
+// ════════════════════════════════════════════════════════════
+const BAYI_KUNCI = ['jantina','nama','panggil','lahir','masa','berat','panjang','hospital','ayah','ibu','maksud','kp','bulan','aqiqah','aqTempat','suratIbu','suratAyah','extra','pel','foto','yt','song','artist'];
+const BAYI_HAD_FOTO = 160;
+const BAYI_HARI = 365;
+function bayiSB() { return process.env.SUPABASE_URL.replace(/\/$/, ''); }
+async function kadBayi(id) {
+  if (!/^[0-9a-zA-Z-]{8,64}$/.test(String(id || ''))) return null;
+  const r = await sbGet(`cards?id=eq.${encodeURIComponent(id)}&select=id,paid,buyer_phone,created_at,card_data`);
+  if (!Array.isArray(r) || !r[0]) return null;
+  const k = r[0]; let cd = k.card_data, teks = false;
+  if (typeof cd === 'string') { teks = true; try { cd = JSON.parse(cd); } catch (e) { cd = {}; } }
+  if (!cd || k.paid !== true || cd.template !== 'bayi' || cd.tamat) return null;
+  return { id: k.id, buyer_phone: k.buyer_phone, created_at: k.created_at, cd, teks };
+}
+// Pakej tambahan = baris kad berasingan yang DIBAYAR: template 'bayi_sambung' {sambung:<id>} (+1 tahun) / 'bayi_muka' {album:<id>} (+10 muka surat)
+const BAYI_MUKA_ASAS = 20, BAYI_MUKA_PAKEJ = 10;
+async function bayiTambahan(id) {
+  const kira = async (tpl, kunci) => { try { const r = await sbGet(`cards?select=id&paid=eq.true&card_data->>template=eq.${tpl}&card_data->>${kunci}=eq.${encodeURIComponent(id)}&limit=200`); return Array.isArray(r) ? r.length : 0; } catch (e) { return 0; } };
+  const [s, m] = await Promise.all([kira('bayi_sambung', 'sambung'), kira('bayi_muka', 'album')]);
+  return { sambung: s, muka: m };
+}
+function bayiHingga(created, sambung) { const d = new Date(created || Date.now()); d.setDate(d.getDate() + BAYI_HARI * (1 + (sambung || 0))); return d.toISOString().slice(0, 10); }
+function bayiInfo(kad, t) { return { hingga: bayiHingga(kad.created_at, t.sambung), hadMuka: BAYI_MUKA_ASAS + BAYI_MUKA_PAKEJ * t.muka, sambung: t.sambung }; }
+function urlFotoSah(u, id) { return typeof u === 'string' && u.indexOf(bayiSB() + '/storage/v1/object/public/bayi/' + id + '/') === 0 && u.length < 300; }
+async function bayi(req, res) {
+  const b = req.body || {}, A = b.action, { url, key } = SB();
+  const H = { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'application/json' };
+  const kad = await kadBayi(b.id);
+  if (!kad) { res.status(404).json({ error: 'Album tidak dijumpai.' }); return; }
+  const teks = (v, n) => String(v == null ? '' : v).replace(/[\u0000-\u0008\u000b-\u001f]/g, '').trim().slice(0, n);
+
+  if (A === 'bayi_ucap') {
+    const nama = teks(b.nama, 40), ucapan = teks(b.ucapan, 400);
+    if (!nama || !ucapan) { res.status(400).json({ error: 'Data tak lengkap' }); return; }
+    const r = await fetch(url + 'bayi_ucapan', { method: 'POST', headers: { ...H, Prefer: 'return=minimal' }, body: JSON.stringify({ card_id: kad.id, nama, ucapan }) });
+    if (!r.ok) { res.status(500).json({ error: 'Jadual bayi_ucapan belum ada? Jalankan docs/sql-bayi.sql' }); return; }
+    res.status(200).json({ ok: true }); return;
+  }
+  if (A === 'bayi_ucapan') {
+    const r = await sbGet(`bayi_ucapan?card_id=eq.${encodeURIComponent(kad.id)}&select=id,nama,ucapan,sorok,created_at&order=created_at.desc&limit=300`);
+    res.setHeader('Cache-Control', 'no-store');
+    const L = Array.isArray(r) ? r : [];
+    const ibuBapa = telSama(b.tel, kad.buyer_phone);
+    res.status(200).json({ senarai: L.filter(x => ibuBapa || !x.sorok).map(x => ({ id: ibuBapa ? x.id : undefined, nama: x.nama, ucapan: x.ucapan, sorok: ibuBapa ? x.sorok : undefined, t: x.created_at })) }); return;
+  }
+  // ── ibu bapa sahaja ──
+  if (!telSama(b.tel, kad.buyer_phone)) { await new Promise(r => setTimeout(r, 900)); res.status(401).json({ error: 'No. telefon tidak sepadan dengan pembeli album.' }); return; }
+  if (A === 'bayi_masuk' || A === 'bayi_info') { res.status(200).json(Object.assign({ ok: true }, bayiInfo(kad, await bayiTambahan(kad.id)))); return; }
+  if (A === 'bayi_sorok') {
+    const rid = parseInt(b.rid, 10); if (!rid) { res.status(400).json({ error: 'rid' }); return; }
+    await sbPatch(`bayi_ucapan?id=eq.${rid}&card_id=eq.${encodeURIComponent(kad.id)}`, { sorok: b.sorok === true });
+    res.status(200).json({ ok: true }); return;
+  }
+  if (A === 'bayi_foto') {
+    const slot = String(b.slot || ''), m = String(b.img || '').match(/^data:image\/(jpeg|webp);base64,([A-Za-z0-9+/=]+)$/);
+    if (!/^[a-z0-9_]{1,24}$/.test(slot) || !m) { res.status(400).json({ error: 'Gambar tak sah' }); return; }
+    const buf = Buffer.from(m[2], 'base64'); if (buf.length > 700000) { res.status(413).json({ error: 'Gambar terlalu besar' }); return; }
+    const ada = Object.keys((kad.cd && kad.cd.foto) || {}); if (!ada.includes(slot) && ada.length >= BAYI_HAD_FOTO) { res.status(400).json({ error: 'Had gambar penuh (' + BAYI_HAD_FOTO + ')' }); return; }
+    const laluan = kad.id + '/' + slot + '-' + Date.now().toString(36) + '.' + (m[1] === 'webp' ? 'webp' : 'jpg');
+    const r = await fetch(bayiSB() + '/storage/v1/object/bayi/' + laluan, { method: 'POST', headers: { apikey: key, Authorization: 'Bearer ' + key, 'Content-Type': 'image/' + m[1], 'x-upsert': 'true', 'Cache-Control': 'max-age=31536000' }, body: buf });
+    if (!r.ok) { res.status(500).json({ error: 'Storan gambar gagal — bucket "bayi" belum ada? Jalankan docs/sql-bayi.sql' }); return; }
+    const lama = String(b.lama || ''); const pfx = bayiSB() + '/storage/v1/object/public/bayi/';
+    if (urlFotoSah(lama, kad.id)) { try { await fetch(bayiSB() + '/storage/v1/object/bayi/' + lama.slice(pfx.length), { method: 'DELETE', headers: { apikey: key, Authorization: 'Bearer ' + key } }); } catch (e) {} }
+    res.status(200).json({ url: pfx + laluan }); return;
+  }
+  if (A === 'bayi_simpan') {
+    const d = b.data || {}, baru = {};
+    BAYI_KUNCI.forEach(k => { if (d[k] !== undefined) baru[k] = d[k]; });
+    if (baru.foto) {   // URL storan buku ini sahaja; gambar kulit asal dari borang (data:) dibenarkan kalau tak berubah
+      const lama = (kad.cd && kad.cd.foto) || {}, f = {};
+      Object.keys(baru.foto).slice(0, BAYI_HAD_FOTO).forEach(s => { const u = baru.foto[s]; if (!/^[a-z0-9_]{1,24}$/.test(s)) return; if (urlFotoSah(u, kad.id) || (u && u === lama[s])) f[s] = u; });
+      baru.foto = f;
+    }
+    const tb = await bayiTambahan(kad.id), info = bayiInfo(kad, tb);
+    if (Array.isArray(baru.extra)) baru.extra = baru.extra.slice(0, info.hadMuka);
+    if (Array.isArray(baru.kp)) baru.kp = baru.kp.slice(0, 20);
+    const cd = Object.assign({}, kad.cd, baru, { template: 'bayi' });
+    const json = JSON.stringify(cd); if (json.length > 600000) { res.status(413).json({ error: 'Data buku terlalu besar' }); return; }
+    const r = await fetch(url + `cards?id=eq.${encodeURIComponent(kad.id)}`, { method: 'PATCH', headers: { ...H, Prefer: 'return=minimal' }, body: JSON.stringify({ card_data: kad.teks ? json : cd }) });
+    if (!r.ok) { res.status(500).json({ error: 'Gagal simpan' }); return; }
+    res.status(200).json(Object.assign({ ok: true }, info)); return;
   }
   res.status(400).json({ error: 'Tindakan tidak dikenali' });
 }
