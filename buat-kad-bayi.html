@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Album Baby Digital | GiftKita</title>
+<!--GK-SEO-->
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta name="theme-color" content="#E07F97">
+<meta name="description" content="Album baby digital — isi sendiri sepanjang tahun, tampal pelekat, kongsi dengan keluarga & simpan fail album selamanya. RM30.">
+<link rel="canonical" href="https://www.giftkita.com/buat-kad-bayi.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GiftKita">
+<meta property="og:title" content="Album Baby Digital | GiftKita">
+<meta property="og:description" content="Album baby digital — isi sendiri sepanjang tahun, tampal pelekat, kongsi dengan keluarga & simpan fail album selamanya. RM30.">
+<meta property="og:url" content="https://www.giftkita.com/buat-kad-bayi.html">
+<meta property="og:image" content="https://www.giftkita.com/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ms_MY">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Album Baby Digital | GiftKita">
+<meta name="twitter:description" content="Album baby digital — isi sendiri sepanjang tahun, tampal pelekat, kongsi dengan keluarga & simpan fail album selamanya. RM30.">
+<meta name="twitter:image" content="https://www.giftkita.com/og-image.jpg">
+<!--/GK-SEO-->
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>if(!window.supabase){document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"><\/script>');}</script>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Poppins',system-ui,sans-serif;background:#fbf3ea;color:#5a3d45;padding:0 0 60px;--gk-accent:#e07f97;--gk-accent-2:#7fb0dd}
+header{position:relative;text-align:center;padding:52px 18px 20px;background:#fffdf8;border-bottom:1px solid #e2d7f3}
+.back{position:absolute;left:14px;top:14px;font-size:.8rem;color:#8a6a3f;text-decoration:none}
+#lang{position:absolute;top:12px;right:14px;background:#fff;border:1px solid rgba(150,125,110,.3);
+  border-radius:999px;padding:6px 12px;font-size:12px;color:#6b5a4c;cursor:pointer;font-family:inherit}
+h1{font-size:1.25rem;font-weight:700}
+header p{font-size:.8rem;color:#9a8578;margin-top:4px}
+.wrap{max-width:620px;margin:18px auto;padding:0 14px}
+.sec{background:#fffdf7;border:1px solid rgba(150,125,110,.18);border-radius:14px;padding:16px;margin-bottom:14px}
+.sec h2{font-size:1rem;margin-bottom:3px}
+.sec .hint{font-size:.78rem;color:#9a8578;margin-bottom:12px}
+label.l{display:block;font-size:.78rem;color:#7d6c5e;margin:10px 0 4px}
+input[type=text],input[type=url],textarea,select{width:100%;padding:10px 12px;border:1px solid #e0d4bd;
+  border-radius:10px;font-family:inherit;font-size:.9rem;background:#fff;color:#3f3129}
+textarea{min-height:140px;resize:vertical;line-height:1.55}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;margin-top:8px}
+.fotoSlot{aspect-ratio:1/1;border:1.5px dashed rgba(150,125,110,.45);border-radius:10px;background:#fcf8ee;
+  display:grid;place-items:center;cursor:pointer;overflow:hidden;position:relative}
+.fotoSlot img{width:100%;height:100%;object-fit:cover}
+.fotoSlot .no{position:absolute;left:5px;top:4px;font-size:10px;color:#a4917c;background:rgba(255,255,255,.85);
+  border-radius:4px;padding:1px 5px}
+.fotoSlot .x{position:absolute;right:3px;top:3px;background:#c0392b;color:#fff;border:0;border-radius:50%;
+  width:20px;height:20px;font-size:12px;cursor:pointer;line-height:1}
+.fotoSlot .plus{font-size:20px;color:#c3b39c}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:11px 18px;border-radius:11px;border:0;cursor:pointer;
+  font-family:inherit;font-size:.88rem;font-weight:600;background:#6b4fa3;color:#fff}
+.btn.ghost{background:#fff;border:1.5px solid #d9cbef;color:#6b4fa3}
+.amaran{background:#fff3cd;border:1px solid #e6d4a1;border-radius:10px;padding:12px;font-size:.82rem;color:#7a5c1a}
+.kira{font-size:.75rem;color:#9a8578;text-align:right;margin-top:4px}
+/* pelaras kedudukan */
+.laras{position:fixed;inset:0;background:rgba(30,24,18,.86);z-index:80;display:none;
+  align-items:center;justify-content:center;padding:18px}
+.laras.show{display:flex}
+.larasBox{background:#fffdf7;border-radius:16px;padding:16px;max-width:420px;width:100%}
+.bukaanLaras{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:#e7e0d3;
+  border-radius:8px;touch-action:none;cursor:grab}
+.bukaanLaras img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:center;pointer-events:none}
+.fotoSlot .mk{position:absolute;left:0;right:0;bottom:0;font-size:9px;text-align:center;color:#7a66a8;background:rgba(255,255,255,.85);padding:1px 2px}
+.duaKol{display:grid;grid-template-columns:1fr 1fr;gap:0 10px}
+input[type=range]{width:100%;margin-top:10px}
+.jan{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}.jan label{border:2px solid #eee;border-radius:14px;padding:14px 8px;text-align:center;cursor:pointer;font-weight:600;font-size:.9rem}.jan input{display:none}.jan label:has(input:checked){border-color:#e07f97;background:#fde8ec}.jan label.b:has(input:checked){border-color:#5f97cc;background:#e6f1fb}
+.kulitPv{width:120px;height:120px;border-radius:50%;border:2px dashed #e0b7c2;margin:8px auto 0;background:#fdf3f5 center/cover;display:flex;align-items:center;justify-content:center;font-size:30px;color:#d9a3b2;cursor:pointer}
+.ciri{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;font-size:.78rem}.ciri div{background:#fff;border-radius:10px;padding:8px 10px;border:1px solid #f1e3e7}
+input[type=date],input[type=time]{width:100%;padding:10px 12px;border:1px solid #e0d4bd;border-radius:10px;font-family:inherit;font-size:.9rem;background:#fff}
+</style>
+<header>
+  <a class="back" href="index.html" data-k="back">‹ Kembali</a>
+  <button id="lang">BM / EN</button>
+  <h1 data-k="h1">Album Baby 👶</h1>
+  <p data-k="hs"></p>
+  <div class="wrap" style="margin-bottom:0"><div class="ciri">
+    <div data-k="c1">✏️ Isi & tambah gambar bila-bila sepanjang tahun</div><div data-k="c2">🧸 Tampal pelekat macam scrapbook</div>
+    <div data-k="c3">👨‍👩‍👧 Kongsi link · keluarga tulis doa</div><div data-k="c4">💾 Simpan fail album — kekal selamanya</div></div>
+    <div style="margin-top:10px"><a href="contoh.html?t=bayi" style="font-size:.82rem;color:#e07f97;font-weight:600" data-k="lihat">👀 Tengok contoh album dulu</a></div></div>
+</header>
+
+<div class="wrap">
+  <div class="sec">
+    <h2 data-k="s1">Si kecil</h2><div class="hint" data-k="s1h">Isi asas dulu — selebihnya (gambar bulanan, kali pertama, surat, aqiqah) boleh diisi terus dalam album lepas bayar.</div>
+    <div class="jan"><label><input type="radio" name="jan" value="perempuan" checked> 🎀 <span data-k="pr">Perempuan</span></label><label class="b"><input type="radio" name="jan" value="lelaki"> 🧢 <span data-k="lk">Lelaki</span></label></div>
+    <label class="l" data-k="lNama">Nama penuh bayi *</label><input type="text" id="nama" maxlength="40" placeholder="Aisyah Humaira">
+    <label class="l" data-k="lPanggil">Nama panggilan</label><input type="text" id="panggil" maxlength="16" placeholder="Aisyah">
+    <div class="duaKol">
+      <div><label class="l" data-k="lLahir">Tarikh lahir *</label><input type="date" id="lahir"></div>
+      <div><label class="l" data-k="lMasa">Masa lahir</label><input type="text" id="masa" maxlength="20" placeholder="4:18 pagi"></div>
+      <div><label class="l" data-k="lBerat">Berat lahir</label><input type="text" id="berat" maxlength="12" placeholder="3.2 kg"></div>
+      <div><label class="l" data-k="lPanjang">Panjang</label><input type="text" id="panjang" maxlength="12" placeholder="50 cm"></div>
+    </div>
+    <label class="l" data-k="lHosp">Tempat lahir (hospital)</label><input type="text" id="hospital" maxlength="60" placeholder="Hospital Tunku Azizah, KL">
+    <label class="l" data-k="lKulit">Gambar kulit album</label>
+    <div class="kulitPv" id="kulitPv">+</div>
+  </div>
+  <div class="sec">
+    <h2 data-k="s2">Ibu & ayah</h2>
+    <div class="duaKol">
+      <div><label class="l" data-k="lAyah">Nama ayah</label><input type="text" id="ayah" maxlength="40" placeholder="Muhammad Hafiz"></div>
+      <div><label class="l" data-k="lIbu">Nama ibu</label><input type="text" id="ibu" maxlength="40" placeholder="Nurul Izzati"></div>
+    </div>
+    <label class="l" data-k="lMaksud">Maksud nama (pilihan)</label><textarea id="maksud" maxlength="300" style="min-height:80px" data-ph="phMaksud"></textarea>
+  </div>
+  <div class="sec">
+    <h2 data-k="s6">Lagu (pilihan)</h2><div class="hint" data-k="s6h">Main bila album dibuka. Kosongkan untuk lagu kotak muzik "Twinkle Twinkle".</div>
+    <label class="l" data-k="lYt">Link YouTube</label><input type="url" id="yt" placeholder="https://www.youtube.com/watch?v=...">
+  </div>
+  <div class="sec">
+    <h2 data-k="s7">Pratonton & bayar</h2>
+    <div class="hint" data-k="s7h">Tekan pratonton untuk tengok album. Lepas bayar, anda dapat 2 link: link keluarga & link edit ibu bapa (log masuk guna no. telefon yang anda isi di bawah).</div>
+    <div id="gk-pratonton" style="margin-bottom:10px"></div>
+    <div id="gk-bayar"></div>
+  </div>
+</div>
+<input type="file" id="fKulit" accept="image/*" style="display:none">
+<script src="gk-bayar.js"></script>
+<script>
+var L={ms:{title:'Album Baby Digital | GiftKita',back:'‹ Kembali',h1:'Album Baby 👶',hs:'Album digital yang ibu bapa isi sendiri — selak macam album betul · RM30',
+  c1:'✏️ Isi & tambah gambar bila-bila sepanjang tahun',c2:'🧸 Tampal pelekat macam scrapbook',c3:'👨‍👩‍👧 Kongsi link · keluarga tulis doa',c4:'💾 Simpan fail album — kekal selamanya',lihat:'👀 Tengok contoh album dulu',
+  s1:'Si kecil',s1h:'Isi asas dulu — selebihnya (gambar bulanan, kali pertama, surat, aqiqah) boleh diisi terus dalam album lepas bayar.',pr:'Perempuan',lk:'Lelaki',lNama:'Nama penuh bayi *',lPanggil:'Nama panggilan',lLahir:'Tarikh lahir *',lMasa:'Masa lahir',lBerat:'Berat lahir',lPanjang:'Panjang',lHosp:'Tempat lahir (hospital)',lKulit:'Gambar kulit album',
+  s2:'Ibu & ayah',lAyah:'Nama ayah',lIbu:'Nama ibu',lMaksud:'Maksud nama (pilihan)',phMaksud:'cth: Aisyah — yang hidup, penuh semangat…',s6:'Lagu (pilihan)',s6h:'Main bila album dibuka. Kosongkan untuk lagu kotak muzik "Twinkle Twinkle".',lYt:'Link YouTube',
+  s7:'Pratonton & bayar',s7h:'Tekan pratonton untuk tengok album. Lepas bayar, anda dapat 2 link: link keluarga & link edit ibu bapa (log masuk guna no. telefon yang anda isi di bawah).',perlu:'Isi nama bayi & tarikh lahir dulu ya 💗'},
+ en:{title:'Digital Baby Album | GiftKita',back:'‹ Back',h1:'Baby Album 👶',hs:'A digital album parents fill in themselves — flips like a real album',
+  c1:'✏️ Add photos & stories anytime through the year',c2:'🧸 Decorate with stickers like a scrapbook',c3:'👨‍👩‍👧 Share a link · family writes wishes',c4:'💾 Save the album file — yours forever',lihat:'👀 See a sample album first',
+  s1:'The little one',s1h:'Just the basics — monthly photos, first moments, letters & aqiqah can be filled in inside the album after payment.',pr:'Girl',lk:'Boy',lNama:"Baby's full name *",lPanggil:'Nickname',lLahir:'Date of birth *',lMasa:'Time of birth',lBerat:'Birth weight',lPanjang:'Length',lHosp:'Place of birth (hospital)',lKulit:'Cover photo',
+  s2:'Mum & Dad',lAyah:"Dad's name",lIbu:"Mum's name",lMaksud:'Meaning of the name (optional)',phMaksud:'e.g. Aisyah — alive, full of spirit…',s6:'Song (optional)',s6h:'Plays when the album opens. Leave empty for a "Twinkle Twinkle" music box.',lYt:'YouTube link',
+  s7:'Preview & pay',s7h:'Tap preview to see the album. After payment you get 2 links: a family link & a parents edit link (log in with the phone number you enter below).',perlu:"Please fill in the baby's name & date of birth first 💗"}};
+var lang='ms'; try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }catch(e){}
+(function(){ var q=new URLSearchParams(location.search).get('lang'); if(q==='en'||q==='ms') lang=q; })();
+function T(k){ return (L[lang]&&L[lang][k])||L.ms[k]||''; }
+function pakai(){ document.documentElement.lang=lang; document.title=T('title'); document.querySelectorAll('[data-k]').forEach(function(e){ var v=T(e.dataset.k); if(v) e.textContent=v; }); document.querySelectorAll('[data-ph]').forEach(function(e){ e.placeholder=T(e.dataset.ph); }); }
+document.getElementById('lang').onclick=function(){ lang=lang==='ms'?'en':'ms'; try{ localStorage.setItem('gk_lang',lang); }catch(e){} pakai(); };
+var kulit=null;
+document.getElementById('kulitPv').onclick=function(){ document.getElementById('fKulit').click(); };
+document.getElementById('fKulit').onchange=function(){ var f=this.files[0]; if(!f) return; var r=new FileReader(); r.onload=function(){ var im=new Image(); im.onload=function(){ var s=Math.min(im.width,im.height), c=document.createElement('canvas'); c.width=c.height=560; c.getContext('2d').drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,560,560); kulit=c.toDataURL('image/jpeg',.8); var p=document.getElementById('kulitPv'); p.style.backgroundImage='url('+kulit+')'; p.textContent=''; }; im.src=r.result; }; r.readAsDataURL(f); };
+function collectData(){
+  var d={ template:'bayi' };              /* WAJIB — sama dengan card-bayi-1.html */
+  ['nama','panggil','lahir','masa','berat','panjang','hospital','ayah','ibu','maksud','yt'].forEach(function(k){ d[k]=document.getElementById(k).value.trim(); });
+  d.jantina=(document.querySelector('input[name=jan]:checked')||{}).value||'perempuan';
+  if(!d.panggil) d.panggil=(d.nama.split(' ')[0]||'');
+  d.foto=kulit?{kulit:kulit}:{};
+  d.to=d.nama; d.from=[d.ayah,d.ibu].filter(Boolean).join(' & ');
+  return d;
+}
+function mountBayar(){
+  if(typeof GKBayar==='undefined'){ document.getElementById('gk-bayar').innerHTML='<div class="amaran">Fail <b>gk-bayar.js</b> tidak dijumpai.</div>'; return; }
+  GKBayar.mount({ el:'gk-bayar', previewEl:'gk-pratonton', viewer:'card-bayi-1.html',
+    collect:collectData, produk:'Album Baby', produk_en:'Baby Album', plans:{ bayi:{ rm:30, usd:30, nm:'Album Baby', ds:'Isi sendiri · pelekat · kongsi keluarga · online 1 tahun · fail album kekal', nm_en:'Baby Album', ds_en:'Fill it yourself · stickers · share with family · online 1 year · keep the album file forever' } }, qr:true });
+}
+function lengkap(){ return ['nama','lahir'].every(function(k){ return document.getElementById(k).value.trim(); }); }
+document.getElementById('gk-bayar').addEventListener('click',function(e){ if(e.target.closest&&e.target.closest('#gkb-pay')&&!lengkap()){ e.stopPropagation(); e.preventDefault(); alert(T('perlu')); } },true);
+pakai(); mountBayar();
+</script>
+<script src="gk-notis.js" defer></script>
+</body>
+</html>

@@ -373,7 +373,7 @@ function success(){
   try{localStorage.removeItem('gk_pending');}catch(_e){}
   /* TikTok Pixel: jualan sah (sekali sahaja setiap kad) */
   try{var k='gk_px_'+cardId;if(!localStorage.getItem(k)){localStorage.setItem(k,'1');
-    var usdQ=false;try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';usdQ=!(z===''||z==='Asia/Kuala_Lumpur'||z==='Asia/Kuching');}catch(_z){}var harga=PLAN==='bouquet'?3:PLAN==='kahwin'?15:PLAN==='premium'?(usdQ?10:8):(usdQ?8:6); /* bouquet RM3 / $3 */
+    var usdQ=false;try{var z=Intl.DateTimeFormat().resolvedOptions().timeZone||'';usdQ=!(z===''||z==='Asia/Kuala_Lumpur'||z==='Asia/Kuching');}catch(_z){}var harga=PLAN==='bouquet'?3:PLAN==='kahwin'?15:PLAN==='bayi'?30:PLAN==='bayi_sambung'?30:PLAN==='bayi_muka'?(usdQ?6:5):PLAN==='premium'?(usdQ?10:8):(usdQ?8:6); /* bouquet RM3 / $3 */
     var tt=function(){if(window.GKPixel){GKPixel.track('CompletePayment',GKPixel.item((PLAN==='bouquet'?'Bouquet Muka':'kad '+PLAN),String(PLAN),harga,usdQ?'USD':'MYR'));return true;}};if(!tt())setTimeout(tt,1500);}}catch(_e){}
   const base=location.href.split('#')[0].split('?')[0].replace(/[^/]*$/,'');
   buildLink(base);
@@ -394,12 +394,24 @@ function viewerFor(template){
 }
 
 async function buildLink(base){
-  let template=null;
+  let template=null, cdata=null;
   if(db){
     try{
       const q=await db.from('cards').select('card_data').eq('id',cardId).single();
-      template = q.data && q.data.card_data && q.data.card_data.template;
+      cdata = q.data && q.data.card_data; if(typeof cdata==='string'){ try{ cdata=JSON.parse(cdata); }catch(_j){ cdata=null; } }
+      template = cdata && cdata.template;
     }catch(_e){/* sandaran ke befday di viewerFor() */}
+  }
+  // ── PAKEJ TAMBAHAN Album Baby (sambung 1 tahun / tambah 10 muka surat): balik ke album, tiada link kongsi ──
+  if (template === 'bayi_sambung' || template === 'bayi_muka') {
+    const tk=(id,teks)=>{ const e=document.getElementById(id); e.textContent=teks; e.setAttribute('data-ms',teks); e.setAttribute('data-gki','t'); };
+    const album=(cdata&&(cdata.sambung||cdata.album))||'';
+    const ke=base+'card-bayi-1.html?id='+encodeURIComponent(album)+'&edit=1';
+    tk('ok-msg', template==='bayi_sambung' ? 'Album Baby anda dah disambung 1 tahun lagi! 💗 Semua gambar, pelekat & doa kekal.' : '10 muka surat tambahan dah dibuka untuk Album Baby anda! 💗');
+    const vb=document.getElementById('view-btn'); vb.href=ke; vb.removeAttribute('target'); tk('view-btn','📖 Kembali ke album');
+    ['link-box','tempoh','copy-btn','wa-btn'].forEach(function(i){ const e=document.getElementById(i); if(e) e.style.display='none'; });
+    show('st-ok'); confetti();
+    return;
   }
   const link=base+viewerFor(template)+'?id='+cardId;
   document.getElementById('card-link').href=link;
@@ -424,6 +436,17 @@ async function buildLink(base){
     document.getElementById('wa-btn').style.display='none';
     show('st-ok'); confetti();
     return;                      // showQR() tak dipanggil — produk download tiada QR
+  }
+
+  // ── ALBUM KENANGAN BAYI: 2 link — keluarga (baca & ucapan) + edit ibu bapa ──
+  if (template === 'bayi') {
+    const tk=(id,teks)=>{ const e=document.getElementById(id); e.textContent=teks; e.setAttribute('data-ms',teks); e.setAttribute('data-gki','t'); };
+    const edit=link+'&edit=1';
+    tk('ok-msg','Album Baby dah siap! 💗 Link di bawah untuk keluarga & kawan (baca + tulis doa). Untuk ISI & EDIT album, tekan "✏️ Buka & isi album" — log masuk guna no. telefon yang anda guna masa bayar.');
+    tk('tempoh','📅 Album online selama 1 tahun. Dalam album, tekan 💾 untuk simpan FAIL ALBUM milik anda — boleh buka tanpa internet, kekal selamanya.');
+    const vb=document.getElementById('view-btn'); vb.href=edit; tk('view-btn','✏️ Buka & isi album');
+    document.getElementById('wa-btn').href='https://wa.me/?text='+encodeURIComponent('Assalamualaikum 💗 ini album baby kami — selak & tulis doa di sini ye: '+link);
+    try{ localStorage.setItem('gk_bayi_edit_'+cardId,'1'); }catch(_e){}
   }
 
   show('st-ok');
@@ -499,6 +522,12 @@ checkNow(false);
 <div id="gk-langtog" style="position:fixed;bottom:14px;left:14px;z-index:99999;display:inline-flex;border:1.5px solid #ffd6e6;border-radius:50px;overflow:hidden;font-family:Poppins,sans-serif;font-size:.72rem;font-weight:700;background:#fff;box-shadow:0 3px 12px rgba(233,30,99,.28)"><button data-l="en" onclick="gkApply('en')" style="border:none;background:#fff;color:#a07;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">EN</button><button data-l="ms" onclick="gkApply('ms')" style="border:none;background:#fff;color:#a07;padding:8px 13px;cursor:pointer;font-family:inherit;font-weight:700">BM</button></div>
 <script>
 var GK_DICT={
+"Album Baby anda dah disambung 1 tahun lagi! 💗 Semua gambar, pelekat & doa kekal.":"Your Baby Album is extended for 1 more year! 💗 All photos, stickers & wishes are kept.",
+"10 muka surat tambahan dah dibuka untuk Album Baby anda! 💗":"10 extra pages are now unlocked in your Baby Album! 💗",
+"📖 Kembali ke album":"📖 Back to the album",
+"Album Baby dah siap! 💗 Link di bawah untuk keluarga & kawan (baca + tulis doa). Untuk ISI & EDIT album, tekan \"✏️ Buka & isi album\" — log masuk guna no. telefon yang anda guna masa bayar.":"Your Baby Album is ready! 💗 The link below is for family & friends (read + write wishes). To FILL & EDIT the album, tap \"✏️ Open & fill the album\" — log in with the phone number you used to pay.",
+"📅 Album online selama 1 tahun. Dalam album, tekan 💾 untuk simpan FAIL ALBUM milik anda — boleh buka tanpa internet, kekal selamanya.":"📅 The album is online for 1 year. Inside the album, tap 💾 to save YOUR OWN ALBUM FILE — opens without internet, yours forever.",
+"✏️ Buka & isi album":"✏️ Open & fill the album",
 "📷 Scan guna kamera telefon atau Google Lens — bukan scanner WhatsApp.":"📷 Scan with your phone camera or Google Lens — not the WhatsApp scanner.",
 "⏳ Link kad aktif selama 2 bulan dari hari ini. Simpan gambar / album kamu sebelum tamat tempoh ya 💝":"⏳ Your card link stays active for 2 months from today. Save your photos / album before it expires 💝",
 "Menyemak pembayaran...":"Checking payment...",
