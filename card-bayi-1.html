@@ -32,6 +32,7 @@ body.edit #bKongsi,body.edit #bSimpanFail,body.edit #bMuzik,body.edit #bEdit{dis
 /* ---------- pentas & buku ---------- */
 #pentas{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding-bottom:20px}
 #buku{position:relative;width:var(--bw);aspect-ratio:.7075;overflow:hidden;border-radius:3px 12px 12px 3px;box-shadow:0 18px 40px rgba(90,60,70,.22),-3px 0 0 rgba(120,90,100,.12)}
+.tera{position:absolute;inset:-20%;z-index:7;pointer-events:none;opacity:.13;transform:rotate(-28deg);background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='90'%3E%3Ctext x='0' y='50' font-family='Poppins,Arial' font-size='22' font-weight='700' fill='%235a3d45'%3EPRATONTON · giftkita%3C/text%3E%3C/svg%3E");background-size:240px 90px}
 #lipat{position:absolute;inset:0;z-index:600;pointer-events:none;display:none}
 #flapW{position:absolute;inset:0;filter:drop-shadow(-5px 2px 7px rgba(60,30,40,.32))}
 #flap{position:absolute;left:0;top:0;transform-origin:0 0;background-size:100% 100%,100% 100%;background-color:#fdf6ef}
@@ -203,6 +204,7 @@ input[type=date].tersorok{position:fixed;left:-200px;top:0;opacity:0;width:10px;
 </div></div></div>
 <div class="mod" id="beli"><div class="kd" style="text-align:center"><div style="font-size:34px" id="beliI">🔄</div><b style="display:block;font-size:16.5px;margin-top:4px" id="beliT"></b><p style="font-size:13px;opacity:.78;margin-top:8px;line-height:1.55" id="beliS"></p><div class="harga" id="beliH"></div><button class="bt" id="beliB"></button><button class="bt2" id="beliX" data-t="nanti">Nanti dulu</button></div></div>
 <div id="notisTamat"><span id="notisT"></span><button id="notisB" data-t="sambungB">🔄 Sambung</button></div>
+<div class="mod" id="kunci"><div class="kd" style="text-align:center"><div style="font-size:36px">🔒</div><b style="display:block;font-size:16px;margin-top:6px" id="kunciT"></b><p style="font-size:13px;opacity:.78;margin-top:8px;line-height:1.55" data-t="kunciS">Ini pratonton sahaja. Lepas bayar, anda dapat link keluarga, link edit ibu bapa, kod QR & butang simpan fail album.</p><button class="bt" id="kunciB"></button><button class="bt2" id="kunciX" data-t="nanti">Nanti dulu</button></div></div>
 <div id="muat"><div style="font-size:40px">💾</div><b id="muatT"></b><div class="bar"><i id="muatB"></i></div><p id="muatP" style="font-size:12.5px;opacity:.75;max-width:300px;line-height:1.55"></p><button class="bt2 hide" id="muatTutup" style="width:auto;border:0;border-radius:10px;padding:10px 18px;background:#fde8ec;font:600 13px Poppins">OK</button></div>
 <div id="toast"></div>
 <div id="ralat"></div>
@@ -244,7 +246,7 @@ var KAMUS={ms:{kongsi:'Kongsi',pelekat:'Pelekat',muka:'Muka surat',simpan:'Simpa
   failT:'Menyediakan fail album…',failS:'Semua tulisan, gambar, pelekat & doa dimasukkan dalam satu fail.',failSiap:'Siap! Fail disimpan 🎉',failP:'Buka bila-bila — tanpa internet, tanpa GiftKita. Boleh hantar ke WhatsApp keluarga atau simpan dalam Google Drive.',failGagal:'Gagal simpan fail — cuba lagi',
   waTeks:'Ini album {n} — gambar, kali pertama & surat dari ibu ayah. Selak & tulis doa di sini 👇',assalam:'Assalamualaikum',
   tamat:'Album online ni dah tamat tempoh (1 tahun). 💗<br><br>Ibu bapa: buka <b>fail album</b> yang anda simpan (💾) — fail tu kekal selamanya.',belum:'Album ini belum aktif. Sila selesaikan pembayaran.',tiada:'Album tidak dijumpai.',dbGagal:'Sambungan gagal. Sila refresh.',takdePra:'Tiada data pratonton. Buka semula dari borang.',
-  hadUcap:'Isi nama & ucapan dulu',masukDulu:'Log masuk dulu (no. telefon pembeli)',tungguGambar:'Tunggu gambar habis dimuat naik…',nanti:'Nanti dulu',sambungB:'🔄 Sambung',
+  hadUcap:'Isi nama & ucapan dulu',masukDulu:'Log masuk dulu (no. telefon pembeli)',tungguGambar:'Tunggu gambar habis dimuat naik…',nanti:'Nanti dulu',kunciK:'Link kongsi keluar lepas bayar',kunciF:'Simpan fail album lepas bayar',kunciS:'Ini pratonton sahaja. Lepas bayar, anda dapat link keluarga, link edit ibu bapa, kod QR & butang simpan fail album.',kunciBayar:'💳 Kembali ke borang & bayar',kunciBuat:'💗 Buat Album Baby saya',sambungB:'🔄 Sambung',
   sambungT:'Sambung Album online 1 tahun lagi',sambungS:'Tarikh tamat sekarang: {a}. Lepas bayar → {b}. Semua gambar, pelekat & doa kekal, link sama.',
   mukaT:'Tambah 10 muka surat',mukaS:'Dah guna {a} muka surat tambahan. Lepas bayar, had naik jadi {b} muka surat.',bayarB:'Bayar {h}',contohSahaja:'Ini contoh sahaja — dalam album sebenar, ibu bapa terus ke bayaran 💳',
   tamatDalam:'⏳ Album online tamat dalam {n} hari ({d})',hadMukaBeli:'Dah penuh — tambah 10 muka surat lagi?',kePembayaran:'Ke halaman bayaran…'},
@@ -265,7 +267,7 @@ var KAMUS={ms:{kongsi:'Kongsi',pelekat:'Pelekat',muka:'Muka surat',simpan:'Simpa
   failT:'Preparing the album file…',failS:'All text, photos, stickers & wishes go into one file.',failSiap:'Done! File saved 🎉',failP:'Open it anytime — no internet, no GiftKita needed. Send it to family on WhatsApp or keep it in Google Drive.',failGagal:'Could not save the file — try again',
   waTeks:"This is {n}'s baby album — photos, first moments & letters from Mum and Dad. Flip through & write a wish here 👇",assalam:'Hello',
   tamat:'This online album has expired (1 year). 💗<br><br>Parents: open the <b>album file</b> you saved (💾) — it is yours forever.',belum:'This album is not active yet. Please complete the payment.',tiada:'Album not found.',dbGagal:'Connection failed. Please refresh.',takdePra:'No preview data. Open it again from the form.',
-  hadUcap:'Fill in your name & wish first',masukDulu:'Log in first (buyer phone number)',tungguGambar:'Wait for photos to finish uploading…',nanti:'Not now',sambungB:'🔄 Renew',
+  hadUcap:'Fill in your name & wish first',masukDulu:'Log in first (buyer phone number)',tungguGambar:'Wait for photos to finish uploading…',nanti:'Not now',kunciK:'The share link comes after payment',kunciF:'Save the album file after payment',kunciS:'This is only a preview. After payment you get the family link, the parents edit link, a QR code & the save-album-file button.',kunciBayar:'💳 Back to the form & pay',kunciBuat:'💗 Make my Baby Album',sambungB:'🔄 Renew',
   sambungT:'Keep the album online 1 more year',sambungS:'Current end date: {a}. After payment → {b}. All photos, stickers & wishes stay, same link.',
   mukaT:'Add 10 more pages',mukaS:'You have used {a} extra pages. After payment the limit becomes {b} pages.',bayarB:'Pay {h}',contohSahaja:'This is just a sample — in a real album, parents go straight to payment 💳',
   tamatDalam:'⏳ The online album ends in {n} days ({d})',hadMukaBeli:'Full — add 10 more pages?',kePembayaran:'Going to payment…'}};
@@ -363,7 +365,7 @@ function htmlUcap(){ if(!UCAP.length) return '<div class="tangan" style="text-al
   return UCAP.map(function(u,i){ return '<div class="ucap'+(u.sorok?' sorok':'')+'"><b>'+esc(u.nama)+'</b><div>'+esc(u.ucapan)+'</div>'+(MOD==='edit'&&u.id?'<button class="sk ed" data-sorok="'+i+'">'+esc(u.sorok?T('papar'):T('sorok'))+'</button>':'')+'</div>'; }).join(''); }
 function pelHtml(k){ var A=(D.pel&&D.pel[k])||[]; return '<div class="pelL" data-pk="'+k+'">'+A.map(function(p,i){ var s=SLI[p.s]; if(!s) return ''; return '<img class="pel" alt="" data-i="'+i+'" src="'+s.src+'" style="left:'+p.x+'%;top:'+p.y+'%;width:'+p.w+'%;transform:translate(-50%,-50%) rotate('+(p.r||0)+'deg)">'; }).join('')+'</div>'; }
 function bina(){ var b=$('#buku'), y=cur; HAL=HLM(); if(cur>HAL.length-1) cur=y=HAL.length-1;
-  b.innerHTML=HAL.map(function(p,i){ return '<div class="hlm'+(p.k==='kulit'?' kulit':'')+(i<y?' selak':'')+'" data-k="'+p.k+'" style="z-index:'+(i<y?100+i:HAL.length-i)+'"><div class="muka" style="'+(p.kul?'':'background-image:url('+ST.kertas.src+')')+'">'+p.html+pelHtml(p.k)+(i?'<div class="no">'+i+'</div>':'')+'<div class="cy"></div><div class="by"></div></div><div class="blk" style="background-image:url('+ST.kertas.src+')"><div class="cy"></div></div></div>'; }).join('');
+  b.innerHTML=HAL.map(function(p,i){ return '<div class="hlm'+(p.k==='kulit'?' kulit':'')+(i<y?' selak':'')+'" data-k="'+p.k+'" style="z-index:'+(i<y?100+i:HAL.length-i)+'"><div class="muka" style="'+(p.kul?'':'background-image:url('+ST.kertas.src+')')+'">'+p.html+pelHtml(p.k)+(i?'<div class="no">'+i+'</div>':'')+(MOD==='pratonton'?'<div class="tera"></div>':'')+'<div class="cy"></div><div class="by"></div></div><div class="blk" style="background-image:url('+ST.kertas.src+')"><div class="cy"></div></div></div>'; }).join('');
   b.insertAdjacentHTML('beforeend','<div id="lipat"><div id="byBawah"></div><div id="byLipat"></div><div id="flapW"><div id="flap"></div></div></div>'); SASAR=cur; susunHalaman();
   kira(); ikatEdit(); }
 function kira(){ $('#kira').textContent=cur===0?(lang==='en'?'Cover':'Kulit'):cur+' / '+(HAL.length-1); }
@@ -554,7 +556,7 @@ function linkKongsi(){ var n=$('#kNama').value.trim(), base=location.origin&&loc
   return base+'/card-bayi-1.html?'+(ID?'id='+encodeURIComponent(ID):'demo=1')+(n?'&untuk='+encodeURIComponent(n):''); }
 function teksWa(){ var n=$('#kNama').value.trim(); return (n?T('assalam')+' '+n+' 💗\n':'')+T('waTeks').replace('{n}',D.panggil||D.nama)+'\n'+linkKongsi(); }
 function kemasLink(){ $('#prevLink').textContent=linkKongsi(); if($('#qrBox').style.display==='block') lukisQR(); }
-$('#bKongsi').onclick=function(e){ e.stopPropagation(); kemasLink(); $('#kongsi').classList.add('on'); };
+$('#bKongsi').onclick=function(e){ e.stopPropagation(); if(MOD==='pratonton') return kunci('kongsi'); kemasLink(); $('#kongsi').classList.add('on'); };
 $('#kNama').oninput=kemasLink;
 $('#kongsi').onclick=function(e){ if(e.target.id==='kongsi') this.classList.remove('on'); };
 $('#kWa').onclick=function(){ if(window.__demoWa) return window.__demoWa(teksWa(),$('#kNama').value.trim()); window.open('https://wa.me/?text='+encodeURIComponent(teksWa()),'_blank'); };
@@ -584,7 +586,12 @@ function simpanFail(){ bacaEdit(); var M=$('#muat'); $('#muatT').textContent=T('
     $('#muatTutup').classList.remove('hide');
   }).catch(function(){ M.classList.remove('on'); toast(T('failGagal')); }); }
 $('#muatTutup').onclick=function(){ $('#muat').classList.remove('on'); };
-$('#bSimpanFail').onclick=function(e){ e.stopPropagation(); simpanFail(); };
+$('#bSimpanFail').onclick=function(e){ e.stopPropagation(); if(MOD==='pratonton'||MOD==='demo') return kunci('fail'); simpanFail(); };
+/* PRATONTON / DEMO: link kongsi & fail album dikunci sampai bayar (elak dapat produk percuma) */
+function kunci(j){ $('#kunciT').textContent=T(j==='kongsi'?'kunciK':'kunciF'); $('#kunciB').textContent=T(MOD==='demo'?'kunciBuat':'kunciBayar'); $('#kunci').classList.add('on'); }
+$('#kunciX').onclick=function(){ $('#kunci').classList.remove('on'); };
+$('#kunci').onclick=function(e){ if(e.target.id==='kunci') this.classList.remove('on'); };
+$('#kunciB').onclick=function(){ if(MOD==='demo'){ location.href='buat-kad-bayi.html'; return; } try{ if(window.opener&&!window.opener.closed){ window.opener.focus(); window.close(); return; } }catch(x){} if(history.length>1) history.back(); else location.href='buat-kad-bayi.html'; };
 
 /* ---------- muzik: lagu YouTube (kalau ada) atau kotak muzik ---------- */
 var AC=null, muzikOn=false, muzikT=null, yt=null;
