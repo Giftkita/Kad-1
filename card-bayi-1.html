@@ -15,6 +15,8 @@
 <style>
 :root{--u:#f4b6c2;--u2:#e07f97;--u3:#fde8ec;--t:#5a3d45;--bw:360px}
 body.lelaki{--u:#a9cdee;--u2:#5f97cc;--u3:#e6f1fb;--t:#34495e}
+body.tema-boho{--u:#e8b4a0;--u2:#c8775a;--u3:#f5ebdd;--t:#5b4636}
+body.tema-vintaj{--u:#d8b98c;--u2:#8a5a3a;--u3:#f1e6cf;--t:#4a3626}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
 body{font-family:Poppins,system-ui,sans-serif;color:var(--t);background:#fbf3ea;user-select:none;-webkit-user-select:none}
@@ -77,6 +79,13 @@ body:not(.edit) .gb.kosong{font-size:0!important}
 .namaK .nm{font:600 calc(var(--bw)*.092)/1.05 Fraunces,serif;text-shadow:0 2px 12px rgba(120,60,80,.35)}
 body.lelaki .namaK .nm{text-shadow:0 2px 12px rgba(40,70,120,.35)}
 .namaK .tg{font:600 calc(var(--bw)*.058) Caveat;margin-top:2%;text-shadow:0 1px 8px rgba(0,0,0,.18)}
+body.tema-boho .kulit .namaK{color:#8a4f36;top:71%;left:7%;right:15%}
+body.tema-vintaj .kulit .namaK{color:#4a3626;top:70.5%;left:17%;right:20%}
+body.tema-boho .namaK .lbl,body.tema-boho .namaK .nm,body.tema-boho .namaK .tg,body.tema-vintaj .namaK .lbl,body.tema-vintaj .namaK .nm,body.tema-vintaj .namaK .tg{text-shadow:none}
+body.tema-boho .namaK .lbl{color:#b0805f}
+body.tema-vintaj .namaK .lbl{font-size:calc(var(--bw)*.024);color:#8a6a4a}
+body.tema-vintaj .namaK .nm{font-size:calc(var(--bw)*.075)}
+body.tema-vintaj .namaK .tg{font-size:calc(var(--bw)*.05);margin-top:1%}
 .untuk{display:inline-block;background:rgba(255,255,255,.92);color:var(--u2);font:600 calc(var(--bw)*.034) Poppins;padding:.5em 1.1em;border-radius:99px;box-shadow:0 3px 10px rgba(0,0,0,.08);margin-top:4%}
 /* jadual */
 .jadual{display:grid;grid-template-columns:auto 1fr;gap:1.4% 5%;margin-top:4%;align-items:baseline}
@@ -289,9 +298,25 @@ function api(b){ b.id=ID; if(TEL) b.tel=TEL; return fetch(API,{method:'POST',hea
 /* ---------- keadaan ---------- */
 var ID=Q.get('id')||'', MOD='demo', TEL='', HINGGA='', HAD_MUKA=20, D=null, FOTO={}, UCAP=[], UNTUK=(Q.get('untuk')||Q.get('to')||'').slice(0,40);
 var HAL=[], cur=0, BUKA=false;
-var SL=[]; ST.S.forEach(function(s,i){ SL.push({k:'s'+i,src:s.src,asp:s.asp}); }); [8,9,10,11].forEach(function(i){ SL.push({k:'f'+i,src:ST.F[i].src,asp:ST.F[i].asp}); }); ST.T.forEach(function(s,i){ SL.push({k:'t'+i,src:s.src,asp:s.asp}); });
-var SLI={}; SL.forEach(function(s){ SLI[s.k]=s; });
-function lalaiPel(){ return { lahir:[{s:'s0',x:83,y:31,w:24,r:6}], nama:[{s:'s7',x:84,y:9,w:14,r:8},{s:'s8',x:73,y:6,w:7,r:-10}], kp:[{s:'s5',x:86,y:8,w:15,r:10}], carta:[{s:'s2',x:86,y:8,w:11,r:15},{s:'s1',x:82,y:86,w:20,r:-4}],
+var ST0=ST, TEMA='pastel', TEMA_ADA=['pastel','boho','vintaj'];
+var SL=[], SLI={};
+function binaSL(){ SL=[]; SLI={}; ST.S.forEach(function(s,i){ SL.push({k:'s'+i,src:s.src,asp:s.asp}); }); [8,9,10,11].forEach(function(i){ SL.push({k:'f'+i,src:ST.F[i].src,asp:ST.F[i].asp}); }); ST.T.forEach(function(s,i){ SL.push({k:'t'+i,src:s.src,asp:s.asp}); }); SL.forEach(function(s){ SLI[s.k]=s; }); }
+binaSL();
+/* tema lain: aset dimuat dari bayi-tema-<tema>.json (fail simpanan bawa aset dalam __BUKU.ST) */
+function muatTema(t,cb){ function pakai(j){ ST=j?Object.assign({},ST0,j):ST0; if(!ST.kulitB) ST.kulitB=ST.kulitP; TEMA=j?t:'pastel'; binaSL(); isiDulang();
+    TEMA_ADA.forEach(function(x){ document.body.classList.toggle('tema-'+x,x===TEMA&&x!=='pastel'); }); cb(); }
+  if(t==='pastel') return pakai(null);
+  if(window.__BUKU&&__BUKU.ST) return pakai(__BUKU.ST);
+  fetch('bayi-tema-'+t+'.json').then(function(r){ if(!r.ok) throw 0; return r.json(); }).then(pakai).catch(function(){ TEMA_ADA=['pastel']; pakai(null); }); }
+var BENTUK={boho:['','','50% 50% 5% 5%/38% 38% 4% 4%','50%'],vintaj:['','','50%','1px']};
+function lalaiPel(){
+  if(TEMA==='boho') return { lahir:[{s:'s4',x:84,y:31,w:21,r:6}], nama:[{s:'s0',x:83,y:9,w:17,r:8},{s:'s1',x:70,y:6,w:9,r:-10}], kp:[{s:'s16',x:86,y:8,w:13,r:10}], carta:[{s:'s3',x:86,y:8,w:11,r:10},{s:'s9',x:82,y:87,w:18,r:-4}],
+    aqiqah:[{s:'f10',x:50,y:6.5,w:36,r:0},{s:'s15',x:16,y:88,w:11,r:-12}], ibu:[{s:'s6',x:15,y:87,w:12,r:-10}], ayah:[{s:'s10',x:12,y:87,w:7,r:-12}], doa:[{s:'s14',x:84,y:10,w:13,r:8},{s:'s2',x:15,y:88,w:12,r:-6}],
+    bulan:[], ucap:[{s:'s15',x:86,y:7,w:10,r:10}], akhir:[{s:'s12',x:50,y:73,w:26,r:-3}] };
+  if(TEMA==='vintaj') return { lahir:[{s:'s5',x:83,y:31,w:23,r:5}], nama:[{s:'s0',x:84,y:10,w:14,r:8},{s:'s2',x:71,y:7,w:7,r:-14}], kp:[{s:'s16',x:86,y:8,w:13,r:10}], carta:[{s:'s6',x:85,y:8,w:15,r:6},{s:'s7',x:83,y:86,w:17,r:-4}],
+    aqiqah:[{s:'f9',x:50,y:6,w:26,r:0},{s:'s15',x:16,y:88,w:11,r:-12}], ibu:[{s:'s3',x:14,y:86,w:9,r:-12}], ayah:[{s:'s4',x:12,y:87,w:6,r:-20}], doa:[{s:'s14',x:84,y:10,w:12,r:8},{s:'s11',x:15,y:88,w:11,r:-6}],
+    bulan:[], ucap:[{s:'s17',x:85,y:7,w:13,r:8}], akhir:[{s:'s12',x:50,y:73,w:26,r:-3}] };
+  return { lahir:[{s:'s0',x:83,y:31,w:24,r:6}], nama:[{s:'s7',x:84,y:9,w:14,r:8},{s:'s8',x:73,y:6,w:7,r:-10}], kp:[{s:'s5',x:86,y:8,w:15,r:10}], carta:[{s:'s2',x:86,y:8,w:11,r:15},{s:'s1',x:82,y:86,w:20,r:-4}],
   aqiqah:[{s:'f10',x:50,y:6.5,w:36,r:0},{s:'s17',x:16,y:88,w:12,r:-12}], ibu:[{s:'s15',x:15,y:89,w:11,r:-10}], ayah:[{s:'s3',x:12,y:87,w:8,r:-12}], doa:[{s:'s7',x:84,y:10,w:14,r:8},{s:'s18',x:15,y:88,w:10,r:-8}],
   bulan:[], ucap:[{s:'s17',x:86,y:7,w:11,r:10}], akhir:[{s:'s12',x:50,y:73,w:26,r:-3}] }; }
 function lalaiData(){ return { template:'bayi', jantina:'perempuan', nama:'', panggil:'', lahir:'', masa:'', berat:'', panjang:'', hospital:'', ayah:'', ibu:'', maksud:'',
@@ -301,13 +326,13 @@ function lengkap(d){ var L=lalaiData(); d=d||{}; Object.keys(L).forEach(function
 
 /* ---------- ilustrasi bayi (demo sahaja) ---------- */
 function bayiIlus(n,opt){ opt=opt||{}; var W=600,c=document.createElement('canvas'); c.width=W; c.height=W; var x=c.getContext('2d'), L=D&&D.jantina==='lelaki';
-  var P=L?[['#e6f1fb','#bcd9f3'],['#fdf3e1','#f3dcb2'],['#eaf6ef','#c3e4cf'],['#efeafa','#d3c6f1']]:[['#fde8ec','#f6c2cd'],['#fdf3e1','#f3dcb2'],['#f3ecfb','#dcc9f1'],['#eaf6ef','#c3e4cf']], pp=P[n%4];
+  var P=TEMA==='boho'?[['#f5ebdd','#e8c9b0'],['#f7ecd4','#e6cc91'],['#eef0e4','#cfd6bd'],['#f8e6df','#e8b4a0']]:TEMA==='vintaj'?[['#f1e6cf','#dcc59c'],['#f3e9df','#d8b3a8'],['#e9eee8','#bccbc9'],['#f4ead6','#c9b08a']]:L?[['#e6f1fb','#bcd9f3'],['#fdf3e1','#f3dcb2'],['#eaf6ef','#c3e4cf'],['#efeafa','#d3c6f1']]:[['#fde8ec','#f6c2cd'],['#fdf3e1','#f3dcb2'],['#f3ecfb','#dcc9f1'],['#eaf6ef','#c3e4cf']], pp=P[n%4];
   var g=x.createLinearGradient(0,0,0,W); g.addColorStop(0,pp[0]); g.addColorStop(1,pp[1]); x.fillStyle=g; x.fillRect(0,0,W,W);
   x.fillStyle='rgba(255,255,255,.55)'; for(var i=0;i<7;i++){ x.beginPath(); x.arc((i*97+n*41)%W,(i*61+n*23)%(W*.5),8+(i%3)*5,0,7); x.fill(); }
   var s=.78+Math.min(n,12)*.018; x.save(); x.translate(W/2,W*.52); x.scale(s,s);
-  x.fillStyle=opt.baju||(L?'#9cc3e8':'#f2a7b8'); x.beginPath(); x.ellipse(0,170,165,150,0,Math.PI,0); x.fill();
+  x.fillStyle=opt.baju||(TEMA==='boho'?'#c8775a':TEMA==='vintaj'?'#9db4c0':L?'#9cc3e8':'#f2a7b8'); x.beginPath(); x.ellipse(0,170,165,150,0,Math.PI,0); x.fill();
   x.fillStyle='#f5d5c0'; x.beginPath(); x.arc(0,-10,118,0,7); x.fill(); x.beginPath(); x.arc(-116,-5,22,0,7); x.arc(116,-5,22,0,7); x.fill();
-  if(n%3===0){ x.fillStyle=L?'#7fb0dd':'#f7b9c7'; x.beginPath(); x.arc(0,-30,124,Math.PI*1.02,Math.PI*1.98); x.closePath(); x.fill(); x.beginPath(); x.arc(0,-162,22,0,7); x.fill(); }
+  if(n%3===0){ x.fillStyle=TEMA==='boho'?'#d9a441':TEMA==='vintaj'?'#d8a7a0':L?'#7fb0dd':'#f7b9c7'; x.beginPath(); x.arc(0,-30,124,Math.PI*1.02,Math.PI*1.98); x.closePath(); x.fill(); x.beginPath(); x.arc(0,-162,22,0,7); x.fill(); }
   else { x.strokeStyle='#5a3a2e'; x.lineWidth=7; x.lineCap='round'; x.beginPath(); x.moveTo(-6,-126); x.quadraticCurveTo(18,-150,4,-170); x.stroke(); }
   x.strokeStyle='#5a3a2e'; x.lineWidth=6; x.lineCap='round';
   if(n%2===0){ x.beginPath(); x.arc(-42,-8,16,Math.PI*.15,Math.PI*.85); x.stroke(); x.beginPath(); x.arc(42,-8,16,Math.PI*.15,Math.PI*.85); x.stroke(); }
@@ -328,7 +353,7 @@ var UCAP_DEMO=[{nama:'Tok Ma',ucapan:'Cucu Tok Ma yang comel… semoga membesar 
 /* ---------- binaan halaman ---------- */
 function gbS(k){ var u=FOTO[k]; return u?'background-image:url(\''+u+'\');':''; }
 function gb(k,kelas,gaya){ var ada=!!FOTO[k]; return '<div class="gb'+(ada?'':' kosong')+(kelas?' '+kelas:'')+'" data-g="'+k+'" style="'+gbS(k)+(gaya||'')+'">'+(ada?'':'+')+'</div>'; }
-function bingkai(k,fi,lebar,gaya,pita){ var F=ST.F[fi], L=F.lub; return '<div class="bk" style="width:'+lebar+';'+(gaya||'')+'">'+gb(k,'','left:'+L[0]+'%;top:'+L[1]+'%;width:'+L[2]+'%;height:'+L[3]+'%;'+(fi>=2?'border-radius:50%;':''))+'<img class="rk" alt="" src="'+F.src+'">'+(pita!=null?'<img class="pita" alt="" src="'+ST.T[pita].src+'">':'')+'</div>'; }
+function bingkai(k,fi,lebar,gaya,pita){ var F=ST.F[fi], L=F.lub; return '<div class="bk" style="width:'+lebar+';'+(gaya||'')+'">'+gb(k,'','left:'+L[0]+'%;top:'+L[1]+'%;width:'+L[2]+'%;height:'+L[3]+'%;'+(BENTUK[TEMA]?(BENTUK[TEMA][fi]?'border-radius:'+BENTUK[TEMA][fi]+';':''):(fi>=2?'border-radius:50%;':'')))+'<img class="rk" alt="" src="'+F.src+'">'+(pita!=null?'<img class="pita" alt="" src="'+ST.T[pita].src+'">':'')+'</div>'; }
 function pol(k,kap,f,gaya){ return '<div class="pol"'+(gaya?' style="'+gaya+'"':'')+'>'+gb(k)+'<div class="kap"'+(f?' data-f="'+f+'"':'')+'>'+esc(kap)+'</div></div>'; }
 function HLM(){ var h=[], hj=hijrah(D.lahir), P=D.panggil||(D.nama||'').split(' ')[0]||'';
   var kul=D.jantina==='lelaki'?ST.kulitB:ST.kulitP, L=kul.lub;
@@ -511,8 +536,9 @@ $('#bTambahM').onclick=function(e){ e.stopPropagation(); tutupPelekat(); $('#sus
 $('#susun').onclick=function(e){ if(e.target.id==='susun') this.classList.remove('on'); };
 
 /* ---------- pelekat: tampal, seret, cubit (besar/kecil & pusing) ---------- */
-(function(){ var S=$('#dulangS'); S.innerHTML=SL.map(function(s){ return '<button data-pk="'+s.k+'"><img alt="" src="'+s.src+'"></button>'; }).join('');
-  S.onclick=function(e){ var b=e.target.closest('button'); if(!b) return; tambahPel(b.dataset.pk); }; })();
+function isiDulang(){ var S=$('#dulangS'); if(!S) return; S.innerHTML=SL.map(function(s){ return '<button data-pk="'+s.k+'"><img alt="" src="'+s.src+'"></button>'; }).join('');
+  S.onclick=function(e){ var b=e.target.closest('button'); if(!b) return; tambahPel(b.dataset.pk); }; }
+isiDulang();
 function kunciSemasa(){ return HAL[cur]&&HAL[cur].k; }
 function tambahPel(sk){ bacaEdit(); var k=kunciSemasa(); if(!k) return; D.pel[k]=D.pel[k]||[]; if(D.pel[k].length>=15) return toast(T('hadPel'));
   var s=SLI[sk]; D.pel[k].push({s:sk,x:50+(Math.random()*16-8),y:45+(Math.random()*16-8),w:sk[0]==='t'?34:(s.asp>1.6?40:22),r:Math.round(Math.random()*16-8)}); lukisPel(k); pilihPel(k,D.pel[k].length-1); }
@@ -578,6 +604,7 @@ function simpanFail(){ bacaEdit(); var M=$('#muat'); $('#muatT').textContent=T('
     if(fon) src=src.replace(/<link href="https:\/\/fonts\.googleapis[^>]*>/,'<style>'+fon+'</style>');
     var dd=JSON.parse(JSON.stringify(D)); dd.yt='';
     var data={D:dd,FOTO:F,UCAP:UCAP.filter(function(u){ return !u.sorok; }).map(function(u){ return {nama:u.nama,ucapan:u.ucapan}; }),pada:new Date().toISOString().slice(0,10),lang:lang};
+    if(TEMA!=='pastel') data.ST={kulitP:ST.kulitP,kertas:ST.kertas,latar:ST.latar,F:ST.F,S:ST.S,T:ST.T};
     src=src.replace('<script>\n/* ====================================================================\n   BUKU KENANGAN BAYI','<script>window.__BUKU='+JSON.stringify(data).replace(/</g,'\\u003c')+';<\/script>\n<script>\n/* ====================================================================\n   BUKU KENANGAN BAYI');
     var nama='Album-'+String(D.panggil||D.nama||'Bayi').replace(/[^A-Za-z0-9]+/g,'')+'.html', bl=new Blob([src],{type:'text/html'});
     $('#muatB').style.width='100%'; $('#muatT').textContent=T('failSiap'); $('#muatP').innerHTML='<b>'+esc(nama)+'</b> ('+(bl.size>1048576?(bl.size/1048576).toFixed(1)+' MB':Math.round(bl.size/1024)+' KB')+')<br>'+esc(T('failP'));
@@ -634,7 +661,9 @@ function pakaiKamus(){ document.documentElement.lang=lang; document.querySelecto
 addEventListener('beforeunload',function(e){ if(document.body.classList.contains('edit')&&MOD==='edit'){ e.preventDefault(); e.returnValue=''; } });
 
 /* ---------- mula ---------- */
-function mula(){ $('#mula').style.display='none'; D=lengkap(D); document.body.classList.toggle('lelaki',D.jantina==='lelaki'); $('#latar').style.backgroundImage='url('+ST.latar.src+')';
+function mula(){ var t=(D&&D.tema)||'pastel'; if(TEMA_ADA.indexOf(t)<0) t='pastel';
+  if(t!==TEMA) return muatTema(t,function(){ if(MOD==='demo'){ D.pel=lalaiPel(); FOTO=fotoDemo(); } if(TEMA!==t) D.tema='pastel'; mula(); });
+  $('#mula').style.display='none'; D=lengkap(D); document.body.classList.toggle('lelaki',D.jantina==='lelaki'); $('#latar').style.backgroundImage='url('+ST.latar.src+')';
   Object.keys(D.foto||{}).forEach(function(k){ if(D.foto[k]&&!FOTO[k]) FOTO[k]=D.foto[k]; });
   document.title=(D.panggil||D.nama?((lang==='en'?'':'Album ')+(D.panggil||D.nama)+(lang==='en'?"'s Baby Album":'')):T('bukuK'))+' 💗';
   pakaiKamus(); saiz(); muatUcap(); bina(); }
@@ -642,7 +671,7 @@ function mula(){ $('#mula').style.display='none'; D=lengkap(D); document.body.cl
   pakaiKamus();
   if(window.__BUKU){ MOD='fail'; D=__BUKU.D; FOTO=__BUKU.FOTO||{}; UCAP=__BUKU.UCAP||[]; UNTUK=''; if(__BUKU.lang) lang=__BUKU.lang; document.body.classList.add('fail'); $('#badge').textContent=T('failMilik')+' · '+__BUKU.pada; mula(); return; }
   if(Q.get('preview')==='1'){ try{ D=JSON.parse(localStorage.getItem('gk_preview')); }catch(e){ D=null; } if(!D) return ralat(T('takdePra')); MOD='pratonton'; $('#badge').textContent=T('pratonton'); D.foto=D.foto||{}; mula(); return; }
-  if(Q.get('demo')==='1'||!ID){ D=demoData(); MOD='demo'; $('#badge').textContent=T('demo'); FOTO=fotoDemo(); mula(); return; }
+  if(Q.get('demo')==='1'||!ID){ D=demoData(); D.tema=Q.get('tema')||'pastel'; MOD='demo'; $('#badge').textContent=T('demo'); FOTO=fotoDemo(); mula(); return; }
   if(!db) return ralat(T('dbGagal'));
   db.from('cards').select('card_data,paid').eq('id',ID).single().then(function(r){
     if(r.error) throw r.error; if(r.data.paid!==true) return ralat(T('belum'));

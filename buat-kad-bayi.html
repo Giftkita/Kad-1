@@ -75,6 +75,7 @@ input[type=range]{width:100%;margin-top:10px}
 .kulitPv{width:120px;height:120px;border-radius:50%;border:2px dashed #e0b7c2;margin:8px auto 0;background:#fdf3f5 center/cover;display:flex;align-items:center;justify-content:center;font-size:30px;color:#d9a3b2;cursor:pointer}
 .ciri{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;font-size:.78rem}.ciri div{background:#fff;border-radius:10px;padding:8px 10px;border:1px solid #f1e3e7}
 input[type=date],input[type=time]{width:100%;padding:10px 12px;border:1px solid #e0d4bd;border-radius:10px;font-family:inherit;font-size:.9rem;background:#fff}
+.tema{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:6px}.tema label{border:2px solid #eee;border-radius:14px;padding:10px 4px 8px;text-align:center;cursor:pointer;font-weight:600;font-size:.78rem;line-height:1.25}.tema label i{display:block;font-style:normal;font-size:1.5rem;margin-bottom:3px}.tema input{display:none}.tema label:has(input:checked){border-color:#c8775a;background:#fbf1e8}.tema small{display:block;font-weight:400;opacity:.65;font-size:.7rem;margin-top:2px}
 </style>
 <header>
   <a class="back" href="index.html" data-k="back">‹ Kembali</a>
@@ -84,13 +85,15 @@ input[type=date],input[type=time]{width:100%;padding:10px 12px;border:1px solid 
   <div class="wrap" style="margin-bottom:0"><div class="ciri">
     <div data-k="c1">✏️ Isi & tambah gambar bila-bila sepanjang tahun</div><div data-k="c2">🧸 Tampal pelekat macam scrapbook</div>
     <div data-k="c3">👨‍👩‍👧 Kongsi link · keluarga tulis doa</div><div data-k="c4">💾 Simpan fail album — kekal selamanya</div></div>
-    <div style="margin-top:10px"><a href="contoh.html?t=bayi" style="font-size:.82rem;color:#e07f97;font-weight:600" data-k="lihat">👀 Tengok contoh album dulu</a></div></div>
+    <div style="margin-top:10px"><a id="lihatContoh" href="contoh.html?t=bayi" style="font-size:.82rem;color:#e07f97;font-weight:600" data-k="lihat">👀 Tengok contoh album dulu</a></div></div>
 </header>
 
 <div class="wrap">
   <div class="sec">
     <h2 data-k="s1">Si kecil</h2><div class="hint" data-k="s1h">Isi asas dulu — selebihnya (gambar bulanan, kali pertama, surat, aqiqah) boleh diisi terus dalam album lepas bayar.</div>
     <div class="jan"><label><input type="radio" name="jan" value="perempuan" checked> 🎀 <span data-k="pr">Perempuan</span></label><label class="b"><input type="radio" name="jan" value="lelaki"> 🧢 <span data-k="lk">Lelaki</span></label></div>
+    <label class="l" data-k="lTema">Tema album</label>
+    <div class="tema"><label><input type="radio" name="tema" value="pastel" checked><i>🎀</i><span data-k="tPastel">Pastel</span><small data-k="tPastelS">pink / biru</small></label><label><input type="radio" name="tema" value="boho"><i>🌈</i><span data-k="tBoho">Boho Pelangi</span><small data-k="tNeutral">neutral</small></label><label><input type="radio" name="tema" value="vintaj"><i>📜</i><span data-k="tVintaj">Scrapbook Vintaj</span><small data-k="tNeutral2">neutral</small></label></div>
     <label class="l" data-k="lNama">Nama penuh bayi *</label><input type="text" id="nama" maxlength="40" placeholder="Aisyah Humaira">
     <label class="l" data-k="lPanggil">Nama panggilan</label><input type="text" id="panggil" maxlength="16" placeholder="Aisyah">
     <div class="duaKol">
@@ -127,12 +130,12 @@ input[type=date],input[type=time]{width:100%;padding:10px 12px;border:1px solid 
 <script>
 var L={ms:{title:'Album Baby Digital | GiftKita',back:'‹ Kembali',h1:'Album Baby 👶',hs:'Album digital yang ibu bapa isi sendiri — selak macam album betul · RM30',
   c1:'✏️ Isi & tambah gambar bila-bila sepanjang tahun',c2:'🧸 Tampal pelekat macam scrapbook',c3:'👨‍👩‍👧 Kongsi link · keluarga tulis doa',c4:'💾 Simpan fail album — kekal selamanya',lihat:'👀 Tengok contoh album dulu',
-  s1:'Si kecil',s1h:'Isi asas dulu — selebihnya (gambar bulanan, kali pertama, surat, aqiqah) boleh diisi terus dalam album lepas bayar.',pr:'Perempuan',lk:'Lelaki',lNama:'Nama penuh bayi *',lPanggil:'Nama panggilan',lLahir:'Tarikh lahir *',lMasa:'Masa lahir',lBerat:'Berat lahir',lPanjang:'Panjang',lHosp:'Tempat lahir (hospital)',lKulit:'Gambar kulit album',
+  s1:'Si kecil',s1h:'Isi asas dulu — selebihnya (gambar bulanan, kali pertama, surat, aqiqah) boleh diisi terus dalam album lepas bayar.',pr:'Perempuan',lk:'Lelaki',lTema:'Tema album',tPastel:'Pastel',tPastelS:'pink / biru',tBoho:'Boho Pelangi',tVintaj:'Scrapbook Vintaj',tNeutral:'neutral',tNeutral2:'neutral',lNama:'Nama penuh bayi *',lPanggil:'Nama panggilan',lLahir:'Tarikh lahir *',lMasa:'Masa lahir',lBerat:'Berat lahir',lPanjang:'Panjang',lHosp:'Tempat lahir (hospital)',lKulit:'Gambar kulit album',
   s2:'Ibu & ayah',lAyah:'Nama ayah',lIbu:'Nama ibu',lMaksud:'Maksud nama (pilihan)',phMaksud:'cth: Aisyah — yang hidup, penuh semangat…',s6:'Lagu (pilihan)',s6h:'Main bila album dibuka. Kosongkan untuk lagu kotak muzik "Twinkle Twinkle".',lYt:'Link YouTube',
   s7:'Pratonton & bayar',s7h:'Tekan pratonton untuk tengok album. Lepas bayar, anda dapat 2 link: link keluarga & link edit ibu bapa (log masuk guna no. telefon yang anda isi di bawah).',perlu:'Isi nama bayi & tarikh lahir dulu ya 💗'},
  en:{title:'Digital Baby Album | GiftKita',back:'‹ Back',h1:'Baby Album 👶',hs:'A digital album parents fill in themselves — flips like a real album',
   c1:'✏️ Add photos & stories anytime through the year',c2:'🧸 Decorate with stickers like a scrapbook',c3:'👨‍👩‍👧 Share a link · family writes wishes',c4:'💾 Save the album file — yours forever',lihat:'👀 See a sample album first',
-  s1:'The little one',s1h:'Just the basics — monthly photos, first moments, letters & aqiqah can be filled in inside the album after payment.',pr:'Girl',lk:'Boy',lNama:"Baby's full name *",lPanggil:'Nickname',lLahir:'Date of birth *',lMasa:'Time of birth',lBerat:'Birth weight',lPanjang:'Length',lHosp:'Place of birth (hospital)',lKulit:'Cover photo',
+  s1:'The little one',s1h:'Just the basics — monthly photos, first moments, letters & aqiqah can be filled in inside the album after payment.',pr:'Girl',lk:'Boy',lTema:'Album theme',tPastel:'Pastel',tPastelS:'pink / blue',tBoho:'Boho Rainbow',tVintaj:'Vintage Scrapbook',tNeutral:'neutral',tNeutral2:'neutral',lNama:"Baby's full name *",lPanggil:'Nickname',lLahir:'Date of birth *',lMasa:'Time of birth',lBerat:'Birth weight',lPanjang:'Length',lHosp:'Place of birth (hospital)',lKulit:'Cover photo',
   s2:'Mum & Dad',lAyah:"Dad's name",lIbu:"Mum's name",lMaksud:'Meaning of the name (optional)',phMaksud:'e.g. Aisyah — alive, full of spirit…',s6:'Song (optional)',s6h:'Plays when the album opens. Leave empty for a "Twinkle Twinkle" music box.',lYt:'YouTube link',
   s7:'Preview & pay',s7h:'Tap preview to see the album. After payment you get 2 links: a family link & a parents edit link (log in with the phone number you enter below).',perlu:"Please fill in the baby's name & date of birth first 💗"}};
 var lang='ms'; try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }catch(e){}
@@ -147,6 +150,7 @@ function collectData(){
   var d={ template:'bayi' };              /* WAJIB — sama dengan card-bayi-1.html */
   ['nama','panggil','lahir','masa','berat','panjang','hospital','ayah','ibu','maksud','yt'].forEach(function(k){ d[k]=document.getElementById(k).value.trim(); });
   d.jantina=(document.querySelector('input[name=jan]:checked')||{}).value||'perempuan';
+  d.tema=(document.querySelector('input[name=tema]:checked')||{}).value||'pastel';
   if(!d.panggil) d.panggil=(d.nama.split(' ')[0]||'');
   d.foto=kulit?{kulit:kulit}:{};
   d.to=d.nama; d.from=[d.ayah,d.ibu].filter(Boolean).join(' & ');
@@ -159,6 +163,9 @@ function mountBayar(){
 }
 function lengkap(){ return ['nama','lahir'].every(function(k){ return document.getElementById(k).value.trim(); }); }
 document.getElementById('gk-bayar').addEventListener('click',function(e){ if(e.target.closest&&e.target.closest('#gkb-pay')&&!lengkap()){ e.stopPropagation(); e.preventDefault(); alert(T('perlu')); } },true);
+(function(){ var t=new URLSearchParams(location.search).get('tema'), x=t&&document.querySelector('input[name=tema][value="'+t+'"]'); if(x) x.checked=true;
+  function kemas(){ var v=(document.querySelector('input[name=tema]:checked')||{}).value||'pastel'; document.getElementById('lihatContoh').href='contoh.html?t='+(v==='pastel'?'bayi':'bayi'+v); }
+  document.querySelectorAll('input[name=tema]').forEach(function(e){ e.onchange=kemas; }); kemas(); })();
 pakai(); mountBayar();
 </script>
 <script src="gk-notis.js" defer></script>
