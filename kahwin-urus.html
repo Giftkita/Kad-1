@@ -110,8 +110,8 @@ function toast(t){ var e=$('#toast'); e.textContent=t; e.classList.add('on'); cl
 function pakai(){ document.documentElement.lang=lang; $('#lang').textContent=lang==='ms'?'EN':'BM'; document.querySelectorAll('[data-k]').forEach(function(el){ el.textContent=T(el.dataset.k); }); if(typeof pasangLink==='function'&&$('#bVid')) pasangLink(); if(DATA) lukis(); }
 $('#lang').onclick=function(){ lang=lang==='ms'?'en':'ms'; try{ localStorage.setItem('gk_lang',lang); }catch(e){} pakai(); };
 var ID=new URLSearchParams(location.search).get('id')||'', DATA=null, TAPIS='semua', TEL='';
-var KAD_TPL={pelamin:'card-pelamin-1.html',impian:'card-impian-1.html'};
-function kadFail(){ var t=(DATA&&DATA.kad&&DATA.kad.tpl)||new URLSearchParams(location.search).get('t')||'pelamin'; return KAD_TPL[t]||KAD_TPL.pelamin; }
+var KAD_TPL={pelamin:'card-pelamin-1.html',impian:'card-impian-1.html',songket:'card-songket-1.html'}; /* template baru: card-<template>-1.html */
+function kadFail(){ var t=(DATA&&DATA.kad&&DATA.kad.tpl)||new URLSearchParams(location.search).get('t')||'pelamin'; return KAD_TPL[t]||(/^[a-z0-9]+$/.test(t)?'card-'+t+'-1.html':KAD_TPL.pelamin); }
 var LINK='';
 function pasangLink(){ LINK=location.origin+'/'+kadFail()+'?id='+encodeURIComponent(ID); $('#bWa').href='https://wa.me/?text='+encodeURIComponent(T('waTeks')+LINK); $('#bVid').href=kadFail()+'?id='+encodeURIComponent(ID)+'&jana=1&lang='+lang; }
 function salah(t){ var r=$('#ralat'); r.style.display='block'; r.textContent=t; }

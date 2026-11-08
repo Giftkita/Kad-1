@@ -31,7 +31,7 @@
 <script src="gk-mp4.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Pinyon+Script&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Amiri:wght@400;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--mr:#7a1f2c;--mr2:#9a2a3a;--emas:#b8935a;--krim:#fbf6f0;--teks:#4a1a22}
+:root{--mr:#7a1f2c;--mr2:#9a2a3a;--emas:#b8935a;--krim:#fbf6f0;--teks:#4a1a22;--kc:#6b3a3a}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;background:#2a0d12;color:var(--teks);font-family:'Cormorant Garamond',Georgia,serif}
 body{overflow:hidden}
@@ -62,10 +62,10 @@ body.buka #lsK{transform:translateX(-96%) scaleX(.55)}
 body.buka #lsN{transform:translateX(96%) scaleX(.55)}
 #tutup{position:absolute;inset:0;z-index:32;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 26px;transition:opacity .9s}
 body.buka #tutup{opacity:0;pointer-events:none}
-.kc{font:600 clamp(11px,3vw,13px)/1.6 'Cormorant Garamond',serif;letter-spacing:.32em;color:#6b3a3a;text-transform:uppercase}
+.kc{font:600 clamp(11px,3vw,13px)/1.6 'Cormorant Garamond',serif;letter-spacing:.32em;color:var(--kc);text-transform:uppercase}
 .mono{font:400 clamp(86px,27vw,140px)/1 'Pinyon Script',cursive;color:var(--mr);margin:6px 0 2px;text-shadow:0 2px 14px rgba(255,255,255,.9)}
 .nm{font:400 clamp(34px,10vw,52px)/1.05 'Pinyon Script',cursive;color:var(--mr)}
-#kepada{margin-top:18px;font:500 15px Poppins,sans-serif;color:#6b3a3a;display:none}
+#kepada{margin-top:18px;font:500 15px Poppins,sans-serif;color:var(--kc);display:none}
 #kepada b{display:block;font:600 clamp(20px,5.6vw,26px) 'Cormorant Garamond',serif;color:var(--teks);margin-top:2px}
 .bBuka{margin-top:22px;border:0;background:var(--mr);color:#fff;font:600 15px Poppins,sans-serif;padding:14px 26px;border-radius:99px;cursor:pointer;box-shadow:0 10px 26px rgba(122,31,44,.35);animation:denyut 1.6s infinite}
 @keyframes denyut{0%,100%{box-shadow:0 0 0 0 rgba(122,31,44,.35),0 10px 26px rgba(122,31,44,.3)}50%{box-shadow:0 0 0 14px rgba(122,31,44,0),0 10px 26px rgba(122,31,44,.3)}}
@@ -215,6 +215,111 @@ body.laman #nav{transform:translate(-50%,0)}
 <div id="jana"><div><div style="font-size:34px">🎬</div><div id="janaT" style="font-weight:600;font-size:17px;margin-top:6px"></div><div class="bar"><i id="janaBar"></i></div><div id="janaP" style="font-size:13px;opacity:.85"></div><canvas id="janaPv" width="270" height="480"></canvas><div id="janaB"></div></div></div>
 <div id="ralat"></div>
 
+<script>/* ====================================================================
+   GiftKita — ENJIN WARNA KONGSI (gk-warna.js)
+   Dipakai oleh kad kahwin (pelamin, impian, songket) & Album Baby (bayi).
+   - Viewer: fail ini DISISIPKAN (inline) ke dalam card-*.html masa bina (supaya fail 💾 Album Baby kekal luar talian).
+   - Borang: tag script src="gk-warna.js" → GKWarna.borang('gkWarna', SET, {...}) & GKWarna.nilai().
+   Data kad: card_data.warna = kunci palet, card_data.warnaTeks = '#rrggbb' (pilihan, warna tulisan sendiri).
+
+   Warna semula gambar: piksel yang hue-nya dalam julat SUMBER (cth biru 180–250°, merah 335–15°) dipusing ke hue
+   palet, tepu & terang didarab (s,v). Kawasan "jaga" (cth langit) & piksel terlalu tepu dilangkau supaya kekal asli.
+   ==================================================================== */
+(function(G){
+  function hexRgb(h){ h=String(h||'').replace('#',''); if(!/^[0-9a-f]{6}$/i.test(h)) return null; return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+  function campur(a,b,k){ return '#'+a.map(function(x,i){ return ('0'+Math.round(x+(b[i]-x)*k).toString(16)).slice(-2); }).join(''); }
+  function kanvas(w,h){ var c=document.createElement('canvas'); c.width=Math.max(1,Math.round(w)); c.height=Math.max(1,Math.round(h)); return c; }
+  function dalamJulat(h,a,b){ return a<=b?(h>=a&&h<=b):(h>=a||h<=b); }
+  function jarakHue(h,c){ var d=Math.abs(h-c)%360; return d>180?360-d:d; }
+
+  /* pilih palet: SET = { kunci:{h,s,v, mr,mr2,g,kc,pn:[r,g,b], ...} }, d = card_data */
+  function pilih(SET,d,asal){ var k=d&&d.warna&&SET[d.warna]?d.warna:asal, P=Object.assign({kunci:k},SET[k]), t=hexRgb(d&&d.warnaTeks);
+    if(t){ var w=[255,255,255]; P.mr='#'+d.warnaTeks.replace('#','').toLowerCase(); P.g=campur(t,w,.22); P.kc=campur(t,w,.45); P.mr2=campur(t,w,.35); P.teksSendiri=true; }
+    return P; }
+  /* set pemboleh ubah CSS: peta = { '--mr':'mr', '--emas':'mr2', ... } */
+  function css(P,peta){ var R=document.documentElement.style; for(var v in peta){ var x=P[peta[v]]; if(x!=null) R.setProperty(v,x); } }
+
+  /* warna semula satu imej → kanvas. o = {sumber:[hMin,hMax], pusat:h, sMin, sMax, vMin, jaga:[[x0,y0,x1,y1,sHad],...]} ; P = palet {h,s,v} */
+  function warnakan(im,P,o){ o=o||{}; var c=kanvas(im.naturalWidth||im.width,im.naturalHeight||im.height), x=c.getContext('2d'); x.drawImage(im,0,0);
+    var D=x.getImageData(0,0,c.width,c.height), d=D.data, CW=c.width, CH=c.height, S=o.sumber||[180,250], pusat=o.pusat!=null?o.pusat:(S[0]<=S[1]?(S[0]+S[1])/2:((S[0]+S[1]+360)/2)%360),
+      lebar=(S[0]<=S[1]?S[1]-S[0]:S[1]+360-S[0])/2, lembut=o.lembut||15, sMin=o.sMin||.035, sMax=o.sMax||.6, sLembut=o.sLembut||.2, vMin=o.vMin||0,
+      J=(o.jaga||[]).map(function(j){ return [j[0]*CW,j[1]*CH,j[2]*CW,j[3]*CH,j[4]==null?0:j[4]]; }), tH=P.h, tS=P.s==null?1:P.s, tV=P.v==null?1:P.v, putar=o.putar==null?.6:o.putar;
+    for(var i=0;i<d.length;i+=4){ if(d[i+3]===0) continue; var r=d[i]/255,g=d[i+1]/255,b=d[i+2]/255, mx=Math.max(r,g,b), mn=Math.min(r,g,b), dl=mx-mn; if(dl<sMin*mx||mx<vMin) continue;
+      var s=dl/mx; if(s>sMax) continue;
+      var h=mx===b?60*((r-g)/dl)+240:mx===g?60*((b-r)/dl)+120:60*(((g-b)/dl)%6); if(h<0) h+=360;
+      var jh=jarakHue(h,pusat); if(jh>lebar) continue;
+      if(J.length){ var px=(i>>2)%CW, py=(i>>2)/CW|0, lompat=false; for(var q=0;q<J.length;q++){ var j=J[q]; if(px>j[0]&&px<j[2]&&py>j[1]&&py<j[3]&&s>j[4]){ lompat=true; break; } } if(lompat) continue; }
+      var wh=jh<lebar-lembut?1:(lebar-jh)/lembut, ws=s<sMax-sLembut?1:(sMax-s)/sLembut, w=wh*ws; if(w<=0) continue;
+      var dh=((h-pusat+540)%360)-180, nh=(tH+dh*putar+360)%360, ns=Math.min(1,s*tS), nv=Math.min(1,mx*tV), C=nv*ns, X=C*(1-Math.abs((nh/60)%2-1)), m=nv-C, rr,gg,bb, k=Math.floor(nh/60)%6;
+      if(k===0){rr=C;gg=X;bb=0}else if(k===1){rr=X;gg=C;bb=0}else if(k===2){rr=0;gg=C;bb=X}else if(k===3){rr=0;gg=X;bb=C}else if(k===4){rr=X;gg=0;bb=C}else{rr=C;gg=0;bb=X}
+      d[i]=Math.round((r+(rr+m-r)*w)*255); d[i+1]=Math.round((g+(gg+m-g)*w)*255); d[i+2]=Math.round((b+(bb+m-b)*w)*255); }
+    x.putImageData(D,0,0); return c; }
+  /* warnakan senarai sasaran: [{obj, key, mime, o}] → ganti obj[key] dengan dataURL baru */
+  function sedia(senarai,P,cb){ if(P.h==null){ cb&&cb(); return Promise.resolve(); }
+    return Promise.all(senarai.map(function(z){ return new Promise(function(ok){ if(!z.obj||!z.obj[z.key]) return ok(); var im=new Image();
+      im.onload=function(){ try{ var o=Object.assign({},z.o||{}); if(P.adj&&z.adj&&P.adj[z.adj]) Object.assign(o,P.adj[z.adj]); z.obj[z.key]=warnakan(im,o.P?o.P:P,o).toDataURL(z.mime||'image/png',.9); }catch(e){} ok(); };
+      im.onerror=ok; im.src=z.obj[z.key]; }); })).then(function(){ cb&&cb(); }); }
+
+  /* ---------- BORANG: pemilih palet + warna tulisan sendiri ---------- */
+  var gaya=false;
+  function borang(elId,SET,opt){ opt=opt||{}; var el=document.getElementById(elId); if(!el) return;
+    if(!gaya){ gaya=true; var st=document.createElement('style'); st.textContent=
+      '.gkw-pal{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:8px;margin-top:6px}'+
+      '.gkw-pal label{cursor:pointer;text-align:center;font:600 11px/1.25 Poppins,sans-serif;color:#4a5568}.gkw-pal input{display:none}'+
+      '.gkw-pal i{display:block;aspect-ratio:1;border-radius:50%;margin:0 auto 5px;width:100%;max-width:54px;border:3px solid #fff;box-shadow:0 0 0 1.5px rgba(0,0,0,.12)}'+
+      '.gkw-pal label:has(input:checked) i{box-shadow:0 0 0 3px var(--gk-accent,#333)}.gkw-pal label:has(input:checked){color:var(--gk-accent,#333)}'+
+      '.gkw-teks{display:flex;align-items:center;gap:10px;margin-top:12px;font:500 13px Poppins,sans-serif}'+
+      '.gkw-teks input[type=color]{width:44px;height:34px;border:0;background:none;padding:0;cursor:pointer}.gkw-teks input[type=color]:disabled{opacity:.35}';
+      document.head.appendChild(st); }
+    var lama=el.querySelector('input[name=gkwarna]')?nilai():null;
+    var bm=(opt.lang||'ms')==='ms', h='<div class="gkw-pal">';
+    Object.keys(SET).forEach(function(k,i){ var P=SET[k], nm=bm?P.nama:(P.namaEn||P.nama);
+      h+='<label><input type="radio" name="gkwarna" value="'+k+'"'+(k===(opt.asal||Object.keys(SET)[0])?' checked':'')+'><i style="background:linear-gradient(135deg,'+(P.c1||'#fff')+' 0 35%,'+P.c2+' 35% 70%,'+P.mr+' 70%)"></i><span>'+nm+'</span></label>'; });
+    h+='</div><label class="gkw-teks"><input type="checkbox" id="gkwSendiri"> <span>'+(bm?'Warna tulisan sendiri':'Custom text colour')+'</span> <input type="color" id="gkwTeks" value="'+(SET[opt.asal||Object.keys(SET)[0]].mr)+'" disabled></label>';
+    el.innerHTML=h; G.GKWarna._SET=SET; document.getElementById('gkwSendiri').onchange=function(){ document.getElementById('gkwTeks').disabled=!this.checked; };
+    el.querySelectorAll('input[name=gkwarna]').forEach(function(x){ x.addEventListener('change',function(){ el.querySelectorAll('input[name=gkwarna]').forEach(function(y){ y.dataset.sentuh=1; }); if(!document.getElementById('gkwSendiri').checked) document.getElementById('gkwTeks').value=SET[x.value].mr; if(opt.ubah) opt.ubah(x.value); }); });
+    var q=lama&&lama.warna||new URLSearchParams(location.search).get('warna'); if(q&&SET[q]){ var r=el.querySelector('input[value="'+q+'"]'); if(r) r.checked=true; }
+    if(lama&&lama.warnaTeks){ document.getElementById('gkwSendiri').checked=true; var c=document.getElementById('gkwTeks'); c.disabled=false; c.value=lama.warnaTeks; }
+    else if(q&&SET[q]) document.getElementById('gkwTeks').value=SET[q].mr; }
+  /* pilih palet dari kod (cth bila jantina bertukar) — hanya jika pengguna belum pilih sendiri */
+  function setPalet(k){ var r=document.querySelector('input[name=gkwarna][value="'+k+'"]'); if(r&&!r.dataset.sentuh){ r.checked=true; if(!document.getElementById('gkwSendiri').checked&&window.GKWarna._SET) document.getElementById('gkwTeks').value=window.GKWarna._SET[k].mr; } }
+  function nilai(){ var o={}, r=document.querySelector('input[name=gkwarna]:checked'); if(r) o.warna=r.value; var c=document.getElementById('gkwSendiri'); if(c&&c.checked) o.warnaTeks=document.getElementById('gkwTeks').value; return o; }
+
+  /* ---------- SET PALET setiap template (nama, warna swatch c2, CSS mr/mr2/g/kc/tk, pusingan gambar h/s/v) ---------- */
+  var SET={
+    songket:{ /* sumber: biru muda */
+      biru: {nama:'Biru Muda',namaEn:'Baby Blue',c2:'#a9cce3',h:null,mr:'#2f5d8a',mr2:'#6e9cc4',g:'#4f7fae',kc:'#7fa3c6',pn:[178,203,243]},
+      pink: {nama:'Pink Dusty',namaEn:'Dusty Pink',c2:'#ecbccc',h:340,s:.85,v:1,mr:'#8a3d5a',mr2:'#d48aa6',g:'#b8607f',kc:'#cf93aa',pn:[240,196,210]},
+      lilac:{nama:'Lilac',namaEn:'Lilac',c2:'#cdbdea',h:272,s:.85,v:1,mr:'#5b4785',mr2:'#a48bd0',g:'#7d64ad',kc:'#ad9bd2',pn:[214,200,240]},
+      sage: {nama:'Sage',namaEn:'Sage',c2:'#bfd2ba',h:100,s:.55,v:.97,mr:'#4a6447',mr2:'#8fa98a',g:'#62805d',kc:'#98b093',pn:[200,218,196]},
+      emas: {nama:'Champagne',namaEn:'Champagne',c2:'#e3cf9f',h:40,s:.7,v:.98,mr:'#7a5a22',mr2:'#c9a45c',g:'#a07a35',kc:'#c8ac74',pn:[236,220,186]}
+    },
+    pelamin:{ /* sumber: merah maroon (langsir & bunga ros) */
+      maroon:{nama:'Maroon',namaEn:'Maroon',c2:'#c9505f',h:null,mr:'#7a1f2c',mr2:'#9a2a3a',g:'#7a1f2c',kc:'#6b3a3a',tk:'#4a1a22'},
+      navy:  {nama:'Navy',namaEn:'Navy',c2:'#5d7fbf',h:222,s:.9,v:1.05,mr:'#1f3a6e',mr2:'#2f4f8a',g:'#1f3a6e',kc:'#3a4a6b',tk:'#1a2440'},
+      emerald:{nama:'Emerald',namaEn:'Emerald',c2:'#4f9a7a',h:155,s:.8,v:.95,mr:'#1f5e46',mr2:'#2c7a5c',g:'#1f5e46',kc:'#3a5a4a',tk:'#16362a'},
+      pink:  {nama:'Pink Dusty',namaEn:'Dusty Pink',c2:'#e7a9bd',h:342,s:.5,v:1.28,mr:'#a24a6a',mr2:'#c06a88',g:'#a24a6a',kc:'#8a5a6a',tk:'#5a2a3a'},
+      ungu:  {nama:'Ungu',namaEn:'Purple',c2:'#a77cc2',h:285,s:.75,v:1.08,mr:'#5e2f7a',mr2:'#7a4596',g:'#5e2f7a',kc:'#5a4a6b',tk:'#33204a'},
+      emas:  {nama:'Champagne',namaEn:'Champagne',c2:'#d9c08a',h:38,s:.4,v:2,mr:'#8a6a2a',mr2:'#a8843c',g:'#8a6a2a',kc:'#7a6440',tk:'#4a3a1a'}
+    },
+    impian:{ /* sumber: biru hydrangea & navy */
+      biru: {nama:'Navy & Biru',namaEn:'Navy & Blue',c2:'#8fb0e3',h:null,mr:'#1f3a7a',mr2:'#3b5ba5',g:'#e8a6bf',kc:'#dfe6f7',bg:'#0e1f5b',aks:'#d987a6',pn:[178,203,243]},
+      pink: {nama:'Pink',namaEn:'Pink',c2:'#f0b2c6',h:335,s:.72,v:1.05,mr:'#7a2f52',mr2:'#a24a72',g:'#f3c9a8',kc:'#f6e3ea',bg:'#5a1f3c',aks:'#c98a5a',pn:[243,196,214]},
+      lilac:{nama:'Lilac',namaEn:'Lilac',c2:'#c5b2ea',h:272,s:.8,v:1.05,mr:'#4b2f7a',mr2:'#6a4aa0',g:'#f0b8d0',kc:'#ece4f8',bg:'#33205a',aks:'#d987a6',pn:[214,200,240]},
+      sage: {nama:'Sage',namaEn:'Sage',c2:'#b9cfb4',h:110,s:.5,v:1,mr:'#3f5a40',mr2:'#5e7d5c',g:'#f3d9a8',kc:'#e6efe3',bg:'#2c4430',aks:'#c9a45c',pn:[200,218,196]},
+      emas: {nama:'Champagne',namaEn:'Champagne',c2:'#e8d4a6',h:36,s:.6,v:1.08,mr:'#7a5428',mr2:'#a07a45',g:'#f6dcc0',kc:'#f5ecd8',bg:'#5a3e1c',aks:'#c47a97',pn:[236,220,186]}
+    },
+    bayi:{ /* tema pastel — kulit pink diwarna semula (biru = kulit biru asal) */
+      pink: {nama:'Pink',namaEn:'Pink',c2:'#f4b6c2',h:null,u:'#f4b6c2',u2:'#e07f97',u3:'#fde8ec',t:'#6b4a55',mr:'#e07f97'},
+      biru: {nama:'Biru',namaEn:'Blue',c2:'#a9cdee',h:null,u:'#a9cdee',u2:'#5f97cc',u3:'#e6f1fb',t:'#34495e',mr:'#5f97cc'},
+      lilac:{nama:'Lilac',namaEn:'Lilac',c2:'#cdbdea',h:268,s:.9,v:1,u:'#cdbdea',u2:'#8f74c4',u3:'#f1ecfa',t:'#4e3f6b',mr:'#8f74c4'},
+      mint: {nama:'Mint',namaEn:'Mint',c2:'#b5e0cf',h:155,s:.75,v:.98,u:'#b5e0cf',u2:'#5fae8f',u3:'#e8f6f0',t:'#35574a',mr:'#5fae8f'},
+      kuning:{nama:'Kuning Peach',namaEn:'Peach',c2:'#f7d4a8',h:30,s:1.2,v:.97,u:'#f7d4a8',u2:'#e0a15f',u3:'#fdf1e2',t:'#6b5338',mr:'#e0a15f'}
+    }
+  };
+  G.GKWarna={SET:SET,pilih:pilih,css:css,warnakan:warnakan,sedia:sedia,borang:borang,nilai:nilai,setPalet:setPalet,hexRgb:hexRgb,campur:campur};
+})(window);
+</script>
 <script>
 /* ====================================================================
    KAD KAHWIN PELAMIN (pelamin) — kategori Pernikahan (buat-kad-nikah.html). Harga pelan 'kahwin' RM15 / $15.
@@ -455,7 +560,7 @@ function muatImej(){ var L=[['pel',ST.pelamin.src],['lan',ST.langsir.src],['p0',
   return Promise.all(L.map(function(x){ return new Promise(function(ok){ var im=new Image(); im.onload=function(){ IMG[x[0]]=im; ok(); }; im.onerror=ok; im.src=x[1]; }); })); }
 function lerp(a,b,u){ return a+(b-a)*u; } function ease(u){ u=Math.max(0,Math.min(1,u)); return u<.5?2*u*u:1-Math.pow(-2*u+2,2)/2; }
 function pudar(t,a,b,f){ f=f||.8; if(t<a||t>b) return 0; return Math.min(1,(t-a)/f,(b-t)/f); }
-function teksBlok(c,baris,x,y,W){ /* baris: [teks, font, warna, jarak] */ var yy=y, maks=W*(c.textAlign==='center'?.88:.6); baris.forEach(function(b){ c.font=b[1]; var lb=c.measureText(b[0]).width; if(lb>maks){ c.font=b[1].replace(/(\d+)px/,function(m,n){ return Math.floor(n*maks/lb)+'px'; }); } c.fillStyle=b[2]||'#4a1a22'; c.shadowColor='rgba(255,250,248,.95)'; c.shadowBlur=W*.025; c.fillText(b[0],x,yy); c.shadowBlur=0; yy+=b[3]; }); }
+function teksBlok(c,baris,x,y,W){ /* baris: [teks, font, warna, jarak] */ var yy=y, maks=W*(c.textAlign==='center'?.88:.6); baris.forEach(function(b){ c.font=b[1]; var lb=c.measureText(b[0]).width; if(lb>maks){ c.font=b[1].replace(/(\d+)px/,function(m,n){ return Math.floor(n*maks/lb)+'px'; }); } c.fillStyle=b[2]||PAL_A.tk; c.shadowColor='rgba(255,250,248,.95)'; c.shadowBlur=W*.025; c.fillText(b[0],x,yy); c.shadowBlur=0; yy+=b[3]; }); }
 function lukisFrame(c,t,W,H){
   var s=W/1080; c.textAlign='center'; c.textBaseline='alphabetic';
   /* kamera */
@@ -477,26 +582,26 @@ function lukisFrame(c,t,W,H){
     c.drawImage(IMG.lan,0,0,iw/2,ih,-sh,0,dw,H); c.drawImage(IMG.lan,iw/2,0,iw/2,ih,W-dw+sh,0,dw,H);
     c.restore();
     var a0=1-ease((t-2.4)/.8); if(a0>0){ c.globalAlpha=a0; c.textAlign='center';
-      c.font='600 '+Math.round(30*s)+'px "Cormorant Garamond"'; c.fillStyle='#6b3a3a'; c.fillText('W A L I M A T U L U R U S',W/2,H*.36);
-      c.font=Math.round(250*s)+'px "Pinyon Script"'; c.fillStyle='#7a1f2c'; c.fillText(monogram(),W/2,H*.5);
+      c.font='600 '+Math.round(30*s)+'px "Cormorant Garamond"'; c.fillStyle=PAL_A.kc; c.fillText('W A L I M A T U L U R U S',W/2,H*.36);
+      c.font=Math.round(250*s)+'px "Pinyon Script"'; c.fillStyle=PAL_A.mr; c.fillText(monogram(),W/2,H*.5);
       c.font=Math.round(96*s)+'px "Pinyon Script"'; c.fillText(nmP()+' & '+nmL(),W/2,H*.585);
-      c.font='600 '+Math.round(34*s)+'px "Cormorant Garamond"'; c.fillStyle='#6b3a3a'; c.fillText(tarikhPendek().toUpperCase(),W/2,H*.63); c.globalAlpha=1; } }
+      c.font='600 '+Math.round(34*s)+'px "Cormorant Garamond"'; c.fillStyle=PAL_A.kc; c.fillText(tarikhPendek().toUpperCase(),W/2,H*.63); c.globalAlpha=1; } }
   /* kelopak */
   if(t>3){ for(var i=0;i<18;i++){ var sp=.045+(i%5)*.01, ph=(i*.137)%1, y=((t-3)*sp+ph)%1.1-.05, x=((i*.29)%1)+Math.sin(t*.8+i)*.03+y*.15, im=IMG['k'+(i%6)]; if(!im) continue; var sz=W*(.035+(i%3)*.012);
     c.save(); c.translate(x*W,y*H); c.rotate(t*(.6+(i%4)*.3)+i); c.globalAlpha=.9; c.drawImage(im,-sz/2,-sz/2,sz,sz*im.height/im.width); c.restore(); } c.globalAlpha=1; }
   /* teks */
   var a;
-  if((a=pudar(t,5.5,9.8))>0){ c.globalAlpha=a; teksBlok(c,[['RAIKAN CINTA','600 '+Math.round(32*s)+'px "Cormorant Garamond"','#6b3a3a',120*s],[nmP(),Math.round(112*s)+'px "Pinyon Script"','#7a1f2c',96*s],['&',Math.round(70*s)+'px "Pinyon Script"','#7a1f2c',110*s],[nmL(),Math.round(112*s)+'px "Pinyon Script"','#7a1f2c',80*s],[tarikhPendek().toUpperCase(),'600 '+Math.round(32*s)+'px "Cormorant Garamond"','#6b3a3a',0]],W/2,H*.16,W); }
+  if((a=pudar(t,5.5,9.8))>0){ c.globalAlpha=a; teksBlok(c,[['RAIKAN CINTA','600 '+Math.round(32*s)+'px "Cormorant Garamond"',PAL_A.kc,120*s],[nmP(),Math.round(112*s)+'px "Pinyon Script"',PAL_A.mr,96*s],['&',Math.round(70*s)+'px "Pinyon Script"',PAL_A.mr,110*s],[nmL(),Math.round(112*s)+'px "Pinyon Script"',PAL_A.mr,80*s],[tarikhPendek().toUpperCase(),'600 '+Math.round(32*s)+'px "Cormorant Garamond"',PAL_A.kc,0]],W/2,H*.16,W); }
   if((a=pudar(t,10.2,15.3))>0){ c.globalAlpha=a; var f1='600 '+Math.round(29*s)+'px "Cormorant Garamond"';
-    teksBlok(c,[['بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',Math.round(64*s)+'px Amiri','#7a1f2c',72*s],[T('vJemput').toUpperCase(),f1,'#4a1a22',112*s],[nmP()+' & '+nmL(),Math.round(104*s)+'px "Pinyon Script"','#7a1f2c',70*s],[tarikhPenuh().toUpperCase(),f1,'#4a1a22',44*s],[masaJulat().toUpperCase(),f1,'#4a1a22',0]],W/2,H*.13,W); }
+    teksBlok(c,[['بِسْمِ ٱللَّٰهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ',Math.round(64*s)+'px Amiri',PAL_A.mr,72*s],[T('vJemput').toUpperCase(),f1,PAL_A.tk,112*s],[nmP()+' & '+nmL(),Math.round(104*s)+'px "Pinyon Script"',PAL_A.mr,70*s],[tarikhPenuh().toUpperCase(),f1,PAL_A.tk,44*s],[masaJulat().toUpperCase(),f1,PAL_A.tk,0]],W/2,H*.13,W); }
   c.textAlign='right';
-  if((a=pudar(t,15.8,21))>0){ c.globalAlpha=a; teksBlok(c,[[v('nP',nmP()),Math.round(86*s)+'px "Pinyon Script"','#7a1f2c',66*s],[T('puteri').toUpperCase(),'600 '+Math.round(28*s)+'px "Cormorant Garamond"','#4a1a22',52*s],[v('bapaP'),'italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"','#4a1a22',44*s],['&','italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"','#4a1a22',44*s],[v('ibuP'),'italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"','#4a1a22',0]],W*.93,H*.18,W); }
+  if((a=pudar(t,15.8,21))>0){ c.globalAlpha=a; teksBlok(c,[[v('nP',nmP()),Math.round(86*s)+'px "Pinyon Script"',PAL_A.mr,66*s],[T('puteri').toUpperCase(),'600 '+Math.round(28*s)+'px "Cormorant Garamond"',PAL_A.tk,52*s],[v('bapaP'),'italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"',PAL_A.tk,44*s],['&','italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"',PAL_A.tk,44*s],[v('ibuP'),'italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"',PAL_A.tk,0]],W*.93,H*.18,W); }
   c.textAlign='left';
-  if((a=pudar(t,21,26.2))>0){ c.globalAlpha=a; teksBlok(c,[[v('nL',nmL()),Math.round(86*s)+'px "Pinyon Script"','#7a1f2c',66*s],[T('putera').toUpperCase(),'600 '+Math.round(28*s)+'px "Cormorant Garamond"','#4a1a22',52*s],[v('bapaL'),'italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"','#4a1a22',44*s],['&','italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"','#4a1a22',44*s],[v('ibuL'),'italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"','#4a1a22',0]],W*.07,H*.18,W); }
+  if((a=pudar(t,21,26.2))>0){ c.globalAlpha=a; teksBlok(c,[[v('nL',nmL()),Math.round(86*s)+'px "Pinyon Script"',PAL_A.mr,66*s],[T('putera').toUpperCase(),'600 '+Math.round(28*s)+'px "Cormorant Garamond"',PAL_A.tk,52*s],[v('bapaL'),'italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"',PAL_A.tk,44*s],['&','italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"',PAL_A.tk,44*s],[v('ibuL'),'italic 500 '+Math.round(38*s)+'px "Cormorant Garamond"',PAL_A.tk,0]],W*.07,H*.18,W); }
   c.textAlign='center';
   if((a=pudar(t,26.4,31))>0){ c.globalAlpha=a; var f2='600 '+Math.round(34*s)+'px "Cormorant Garamond"';
-    teksBlok(c,[[T('pada'),Math.round(84*s)+'px "Pinyon Script"','#7a1f2c',62*s],[tarikhPenuh().toUpperCase(),f2,'#4a1a22',48*s],[masaJulat().toUpperCase(),f2,'#4a1a22',110*s],[T('bertempat'),Math.round(84*s)+'px "Pinyon Script"','#7a1f2c',62*s],[v('tempat').toUpperCase(),f2,'#4a1a22',46*s]].concat(v('alamat').split('\n').slice(0,2).map(function(l){ return [l,'italic 500 '+Math.round(32*s)+'px "Cormorant Garamond"','#4a1a22',40*s]; })),W/2,H*.15,W); }
-  if((a=pudar(t,31.2,99))>0){ c.globalAlpha=a; teksBlok(c,[['WALIMATULURUS','600 '+Math.round(32*s)+'px "Cormorant Garamond"','#6b3a3a',120*s],[nmP()+' & '+nmL(),Math.round(110*s)+'px "Pinyon Script"','#7a1f2c',70*s],[tarikhPenuh().toUpperCase(),'600 '+Math.round(32*s)+'px "Cormorant Garamond"','#4a1a22',0]],W/2,H*.15,W);
+    teksBlok(c,[[T('pada'),Math.round(84*s)+'px "Pinyon Script"',PAL_A.mr,62*s],[tarikhPenuh().toUpperCase(),f2,PAL_A.tk,48*s],[masaJulat().toUpperCase(),f2,PAL_A.tk,110*s],[T('bertempat'),Math.round(84*s)+'px "Pinyon Script"',PAL_A.mr,62*s],[v('tempat').toUpperCase(),f2,PAL_A.tk,46*s]].concat(v('alamat').split('\n').slice(0,2).map(function(l){ return [l,'italic 500 '+Math.round(32*s)+'px "Cormorant Garamond"',PAL_A.tk,40*s]; })),W/2,H*.15,W); }
+  if((a=pudar(t,31.2,99))>0){ c.globalAlpha=a; teksBlok(c,[['WALIMATULURUS','600 '+Math.round(32*s)+'px "Cormorant Garamond"',PAL_A.kc,120*s],[nmP()+' & '+nmL(),Math.round(110*s)+'px "Pinyon Script"',PAL_A.mr,70*s],[tarikhPenuh().toUpperCase(),'600 '+Math.round(32*s)+'px "Cormorant Garamond"',PAL_A.tk,0]],W/2,H*.15,W);
     c.font='500 '+Math.round(26*s)+'px Poppins'; c.fillStyle='rgba(74,26,34,.75)'; c.fillText('💍 giftkita.com',W/2,H*.965); }
   c.globalAlpha=1; }
 async function janaVideo(){
@@ -517,7 +622,7 @@ async function janaVideo(){
 }
 
 /* ---------- demo ---------- */
-function demoData(){ var d={template:'pelamin',pP:'Shafiqah',pL:'Ammar',nP:'Nur Shafiqah binti Razak',nL:'Mohd Ammar bin Amirul',bapaP:'Encik Razak bin Abdullah',ibuP:'Puan Fatimah binti Abdul',bapaL:'Encik Amirul bin Hassan',ibuL:'Puan Aminah binti Yusof',
+function demoData(){ var d={template:'pelamin',warna:Q.get('warna')||'maroon',pP:'Shafiqah',pL:'Ammar',nP:'Nur Shafiqah binti Razak',nL:'Mohd Ammar bin Amirul',bapaP:'Encik Razak bin Abdullah',ibuP:'Puan Fatimah binti Abdul',bapaL:'Encik Amirul bin Hassan',ibuL:'Puan Aminah binti Yusof',
   hos:'Encik Razak bin Abdullah\n&\nPuan Fatimah binti Abdul',tarikh:'2027-01-02',masa1:'11:00',masa2:'16:00',tempat:'Grandeur Beling Glasshall',alamat:'Jalan Kuang, Sungai Buloh\n47000 Selangor',
   at1:'11:00',a1:'Ketibaan tetamu & jamuan',at2:'12:30',a2:'Ketibaan pengantin',at3:'13:00',a3:'Makan beradab',at4:'16:00',a4:'Majlis bersurai',pakaian:'Pastel / tona lembut',
   bank:'Maybank',akaun:'1640 2233 4455',namaAkaun:'Nur Shafiqah binti Razak',rsvpTutup:'2026-12-20',maks:'5',
@@ -532,7 +637,13 @@ function fotoDemo(n){ var W=720,H=720,c=document.createElement('canvas'); c.widt
   return c.toDataURL('image/jpeg',.82); }
 /* ---------- muat ---------- */
 function ralat(t){ $('#muat').style.display='none'; $('#ralat').style.display='flex'; $('#ralat').innerHTML=t; }
-function mula(){ $('#muat').style.display='none'; document.documentElement.lang=lang; $('#bLang').textContent=lang==='ms'?'EN':'BM';
+/* PALET WARNA — enjin kongsi gk-warna.js. D.warna = kunci GKWarna.SET.pelamin, D.warnaTeks = warna tulisan sendiri. Langsir/bunga/pakaian merah dipusing ke warna palet. */
+var PAL_A=GKWarna.SET.pelamin.maroon;
+function sediaWarna(cb){ var P=PAL_A=GKWarna.pilih(GKWarna.SET.pelamin,D,'maroon'); GKWarna.css(P,{'--mr':'mr','--mr2':'mr2','--teks':'tk','--kc':'kc'});
+  var o={sumber:[332,16],pusat:354,sMin:.14,sMax:1.01,sLembut:.01,putar:.5}, sasar=[{obj:ST.pelamin,key:'src',mime:'image/jpeg',o:o},{obj:ST.langsir,key:'src',mime:'image/jpeg',o:o}];
+  ST.P.forEach(function(p){ sasar.push({obj:p,key:'src',o:o}); }); ST.B.forEach(function(b){ sasar.push({obj:b,key:'src',o:o}); });
+  GKWarna.sedia(sasar,P,cb); }
+function mula(){ if(!mula.siap){ mula.siap=1; return sediaWarna(mula); } $('#muat').style.display='none'; document.documentElement.lang=lang; $('#bLang').textContent=lang==='ms'?'EN':'BM';
   $('#bgP').src=ST.pelamin.src; $('#lsK').style.backgroundImage=$('#lsN').style.backgroundImage='url('+ST.langsir.src+')'; $('#latarL').style.backgroundImage=$('#sineBlur').style.backgroundImage='url('+ST.pelamin.src+')';
   var p=$('#psg').querySelectorAll('img'); p[0].src=ST.P[0].src; p[1].src=ST.P[1].src; $('#oP img').src=ST.P[2].src; $('#oL img').src=ST.P[3].src;
   susun(); sediaMuzik(); isiTeks(); lukisLaman(); ikatNav();

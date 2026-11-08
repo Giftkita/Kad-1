@@ -94,6 +94,7 @@ input[type=date],input[type=time]{width:100%;padding:10px 12px;border:1px solid 
     <div class="jan"><label><input type="radio" name="jan" value="perempuan" checked> 🎀 <span data-k="pr">Perempuan</span></label><label class="b"><input type="radio" name="jan" value="lelaki"> 🧢 <span data-k="lk">Lelaki</span></label></div>
     <label class="l" data-k="lTema">Tema album</label>
     <div class="tema"><label><input type="radio" name="tema" value="pastel" checked><i>🎀</i><span data-k="tPastel">Pastel</span><small data-k="tPastelS">pink / biru</small></label><label><input type="radio" name="tema" value="boho"><i>🌈</i><span data-k="tBoho">Boho Pelangi</span><small data-k="tNeutral">neutral</small></label><label><input type="radio" name="tema" value="vintaj"><i>📜</i><span data-k="tVintaj">Scrapbook Vintaj</span><small data-k="tNeutral2">neutral</small></label></div>
+    <label class="l" data-k="lWarna">Warna album</label><div class="hint" id="wNota" data-k="wNota" style="display:none"></div><div id="gkWarna"></div>
     <label class="l" data-k="lNama">Nama penuh bayi *</label><input type="text" id="nama" maxlength="40" placeholder="Aisyah Humaira">
     <label class="l" data-k="lPanggil">Nama panggilan</label><input type="text" id="panggil" maxlength="16" placeholder="Aisyah">
     <div class="duaKol">
@@ -126,6 +127,7 @@ input[type=date],input[type=time]{width:100%;padding:10px 12px;border:1px solid 
   </div>
 </div>
 <input type="file" id="fKulit" accept="image/*" style="display:none">
+<script src="gk-warna.js"></script>
 <script src="gk-bayar.js"></script>
 <script>
 var L={ms:{title:'Album Baby Digital | GiftKita',back:'‹ Kembali',h1:'Album Baby 👶',hs:'Album digital yang ibu bapa isi sendiri — selak macam album betul · RM30',
@@ -138,6 +140,8 @@ var L={ms:{title:'Album Baby Digital | GiftKita',back:'‹ Kembali',h1:'Album Ba
   s1:'The little one',s1h:'Just the basics — monthly photos, first moments, letters & aqiqah can be filled in inside the album after payment.',pr:'Girl',lk:'Boy',lTema:'Album theme',tPastel:'Pastel',tPastelS:'pink / blue',tBoho:'Boho Rainbow',tVintaj:'Vintage Scrapbook',tNeutral:'neutral',tNeutral2:'neutral',lNama:"Baby's full name *",lPanggil:'Nickname',lLahir:'Date of birth *',lMasa:'Time of birth',lBerat:'Birth weight',lPanjang:'Length',lHosp:'Place of birth (hospital)',lKulit:'Cover photo',
   s2:'Mum & Dad',lAyah:"Dad's name",lIbu:"Mum's name",lMaksud:'Meaning of the name (optional)',phMaksud:'e.g. Aisyah — alive, full of spirit…',s6:'Song (optional)',s6h:'Plays when the album opens. Leave empty for a "Twinkle Twinkle" music box.',lYt:'YouTube link',
   s7:'Preview & pay',s7h:'Tap preview to see the album. After payment you get 2 links: a family link & a parents edit link (log in with the phone number you enter below).',perlu:"Please fill in the baby's name & date of birth first 💗"}};
+Object.assign(L.ms,{lWarna:'Warna album',wNota:'Tema Boho & Vintaj guna warna asal tema — warna tulisan masih boleh ditukar.'});
+Object.assign(L.en,{lWarna:'Album colour',wNota:'Boho & Vintage themes keep their own colours — you can still change the text colour.'});
 var lang='ms'; try{ var _l=localStorage.getItem('gk_lang'); if(_l==='en'||_l==='ms') lang=_l; }catch(e){}
 (function(){ var q=new URLSearchParams(location.search).get('lang'); if(q==='en'||q==='ms') lang=q; })();
 function T(k){ return (L[lang]&&L[lang][k])||L.ms[k]||''; }
@@ -154,6 +158,7 @@ function collectData(){
   if(!d.panggil) d.panggil=(d.nama.split(' ')[0]||'');
   d.foto=kulit?{kulit:kulit}:{};
   d.to=d.nama; d.from=[d.ayah,d.ibu].filter(Boolean).join(' & ');
+  Object.assign(d,GKWarna.nilai()); if(d.tema&&d.tema!=='pastel') delete d.warna;
   return d;
 }
 function mountBayar(){
@@ -166,6 +171,11 @@ document.getElementById('gk-bayar').addEventListener('click',function(e){ if(e.t
 (function(){ var t=new URLSearchParams(location.search).get('tema'), x=t&&document.querySelector('input[name=tema][value="'+t+'"]'); if(x) x.checked=true;
   function kemas(){ var v=(document.querySelector('input[name=tema]:checked')||{}).value||'pastel'; document.getElementById('lihatContoh').href='contoh.html?t='+(v==='pastel'?'bayi':'bayi'+v); }
   document.querySelectorAll('input[name=tema]').forEach(function(e){ e.onchange=kemas; }); kemas(); })();
+var _pakaiW=pakai; pakai=function(){ _pakaiW(); var jl=(document.querySelector('input[name=jan]:checked')||{}).value==='lelaki';
+  GKWarna.borang('gkWarna',GKWarna.SET.bayi,{lang:lang,asal:jl?'biru':'pink'}); kemasWarna(); };
+function kemasWarna(){ var t=(document.querySelector('input[name=tema]:checked')||{}).value||'pastel', p=document.querySelector('#gkWarna .gkw-pal'); if(p) p.style.display=t==='pastel'?'':'none'; document.getElementById('wNota').style.display=t==='pastel'?'none':'block'; }
+document.querySelectorAll('input[name=tema]').forEach(function(e){ e.addEventListener('change',kemasWarna); });
+document.querySelectorAll('input[name=jan]').forEach(function(e){ e.addEventListener('change',function(){ GKWarna.setPalet(e.value==='lelaki'?'biru':'pink'); }); });
 pakai(); mountBayar();
 </script>
 <script src="gk-notis.js" defer></script>
