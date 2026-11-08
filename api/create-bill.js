@@ -101,11 +101,13 @@ async function sbPatch(path, body) {
 }
 
 // Template tertentu WAJIB guna pelan sendiri (elak bayar harga kad biasa untuk produk RM15/RM30).
-const PELAN_TPL = { pelamin: 'kahwin', impian: 'kahwin', bayi: 'bayi', bayi_sambung: 'bayi_sambung', bayi_muka: 'bayi_muka' };
+// Kad kahwin baru cukup letak card_data.jenis = 'kahwin' (tak perlu tambah nama template di sini).
+const PELAN_TPL = { pelamin: 'kahwin', impian: 'kahwin', songket: 'kahwin', bayi: 'bayi', bayi_sambung: 'bayi_sambung', bayi_muka: 'bayi_muka' };
 async function pelanSebenar(cardId, plan) {
   try {
-    const r = await sbGet(`cards?id=eq.${encodeURIComponent(cardId)}&select=tpl:card_data->>template`);
+    const r = await sbGet(`cards?id=eq.${encodeURIComponent(cardId)}&select=tpl:card_data->>template,jenis:card_data->>jenis`);
     const t = Array.isArray(r) && r[0] && r[0].tpl;
+    if (Array.isArray(r) && r[0] && r[0].jenis === 'kahwin') return 'kahwin';
     return PELAN_TPL[t] || plan;
   } catch (e) { return plan; }
 }

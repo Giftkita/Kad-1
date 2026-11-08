@@ -385,22 +385,22 @@ async function sbInsertA(table, row) { const { url, key } = SBA(); const r = awa
 
 
 // ════════════════════════════════════════════════════════════
-//  KAD KAHWIN (template 'pelamin' / 'impian') — jadual Supabase kahwin_rsvp (docs/sql-kahwin.sql)
+//  KAD KAHWIN (template 'pelamin' / 'impian' / 'songket', atau mana-mana kad dengan card_data.jenis = 'kahwin') — jadual Supabase kahwin_rsvp (docs/sql-kahwin.sql)
 // ════════════════════════════════════════════════════════════
-const KAHWIN_TPL = { pelamin: true, impian: true };
+const KAHWIN_TPL = { pelamin: true, impian: true, songket: true };
 function digit(x) { return String(x || '').replace(/\D/g, ''); }
 function telSama(a, b) { a = digit(a); b = digit(b); return a.length >= 9 && b.length >= 9 && a.slice(-9) === b.slice(-9); }
 async function kadKahwin(id) {
   if (!/^[0-9a-zA-Z-]{8,64}$/.test(String(id || ''))) return null;
-  let r = await sbGet(`cards?id=eq.${encodeURIComponent(id)}&select=id,paid,buyer_phone,tpl:card_data->>template,pP:card_data->>pP,pL:card_data->>pL,tarikh:card_data->>tarikh`);
+  let r = await sbGet(`cards?id=eq.${encodeURIComponent(id)}&select=id,paid,buyer_phone,tpl:card_data->>template,jenis:card_data->>jenis,pP:card_data->>pP,pL:card_data->>pL,tarikh:card_data->>tarikh`);
   if (!Array.isArray(r)) {   // card_data bukan json? ambil penuh
     r = await sbGet(`cards?id=eq.${encodeURIComponent(id)}&select=id,paid,buyer_phone,card_data`);
     if (!Array.isArray(r) || !r[0]) return null;
     let cd = r[0].card_data; if (typeof cd === 'string') { try { cd = JSON.parse(cd); } catch (e) { cd = {}; } }
-    r = [{ id: r[0].id, paid: r[0].paid, buyer_phone: r[0].buyer_phone, tpl: cd && cd.template, pP: cd && cd.pP, pL: cd && cd.pL, tarikh: cd && cd.tarikh }];
+    r = [{ id: r[0].id, paid: r[0].paid, buyer_phone: r[0].buyer_phone, tpl: cd && cd.template, jenis: cd && cd.jenis, pP: cd && cd.pP, pL: cd && cd.pL, tarikh: cd && cd.tarikh }];
   }
   const k = r[0];
-  if (!k || k.paid !== true || !KAHWIN_TPL[k.tpl]) return null;
+  if (!k || k.paid !== true || !(KAHWIN_TPL[k.tpl] || k.jenis === 'kahwin')) return null;
   return k;
 }
 async function kahwin(req, res) {
