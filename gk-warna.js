@@ -77,6 +77,13 @@
       sage: {nama:'Sage',namaEn:'Sage',c2:'#bfd2ba',h:100,s:.55,v:.97,mr:'#4a6447',mr2:'#8fa98a',g:'#62805d',kc:'#98b093',pn:[200,218,196]},
       emas: {nama:'Champagne',namaEn:'Champagne',c2:'#e3cf9f',h:40,s:.7,v:.98,mr:'#7a5a22',mr2:'#c9a45c',g:'#a07a35',kc:'#c8ac74',pn:[236,220,186]}
     },
+    paris:{ /* sumber: pink blush (peony & kelopak); langit senja dijaga */
+      blush:{nama:'Blush Pink',namaEn:'Blush Pink',c2:'#f4d3d7',h:null,mr:'#8a4a5a',mr2:'#c98a9a',g:'#b86d82',kc:'#b08a7a',pn:[244,211,215]},
+      lilac:{nama:'Lilac',namaEn:'Lilac',c2:'#d8c8ea',h:275,s:.85,v:1,mr:'#5b4785',mr2:'#a48bd0',g:'#7d64ad',kc:'#a597b8',pn:[220,206,240]},
+      biru: {nama:'Biru Muda',namaEn:'Baby Blue',c2:'#c6dbef',h:212,s:.8,v:1,mr:'#2f5d8a',mr2:'#6e9cc4',g:'#4f7fae',kc:'#8aa0b8',pn:[196,216,240]},
+      sage: {nama:'Sage',namaEn:'Sage',c2:'#cddcc6',h:100,s:.55,v:.98,mr:'#4a6447',mr2:'#8fa98a',g:'#62805d',kc:'#98a890',pn:[208,222,200]},
+      emas: {nama:'Champagne',namaEn:'Champagne',c2:'#ecdcb8',h:40,s:.75,v:1,mr:'#7a5a22',mr2:'#c9a45c',g:'#a07a35',kc:'#b5a080',pn:[238,224,192]}
+    },
     pelamin:{ /* sumber: merah maroon (langsir & bunga ros) */
       maroon:{nama:'Maroon',namaEn:'Maroon',c2:'#c9505f',h:null,mr:'#7a1f2c',mr2:'#9a2a3a',g:'#7a1f2c',kc:'#6b3a3a',tk:'#4a1a22'},
       navy:  {nama:'Navy',namaEn:'Navy',c2:'#5d7fbf',h:222,s:.9,v:1.05,mr:'#1f3a6e',mr2:'#2f4f8a',g:'#1f3a6e',kc:'#3a4a6b',tk:'#1a2440'},
